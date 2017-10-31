@@ -1,0 +1,17 @@
+Package: ElPiGraph.R
+Type: Package
+Title: Elastic principal graph construction
+Version: 1.0.0
+Author: Luca Albergante <luca.albergante@curie.fr>
+Maintainer: Luca Albergante <luca.albergante@curie.fr>
+Description: An R implementation of the Elastic principal graph algorithm.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+    distutils,
+    tictoc,
+    parallel,
+    irlba,
+    ggplot2
+RoxygenNote: 6.0.1

@@ -1,0 +1,1318 @@
+
+
+#' Core function to contract a principal elestic graph
+#' 
+#' The core function that takes the n m-dimensional points and construct a principal elastic graph using the
+#' grammars provided. 
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NumNodes integer, the number of nodes of the principal graph
+#' @param Lambda real, the lambda parameter used the compute the elastic energy
+#' @param Mu real, the lambda parameter used the compute the elastic energy
+#' @param verbose boolean, should debugging information be reported?
+#' @param CompileReport boolean, should a step-by-step report with various information on the
+#' contruction of the principal graph be compiled?
+#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
+#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
+#' @param GrowGrammars list of strings, the grammar to be used in the growth step
+#' @param ShrinkGrammars list of strings, the grammar to be used in the shrink step
+#' @param NodesPositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+#' in the initial step
+#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
+#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
+#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
+#' (this is done using clusterExport)
+#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
+#' @param eps real, minimal relative change in the position of the nodes to stop embedment 
+#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
+#' @param NumEdges integer, the maximum nulber of edges
+#' @param Mode integer, the energy computation mode
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
+#' Currently fork clustering only works in Linux
+#'
+#' @return
+#' @export
+#'
+#' @examples
+ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix, NodesPositions,
+                         verbose = FALSE, n.cores = 1, ClusType = "Sock", CompileReport = FALSE,
+                         ShowTimer = FALSE, ComputeMSEP = TRUE, Mode = 1,
+                         MaxNumberOfIterations = 10, eps = .01, TrimmingRadius = Inf,
+                         GrowGrammars = list(),
+                         ShrinkGrammars = list(),
+                         FastSolve = FALSE) {
+
+  if(is.list(X)){
+    warning("Data matrix must be a numeric matrix. It will be converted automatically. This can introduce inconsistencies")
+    X <- data.matrix(X)
+  }
+
+  if(!CompileReport){
+    verbose = FALSE
+  }
+
+  if(!is.null(ElasticMatrix)){
+    if(any(ElasticMatrix != t(ElasticMatrix))){
+      stop('ERROR: Elastic matrix must be square and symmetric')
+    }
+  }
+
+  if(verbose){
+    cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
+  }
+
+  UpdatedPG <- list(ElasticMatrix = ElasticMatrix, NodePositions = NodesPositions)
+
+  ReportTable <- NULL
+  ToSrink <- c(2, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+
+  SquaredX = rowSums(X^2)
+
+  # now we grow the graph up to NumNodes
+  
+  GlobalCluster <- TRUE
+  
+  if(all(class(n.cores) %in% c("numeric", "integer"))){
+    if(n.cores > 1){
+      if(ClusType == "Fork"){
+        print(paste("Creating a fork cluster with", n.cores, "nodes"))
+        cl <- parallel::makeCluster(n.cores, type="FORK")
+        GlobalCluster <- FALSE
+      } else {
+        print(paste("Creating a sock cluster with", n.cores, "nodes"))
+        cl <- parallel::makeCluster(n.cores)
+        GlobalCluster <- FALSE
+        parallel::clusterExport(cl, varlist = c("X", "SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose"), envir=environment())
+      }
+    } else {
+      print("Using a single core")
+      cl <- NULL
+    }
+  } else {
+    if(all(c("SOCKcluster", "cluster") %in% class(n.cores))){
+      print("Using a user supplied cluster. It must contains the data points in a matrix X")
+      cl <- n.cores
+      CheckX <- unlist(parallel::clusterCall(cl, function(){exists("X")}))
+      if(all(CheckX)){
+        GlobalCluster <- TRUE
+        if(ClusType != "Fork"){
+          print("Exporting the additional variables to the cluster")
+          parallel::clusterExport(cl, varlist = c("SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose"), envir=environment())
+        }
+        n.cores = length(CheckX)
+        
+      } else {
+        print("Unable to find X on the cluster. Single processor computation will be used")
+        n.cores = 1
+      }
+    }
+  }
+
+  if(nrow(UpdatedPG$NodePositions) >= NumNodes){
+    return(list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
+                ReportTable = ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                              ElasticMatrix = UpdatedPG$ElasticMatrix,  
+                                                              PartData = PartitionData(X = X,
+                                                                                        NodePositions = UpdatedPG$NodePositions,
+                                                                                        SquaredX = SquaredX,
+                                                                                        TrimmingRadius = TrimmingRadius,
+                                                                                        nCores = 1),
+                                                              ComputeMSEP = ComputeMSEP)))
+  }
+
+  StartNodes <- nrow(UpdatedPG$NodePositions)
+  
+  
+  for(i in StartNodes:(NumNodes-1)){
+    
+    nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
+
+    if(nrow(UpdatedPG$NodePositions) >= NumNodes
+        | nEdges >= NumEdges){
+      break()
+    }
+    
+    if(!verbose & ShowTimer){
+      print(paste("Nodes = ", i))
+    }
+
+    if(!verbose & !ShowTimer){
+      if(i == StartNodes){
+        cat("Nodes = ")
+      }
+      cat(i)
+      cat(" ")
+    }
+
+    if(length(GrowGrammars)>0){
+      for(k in 1:length(GrowGrammars)){
+        if(ShowTimer){
+          print("Growing")
+          tictoc::tic()
+        }
+        UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                      operationtypes = GrowGrammars[[k]],
+                                                      SquaredX = SquaredX, Mode = Mode,
+                                                      MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
+                                                      verbose = FALSE, n.cores = n.cores, EnvCl = cl, FastSolve = FastSolve)
+        if(i == 3){
+          # % this is needed to erase the star elasticity coefficient which was initially assigned to both leaf nodes,
+          # % one can erase this information after the number of nodes in the graph is > 2
+
+          inds = which(colSums(UpdatedPG$ElasticMatrix-diag(diag(UpdatedPG$ElasticMatrix))>0)==1)
+
+          UpdatedPG$ElasticMatrix[inds, inds] <- 0
+        }
+
+        if(ShowTimer){
+          tictoc::toc()
+        }
+
+      }
+    }
+
+    if(length(ShrinkGrammars)>0){
+      for(k in 1:length(ShrinkGrammars)){
+
+        if(ShowTimer){
+          print("Shrinking")
+          tictoc::tic()
+        }
+
+        UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                      operationtypes = ShrinkGrammars[[k]],
+                                                      SquaredX = SquaredX, Mode = Mode,
+                                                      MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
+                                                      verbose = FALSE, n.cores, EnvCl = cl, FastSolve = FastSolve)
+
+        if(ShowTimer){
+          tictoc::toc()
+        }
+
+      }
+    }
+
+    if(CompileReport){
+      tReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                 ElasticMatrix = UpdatedPG$ElasticMatrix, PartData = NULL,
+                                                 ComputeMSEP = ComputeMSEP)
+      FinalReport <- tReport
+      tReport <- unlist(tReport)
+      tReport[ToSrink] <- sapply(tReport[ToSrink], function(x) {
+        signif(as.numeric(x), 4)
+      })
+
+      ReportTable <- rbind(ReportTable, tReport)
+
+      if(verbose){
+        cat(ReportTable[nrow(ReportTable), ], sep = "\t")
+        cat("\n")
+      }
+    }
+
+  }
+
+  if(!verbose){
+    if(!CompileReport){
+      tReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                 ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                 PartData = PartitionData(X = X,
+                                                                           NodePositions = UpdatedPG$NodePositions,
+                                                                           SquaredX = SquaredX,
+                                                                           TrimmingRadius = TrimmingRadius,
+                                                                           nCores = 1),
+                                                 ComputeMSEP = ComputeMSEP)
+      print(is.list(tReport))
+      FinalReport <- tReport
+      tReport <- unlist(tReport)
+      tReport[ToSrink] <- sapply(tReport[ToSrink], function(x) {
+        signif(as.numeric(x), 4)
+      })
+    } else {
+      tReport <- ReportTable[nrow(ReportTable),]
+      tReport <- unlist(tReport)
+    }
+
+    cat("\n")
+    cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
+    cat(tReport, sep = "\t")
+    cat("\n")
+  }
+
+  # ReportTable <- rbind(ReportTable, tReport)
+
+  if(!GlobalCluster){
+    print("Stopping the cluster")
+    parallel::stopCluster(cl)
+  }
+
+  return(list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
+              ReportTable = ReportTable, FinalReport = FinalReport, Lambda = Lambda, Mu = Mu,
+              FastSolve = FastSolve))
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Regularize data and construct a principal elastic graph
+#' 
+#' This allow to perform basic data regularization before constructing a principla elastic graph.
+#' The function also allows plotting the results.
+#'
+#' @param Data numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NumNodes integer, the number of nodes of the principal graph
+#' @param Lambda real, the lambda parameter used the compute the elastic energy
+#' @param Mu real, the lambda parameter used the compute the elastic energy
+#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
+#' @param CenterData boolean, should data and initial node positions be centered?
+#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
+#' @param ReduceDimension integer vector, vector of principal components to retain when performing
+#' dimensionality reduction. If NULL all the components will be used
+#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
+#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
+#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
+#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+#' in the initial step
+#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
+#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
+#' @param eps real, minimal relative change in the position of the nodes to stop embedment 
+#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
+#' @param verbose boolean, should debugging information be reported?
+#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
+#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
+#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
+#' (this is done using clusterExport)
+#' @param GrowGrammars list of strings, the grammar to be used in the growth step
+#' @param ShrinkGrammars list of strings, the grammar to be used in the shrink step
+#' @param NumEdges integer, the maximum nulber of edges
+#' @param Mode integer, the energy computation mode
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
+#' Currently fork clustering only works in Linux
+#'
+#' @return
+#' @export
+#'
+#' @examples
+computeElasticPrincipalGraph <- function(Data,
+                                         NumNodes,
+                                         NumEdges = Inf,
+                                         InitNodePositions,
+                                         InitEdges,
+                                         Lambda = 0.01,
+                                         Mu = 0.1,
+                                         MaxNumberOfIterations = 100,
+                                         eps = .01,
+                                         TrimmingRadius = Inf,
+                                         Do_PCA = TRUE,
+                                         CenterData = TRUE,
+                                         ComputeMSEP = TRUE,
+                                         verbose = FALSE,
+                                         ShowTimer = FALSE,
+                                         ReduceDimension = NULL,
+                                         drawAccuracyComplexity = TRUE,
+                                         drawPCAView = TRUE,
+                                         drawEnergy = TRUE,
+                                         n.cores = 1,
+                                         ClusType = "Sock",
+                                         Mode = 1,
+                                         GrowGrammars = list(),
+                                         ShrinkGrammars = list(),
+                                         FastSolve = FALSE) {
+
+
+  if(is.null(ReduceDimension)){
+    ReduceDimension <- 1:min(dim(Data))
+  } else {
+    
+    if(!Do_PCA){
+      print("Cannot reduce dimensionality witout doing PCA.")
+      print("Dimensionality reduction will be ignored.")
+      ReduceDimension <- 1:min(dim(Data))
+    }
+    
+  }
+
+  if(CenterData){
+    DataCenters <- colMeans(Data)
+    
+    Data <- t(t(Data) - DataCenters)
+    InitNodePositions <- t(t(InitNodePositions) - DataCenters)
+  }
+
+  if(Do_PCA){
+    
+    print("Performing PCA on the data")
+    
+    ExpVariance <- sum(apply(Data, 2, var))
+    
+    if(length(ReduceDimension) == 1){
+      if(ReduceDimension < 1){
+        print("Dimensionality reduction via ratio of explained variance (full PCA will be computed)")
+        PCAData <- prcomp(Data, retx = TRUE, center = FALSE, scale. = FALSE)
+        
+        ReduceDimension <- 1:min(which(cumsum(PCAData$sdev^2)/ExpVariance >= ReduceDimension))
+      } else {
+        stop("if ReduceDimension is a single value it must be < 1")
+      }
+      
+    } else {
+      
+      if(max(ReduceDimension) > min(dim(Data))){
+        print("Selected dimensions are outside of the available range. ReduceDimension will be updated")
+        ReduceDimension <- intersect(ReduceDimension, 1:min(dim(Data)))
+      }
+      
+      if(max(ReduceDimension) > min(dim(Data))*.75){
+        print("Using standard PCA")
+        PCAData <- prcomp(Data, retx = TRUE, center = FALSE, scale. = FALSE)
+      } else {
+        print("Using irlba PCA")
+        PCAData <- suppressWarnings(irlba::prcomp_irlba(Data, max(ReduceDimension), retx = TRUE, center = FALSE, scale. = FALSE))
+      }
+    }
+
+    ReduceDimension <- ReduceDimension[ReduceDimension <= ncol(PCAData$x)]
+
+    perc <- 100*sum(PCAData$sdev[ReduceDimension]^2)/ExpVariance
+    print(paste(length(ReduceDimension), "dimensions are being used"))
+    print(paste0(signif(perc), "% of the original variance has been retained"))
+
+    X <- PCAData$x[,ReduceDimension]
+    InitNodePositions <- (InitNodePositions %*% PCAData$rotation)[,ReduceDimension]
+
+  } else {
+    X = Data
+  }
+
+  if(Do_PCA | CenterData){
+    if(all(c("SOCKcluster", "cluster") %in% class(n.cores)) & ClusType != "Fork"){
+      print("Using a user supplied cluster. Updating the value of X")
+      parallel::clusterExport(n.cores, varlist = c("X"), envir=environment())
+    }
+  }
+  
+  InitElasticMatrix = Encode2ElasticMatrix(Edges = InitEdges, Lambdas = Lambda, Mus = Mu)
+
+  # Computing the graph
+
+  print(paste("Computing EPG with", NumNodes, "nodes on", nrow(X), "points and", ncol(X), "dimensions"))
+  
+  tictoc::tic()
+  ElData <- ElPrincGraph(X = X, NumNodes = NumNodes, NumEdges = NumEdges, Lambda = Lambda, Mu = Mu,
+                         MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
+                         NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix,
+                         CompileReport = TRUE, ShowTimer = ShowTimer, Mode = Mode,
+                         GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
+                         ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
+                         verbose = verbose, FastSolve = FastSolve)
+  tictoc::toc()
+
+  NodePositions <- ElData$NodePositions
+  Edges <- DecodeElasticMatrix(ElData$ElasticMatrix)
+
+  if(drawEnergy){
+    print(plotMSDEnergyPlot(ReportTable = ElData$ReportTable))
+  }
+
+  if(drawAccuracyComplexity){
+    print(accuracyComplexityPlot(ReportTable = ElData$ReportTable))
+  }
+
+  if(Do_PCA){
+    NodePositions <- NodePositions %*% t(PCAData$rotation)
+  }
+
+  FinalPG <- list(NodePositions = NodePositions, Edges = Edges, ReportTable = ElData$ReportTable,
+                  FinalReport = ElData$FinalReport, ElasticMatrix = ElData$ElasticMatrix,
+                  Lambda = ElData$Lambda, Mu = ElData$Mu, FastSolve = ElData$FastSolve)
+  
+  if(drawPCAView){
+    
+    p <- PlotPG(X = Data, TargetPG = FinalPG)
+    print(p)
+    
+  }
+  
+  if(CenterData){
+    NodePositions <- t(t(NodePositions) + DataCenters)
+  }
+
+  FinalPG$NodePositions <- NodePositions
+  
+  return(FinalPG)
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Conscruct a princial elastic circle
+#'
+#' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
+#' when constructing a circle
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NumNodes integer, the number of nodes of the principal graph
+#' @param Lambda real, the lambda parameter used the compute the elastic energy
+#' @param Mu real, the lambda parameter used the compute the elastic energy
+#' @param InitNodes integer, number of points to include in the initial graph
+#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
+#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
+#' @param eps real, minimal relative change in the position of the nodes to stop embedment 
+#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
+#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+#' in the initial step
+#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
+#' @param CenterData boolean, should data and initial node positions be centered?
+#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
+#' @param verbose boolean, should debugging information be reported?
+#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
+#' @param ReduceDimension integer vector, vector of principal components to retain when performing
+#' dimensionality reduction. If NULL all the components will be used
+#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
+#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
+#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
+#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
+#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
+#' (this is done using clusterExport)
+#' @param nReps integer, number of replica of the construction 
+#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
+#' @param NumEdges integer, the maximum nulber of edges
+#' @param Mode integer, the energy computation mode
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
+#' Currently fork clustering only works in Linux
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+#' Elastic circle with different parameters
+#' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE)
+#' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE, Mu = 1, Lambda = .001)
+#' 
+#' Bootstrapping the construction of the circle
+#' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40, InitNodes = 3,
+#' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
+#' verbose = FALSE, nReps = 50, ProbPoint = .8)
+#' 
+#' PlotPG(X = circle_data, TargetPG = PG[[length(PG)]], BootPG = PG[1:(length(PG)-1)])
+#' 
+computeElasticPrincipalCircle <- function(X,
+                                          NumNodes,
+                                          InitNodes = 3,
+                                          NumEdges = Inf,
+                                          Lambda = 0.01,
+                                          Mu = 0.1,
+                                          MaxNumberOfIterations = 10,
+                                          TrimmingRadius = Inf,
+                                          eps = .01,
+                                          Do_PCA = TRUE,
+                                          InitNodePositions = NULL,
+                                          InitEdges = NULL,
+                                          CenterData = TRUE,
+                                          ComputeMSEP = TRUE,
+                                          verbose = FALSE,
+                                          ShowTimer = FALSE,
+                                          ReduceDimension = NULL,
+                                          drawAccuracyComplexity = TRUE,
+                                          drawPCAView = TRUE,
+                                          drawEnergy = TRUE,
+                                          n.cores = 1,
+                                          ClusType = "Sock",
+                                          nReps = 1,
+                                          Subsets = list(),
+                                          ProbPoint = 1,
+                                          Mode = 1,
+                                          FastSolve = FALSE) {
+  
+  if(all(c("SOCKcluster", "cluster") %in% class(n.cores)) & ClusType != "Fork" & length(Subsets) > 0){
+    stop("Impossible to use Subsetting with a user supplied cluster not produced by forking")
+  }
+  
+  
+  LocalCluster <- FALSE
+  
+  if(all(class(n.cores) %in% c("numeric", "integer"))){
+    if(n.cores > 1){
+      if(ClusType == "Fork"){
+        print(paste("Creating a fork cluster with", n.cores, "nodes"))
+        cl <- parallel::makeCluster(n.cores, type="FORK")
+      } else {
+        print(paste("Creating a sock cluster with", n.cores, "nodes"))
+        cl <- parallel::makeCluster(n.cores)
+        parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+      }
+    } else {
+      print("Using a single core")
+      cl = 1
+    }
+  } else {
+    if(all(c("SOCKcluster", "cluster") %in% class(n.cores)) & ClusType != "Fork"){
+      print("Using a user supplied non-fork cluster. It must contains the data points in a matrix X")
+      cl <- n.cores
+      CheckX <- unlist(parallel::clusterCall(cl, function(){exists("X")}))
+      if(!all(CheckX)){
+        print("Unable to find X on the cluster. Single processor computation will be used")
+        cl = 1
+      }
+    }
+  }
+  
+  
+  if(length(Subsets) == 0){
+    Subsets[[1]] <- 1:ncol(X)
+  }
+  
+  ReturnList <- list()
+  
+  Base_X <- X
+  
+  for(j in 1:length(Subsets)){
+    
+    X <- Base_X[, Subsets[[j]]]
+    
+    if(LocalCluster & ClusType != "Fork"){
+      parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+    }
+    
+    if(is.null(InitNodePositions) | is.null(InitEdges)){
+      
+      if(InitNodes<3){
+        stop("InitNodes must be larger than 2")
+      }
+      
+      InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = "Circle")
+      InitEdges <- InitialConf$Edges
+      
+      EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+      
+      InitNodePositions <- PrimitiveElasticGraphEmbedment(
+        X = X, NodePositions = InitialConf$NodePositions,
+        MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+        ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+    }
+    
+    Intermediate.drawPCAView <- drawPCAView
+    Intermediate.drawAccuracyComplexity <- drawAccuracyComplexity 
+    Intermediate.drawEnergy <- drawEnergy
+    
+    for(i in 1:nReps){
+      
+      if(length(ReturnList) == 3){
+        print("Graphical output will be suppressed for the remaining replicas")
+        Intermediate.drawPCAView <- FALSE
+        Intermediate.drawAccuracyComplexity <- FALSE 
+        Intermediate.drawEnergy <- FALSE
+      }
+      
+      print(paste("Constructing curve", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = X[runif(nrow(X)) <= ProbPoint, ], NumNodes = NumNodes, NumEdges = NumEdges,
+                                                                         GrowGrammars = list('bisectedge'), ShrinkGrammars = list(),
+                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                                         verbose = verbose, ShowTimer = ShowTimer,
+                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
+                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                                         drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
+                                                                         n.cores = cl, FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      
+    }
+    
+    if(nReps>1){
+      
+      print("Constructing average tree")
+      
+      AllPoints <- do.call(rbind, lapply(ReturnList[sapply(ReturnList, "[[", "SubSetID") == j], "[[", "NodePositions"))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = AllPoints, NumNodes = NumNodes, NumEdges = NumEdges,
+                                                                         GrowGrammars = list('bisectedge'), ShrinkGrammars = list(),
+                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                                         verbose = verbose, ShowTimer = ShowTimer,
+                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
+                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                                         drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
+                                                                         n.cores = cl, FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      
+    }
+    
+  }
+  
+  if(LocalCluster){
+    parallel::stopCluster(cl)
+  }
+  
+  return(ReturnList)
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Conscruct a princial elastic tree
+#'
+#' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
+#' when constructing a tree
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NumNodes integer, the number of nodes of the principal graph
+#' @param Lambda real, the lambda parameter used the compute the elastic energy
+#' @param Mu real, the lambda parameter used the compute the elastic energy
+#' @param InitNodes integer, number of points to include in the initial graph
+#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
+#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
+#' @param eps real, minimal relative change in the position of the nodes to stop embedment 
+#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
+#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+#' in the initial step
+#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
+#' @param CenterData boolean, should data and initial node positions be centered?
+#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
+#' @param verbose boolean, should debugging information be reported?
+#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
+#' @param ReduceDimension integer vector, vector of principal components to retain when performing
+#' dimensionality reduction. If NULL all the components will be used
+#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
+#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
+#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
+#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
+#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
+#' (this is done using clusterExport)
+#' @param nReps integer, number of replica of the construction 
+#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
+#' @param NumEdges integer, the maximum nulber of edges
+#' @param Mode integer, the energy computation mode
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
+#' Currently fork clustering only works in Linux
+#' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
+#' principal tree.
+#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
+#'
+#' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
+#' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
+#' fitting the coordinates of the nodes of the reconstructed trees
+#' @export 
+#'
+#' @examples
+#' 
+#' Elastic trees with different parameters
+#' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE)
+#' 
+#' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
+#' 
+#' 
+#' Bootstrapping the construction of the tree
+#' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 40, InitNodes = 2,
+#' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
+#' verbose = FALSE, nReps = 25, ProbPoint = .9)
+#' 
+#' PlotPG(X = tree_data, TargetPG = PG[[length(PG)]], BootPG = PG[1:(length(PG)-1)])
+#' 
+computeElasticPrincipalTree <- function(X,
+                                        NumNodes,
+                                        NumEdges = Inf,
+                                        InitNodes = 2,
+                                        Lambda = 0.01,
+                                        Mu = 0.1,
+                                        MaxNumberOfIterations = 10,
+                                        TrimmingRadius = Inf,
+                                        eps = .01,
+                                        Do_PCA = TRUE,
+                                        InitNodePositions = NULL,
+                                        InitEdges = NULL,
+                                        CenterData = TRUE,
+                                        ComputeMSEP = TRUE,
+                                        verbose = FALSE,
+                                        ShowTimer = FALSE,
+                                        ReduceDimension = NULL,
+                                        drawAccuracyComplexity = TRUE,
+                                        drawPCAView = TRUE,
+                                        drawEnergy = TRUE,
+                                        n.cores = 1,
+                                        ClusType = "Sock",
+                                        nReps = 1,
+                                        Subsets = list(),
+                                        ProbPoint = 1,
+                                        Mode = 1,
+                                        FastSolve = FALSE,
+                                        ICOver = NULL,
+                                        DensityRadius = NULL) {
+  
+  if(n.cores > 1){
+    if(ClusType == "Fork"){
+      print(paste("Creating a fork cluster with", n.cores, "nodes"))
+      cl <- parallel::makeCluster(n.cores, type="FORK")
+    } else {
+      print(paste("Creating a sock cluster with", n.cores, "nodes"))
+      cl <- parallel::makeCluster(n.cores)
+      parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+    }
+  } else {
+    cl = 1
+  }
+  
+  if(length(Subsets) == 0){
+    Subsets[[1]] <- 1:ncol(X)
+  }
+  
+  ReturnList <- list()
+  
+  Base_X <- X
+  
+  for(j in 1:length(Subsets)){
+    
+    X <- Base_X[, Subsets[[j]]]
+    
+    if(n.cores > 1 & ClusType != "Fork"){
+      parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+    }
+    
+    if(is.null(InitNodePositions) | is.null(InitEdges)){
+      if(is.null(ICOver)){
+        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = "Line")
+      } else {
+        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
+      }
+      
+      InitEdges <- InitialConf$Edges
+      
+      EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+      
+      InitNodePositions <- PrimitiveElasticGraphEmbedment(
+        X = X, NodePositions = InitialConf$NodePositions,
+        MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+        ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+    }
+    
+    Intermediate.drawPCAView <- drawPCAView
+    Intermediate.drawAccuracyComplexity <- drawAccuracyComplexity 
+    Intermediate.drawEnergy <- drawEnergy
+    
+    # print(Subsets[[j]])
+    # print(Subsets[[j]] %in% colnames(Base_X))
+    # print(dim(Base_X))
+    
+   
+    
+    for(i in 1:nReps){
+      
+      if(length(ReturnList) == 3){
+        print("Graphical output will be suppressed for the remaining replicas")
+        Intermediate.drawPCAView <- FALSE
+        Intermediate.drawAccuracyComplexity <- FALSE 
+        Intermediate.drawEnergy <- FALSE
+      }
+      
+      print(paste("Constructing tree", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = X[runif(nrow(X)) <= ProbPoint, ], NumNodes = NumNodes, NumEdges = NumEdges,
+                                                      InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                      GrowGrammars = list(c('bisectedge','addnode2node'),c('bisectedge','addnode2node')),
+                                                      ShrinkGrammars = list(c('shrinkedge','removenode')),
+                                                      MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                      Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                      CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                      verbose = verbose, ShowTimer = ShowTimer,
+                                                      ReduceDimension = ReduceDimension, Mode = Mode,
+                                                      drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                      drawPCAView = Intermediate.drawPCAView,
+                                                      drawEnergy = Intermediate.drawEnergy,
+                                                      n.cores = cl, ClusType = ClusType,
+                                                      FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      
+    }
+    
+    if(nReps>1){
+      
+      print("Constructing average tree")
+      
+      AllPoints <- do.call(rbind, lapply(ReturnList[sapply(ReturnList, "[[", "SubSetID") == j], "[[", "NodePositions"))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = AllPoints, NumNodes = NumNodes, NumEdges = NumEdges,
+                                                            InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                            GrowGrammars = list(c('bisectedge','addnode2node'),c('bisectedge','addnode2node')),
+                                                            ShrinkGrammars = list(c('shrinkedge','removenode')),
+                                                            MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                            Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                            CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                            verbose = verbose, ShowTimer = ShowTimer,
+                                                            ReduceDimension = ReduceDimension, Mode = Mode,
+                                                            drawAccuracyComplexity = drawAccuracyComplexity,
+                                                            drawPCAView = drawPCAView, drawEnergy = drawEnergy,
+                                                            n.cores = cl, FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      
+    }
+    
+  }
+  
+  if(n.cores > 1){
+    parallel::stopCluster(cl)
+  }
+  
+  return(ReturnList)
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Conscruct a princial elastic curve
+#'
+#' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
+#' when constructing a curve
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NumNodes integer, the number of nodes of the principal graph
+#' @param Lambda real, the lambda parameter used the compute the elastic energy
+#' @param Mu real, the lambda parameter used the compute the elastic energy
+#' @param InitNodes integer, number of points to include in the initial graph
+#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
+#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
+#' @param eps real, minimal relative change in the position of the nodes to stop embedment 
+#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
+#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+#' in the initial step
+#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
+#' @param CenterData boolean, should data and initial node positions be centered?
+#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
+#' @param verbose boolean, should debugging information be reported?
+#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
+#' @param ReduceDimension integer vector, vector of principal components to retain when performing
+#' dimensionality reduction. If NULL all the components will be used
+#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
+#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
+#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
+#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
+#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
+#' (this is done using clusterExport)
+#' @param nReps integer, number of replica of the construction 
+#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
+#' @param NumEdges integer, the maximum nulber of edges
+#' @param Mode integer, the energy computation mode
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
+#' Currently fork clustering only works in Linux
+#' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
+#' principal tree.
+#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
+#'
+#' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
+#' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
+#' fitting the coordinates of the nodes of the reconstructed curve
+#' @export
+#'
+#' @examples
+#' 
+#' Elastic curve with different parameters
+#' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
+#' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
+#' 
+#' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 30, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
+#' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
+#' 
+#' 
+#' Bootstrapping the construction of the curve
+#' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 40, InitNodes = 2,
+#' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
+#' verbose = FALSE, nReps = 50, ProbPoint = .8)
+#' 
+#' PlotPG(X = tree_data, TargetPG = PG[[length(PG)]], BootPG = PG[1:(length(PG)-1)])
+#' 
+computeElasticPrincipalCurve <- function(X,
+                                         NumNodes,
+                                         NumEdges = Inf,
+                                         InitNodes = 3,
+                                         Lambda = 0.01,
+                                         Mu = 0.1,
+                                         MaxNumberOfIterations = 10,
+                                         TrimmingRadius = Inf,
+                                         eps = .01,
+                                         Do_PCA = TRUE,
+                                         InitNodePositions = NULL,
+                                         InitEdges = NULL,
+                                         CenterData = TRUE,
+                                         ComputeMSEP = TRUE,
+                                         verbose = FALSE,
+                                         ShowTimer = FALSE,
+                                         ReduceDimension = NULL,
+                                         drawAccuracyComplexity = TRUE,
+                                         drawPCAView = TRUE,
+                                         drawEnergy = TRUE,
+                                         n.cores = 1,
+                                         ClusType = "Fork",
+                                         nReps = 1,
+                                         Subsets = list(),
+                                         ProbPoint = 1,
+                                         Mode = 1,
+                                         FastSolve = FALSE,
+                                         ICOver = NULL,
+                                         DensityRadius = NULL) {
+  
+  if(n.cores > 1){
+    if(ClusType == "Fork"){
+      print(paste("Creating a fork cluster with", n.cores, "nodes"))
+      cl <- parallel::makeCluster(n.cores, type="FORK")
+    } else {
+      print(paste("Creating a sock cluster with", n.cores, "nodes"))
+      cl <- parallel::makeCluster(n.cores)
+      parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+    }
+  } else {
+    cl = 1
+  }
+  
+  if(length(Subsets) == 0){
+    Subsets[[1]] <- 1:ncol(X)
+  }
+  
+  ReturnList <- list()
+  
+  Base_X <- X
+  
+  for(j in 1:length(Subsets)){
+    
+    X <- Base_X[, Subsets[[j]]]
+    
+    if(n.cores > 1 & ClusType != "Fork"){
+      parallel::clusterExport(cl, varlist = c("X"), envir=environment())
+    }
+    
+    if(is.null(InitNodePositions) | is.null(InitEdges)){
+      if(is.null(ICOver)){
+        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = "Line")
+      } else {
+        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
+      }
+      InitEdges <- InitialConf$Edges
+      
+      EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+      
+      InitNodePositions <- PrimitiveElasticGraphEmbedment(
+        X = X, NodePositions = InitialConf$NodePositions,
+        MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+        ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+    }
+    
+    Intermediate.drawPCAView <- drawPCAView
+    Intermediate.drawAccuracyComplexity <- drawAccuracyComplexity 
+    Intermediate.drawEnergy <- drawEnergy
+    
+    for(i in 1:nReps){
+      
+      if(length(ReturnList) == 3){
+        print("Graphical output will be suppressed for the remaining replicas")
+        Intermediate.drawPCAView <- FALSE
+        Intermediate.drawAccuracyComplexity <- FALSE 
+        Intermediate.drawEnergy <- FALSE
+      }
+      
+      print(paste("Constructing curve", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = X[runif(nrow(X)) <= ProbPoint, ], NumNodes = NumNodes, NumEdges = NumEdges,
+                                                                         GrowGrammars = list('bisectedge'), ShrinkGrammars = list(),
+                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                                         verbose = verbose, ShowTimer = ShowTimer,
+                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
+                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                                         drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
+                                                                         n.cores = cl, FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      
+    }
+    
+    if(nReps>1){
+      
+      print("Constructing average tree")
+      
+      AllPoints <- do.call(rbind, lapply(ReturnList[sapply(ReturnList, "[[", "SubSetID") == j], "[[", "NodePositions"))
+      
+      ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = AllPoints, NumNodes = NumNodes, NumEdges = NumEdges,
+                                                                         GrowGrammars = list('bisectedge'), ShrinkGrammars = list(),
+                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges,
+                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                                         verbose = verbose, ShowTimer = ShowTimer,
+                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
+                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                                         drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
+                                                                         n.cores = n.cores, FastSolve = FastSolve)
+      
+      ReturnList[[length(ReturnList)]]$SubSetID <- j
+      ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      
+    }
+    
+  }
+  
+  if(n.cores > 1){
+    parallel::stopCluster(cl)
+  }
+  
+  return(ReturnList)
+  
+}
+
+
+
+
+
+#' Produce an initial graph with a given structure
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param Configuration string, type of graph to return. It can be "Line", "Circle", or "Density"
+#' @param Nodes integer, number of nodes of the graph
+#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when Configuration is equal to "Density"
+#' @param MaxPoints integer, the maximum number of points for which the local density will be estimated. If the number of data points is
+#' larger than MaxPoints, a subset of the original points will be sampled
+#'
+#' @return
+#' @export
+#'
+#' @examples
+generateInitialConfiguration <- function(X, Nodes, Configuration = "Line", DensityRadius = NULL, MaxPoints = 25000){
+  
+  DONE <- FALSE
+  
+  if(Configuration == "Line"){
+    
+    # Chain of nodes along the first principal component direction
+    print(paste("Creating a chain in the 1st PC with", Nodes, "nodes"))
+    
+    PCA <- suppressWarnings(irlba::prcomp_irlba(x = X, n = 1, center = TRUE, scale. = FALSE, retx = TRUE))
+    
+    # Creating nodes
+    mn <- mean(PCA$x)
+    st <- sd(PCA$x)
+    NodePositions = t(t(seq(from=mn-st, to = mn+st, length.out = Nodes) %*% t(PCA$rotation)) + PCA$center)
+    
+    # Creating edges
+    edges = matrix(c(1,2), nrow = nrow(NodePositions) - 1, ncol = 2, byrow = TRUE)
+    edges <- edges + 0:(nrow(edges)-1)
+    
+    DONE <- TRUE
+    
+  }
+  
+  if(Configuration == "Circle"){
+    
+    # Chain of nodes along the first principal component direction
+    print(paste("Creating a circle in the plane induced buy the 1st and 2nd PCs with", Nodes, "nodes"))
+    
+    PCA <- suppressWarnings(irlba::prcomp_irlba(x = X, n = 2, center = TRUE, scale. = FALSE, retx = TRUE))
+    
+    Nodes_X <- cos(seq(from = 0, to = 2*pi, length.out = Nodes + 1))*sd(PCA$x[,1])
+    Nodes_Y <- sin(seq(from = 0, to = 2*pi, length.out = Nodes + 1))*sd(PCA$x[,2])
+    
+    NodePositions <- t(t(cbind(Nodes_X[-1], Nodes_Y[-1]) %*% t(PCA$rotation)) + PCA$center)
+    
+    edges <- matrix(c(1,2), nrow = nrow(NodePositions) - 1, ncol = 2, byrow = TRUE)
+    edges <- edges + 0:(nrow(edges)-1)
+    edges <- rbind(edges, c(Nodes, 1))
+    
+    DONE <- TRUE
+    
+  }
+  
+  if(Configuration == "Random"){
+    
+    # Starting from Random Points in the data
+    print("Creating a line between two random points of the data")
+    
+    NodePositions = X[sample(1:nrow(X), 2),]
+    
+    # Creating edges
+    edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+    
+    DONE <- TRUE
+    
+  }
+  
+  if(Configuration == "Density"){
+    
+    if(is.null(DensityRadius)){
+      stop("DensityRadius need to be be specified for density-dependent inizialization!")
+    }
+    
+    # Starting from Random Points in the data
+    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    
+    if(nrow(X) > MaxPoints){
+      
+      print(paste("Too many points, a subset"))
+      
+      SampedIdxs <- sample(1:nrow(X), MaxPoints)
+      
+      PartStruct <- distutils::PartialDistance(X[SampedIdxs, ], X[SampedIdxs, ])
+      PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
+      IdMax <- which.max(PointsInNei)
+      
+      NodePositions <- X[SampedIdxs[sample(which(PartStruct[IdMax, ] < DensityRadius), 2)], ]
+      
+      # Creating edges
+      edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+      
+      DONE <- TRUE
+    } else {
+      PartStruct <- distutils::PartialDistance(X, X)
+      PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
+      
+      if(max(PointsInNei) < 2){
+        stop("Too small DensityRadius!!")
+      }
+      
+      IdMax <- which.max(PointsInNei)
+      
+      NodePositions <- X[sample(which(PartStruct[IdMax, ] < DensityRadius), 2), ]
+      
+      # Creating edges
+      edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+      
+      DONE <- TRUE
+    }
+    
+  }
+  
+  
+  if(DONE){
+    return(list(NodePositions = NodePositions, Edges = edges))
+  } else {
+    stop("Unsupported configuration!")
+  }
+  
+}
+
+
+
+# 
+# 
+# 
+# 
