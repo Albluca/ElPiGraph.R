@@ -8,7 +8,7 @@ November 2017
 
 This package provides an R implementation of the ElPiGraph algorithm. A self-contained description of the algorithm is available [here](https://github.com/auranic/Elastic-principal-graphs/blob/master/ElPiGraph_Methods.pdf)
 
-A native MATLAB implementation of the algorithm (coded by Andrei Zinovyev) is also [available](https://github.com/auranic/Elastic-principal-graphs)
+A native MATLAB implementation of the algorithm (coded by [Andrei Zinovyev]() and [Evgeny Mirkes](https://github.com/Mirkes)) is also [available](https://github.com/auranic/Elastic-principal-graphs)
 
 # Installation
 
