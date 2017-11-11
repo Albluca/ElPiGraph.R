@@ -4,7 +4,7 @@
 \alias{getPseudotime}
 \title{Ex}
 \usage{
-getPseudotime(X, Edges, ProjStruct, EdgeSeq)
+getPseudotime(Edges, ProjStruct, EdgeSeq)
 }
 \arguments{
 \item{EdgeSeq}{}

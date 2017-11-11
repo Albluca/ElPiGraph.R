@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{PlotPG}
 \alias{PlotPG}
-\title{Plot data and principal graph}
+\title{Plot data and principal graph(s)}
 \usage{
 PlotPG(X, TargetPG, BootPG = NULL, PGCol = "EPG",
   PlotProjections = "none", GroupsLab = NULL, PointViz = "points",
@@ -22,7 +22,8 @@ PlotPG(X, TargetPG, BootPG = NULL, PGCol = "EPG",
 It can be "none" (no projections will be plotted), "onNodes" (the projections will indicate how points are associated to nodes),
 and "onEdges" (the projections will indicate how points are projected on edges or nodes of the graph)}
 
-\item{GroupsLab}{string factor, a vector indicating the category of each data point}
+\item{GroupsLab}{factor or numeric vector. A vector indicating either a category or a numeric value associted with
+each data point}
 
 \item{PointViz}{}
 
@@ -43,5 +44,5 @@ rotate the space? If TRUE the plots will use the "EpG PC" as dimensions, if FALS
 combination will be considered, so, for example, if DimToPlot = 1:3, three plot will be produced.}
 }
 \description{
-Plot data and principal graph
+Plot data and principal graph(s)
 }
