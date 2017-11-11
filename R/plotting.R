@@ -292,7 +292,8 @@ plotPieNet <- function(X,
 #' @param PlotProjections string, the plotting mode for the node projection on the principal graph.
 #' It can be "none" (no projections will be plotted), "onNodes" (the projections will indicate how points are associated to nodes),
 #' and "onEdges" (the projections will indicate how points are projected on edges or nodes of the graph)
-#' @param GroupsLab string factor, a vector indicating the category of each data point
+#' @param GroupsLab factor or numeric vector. A vector indicating either a category or a numeric value associted with
+#' each data point
 #' @param PointViz 
 #' @param Main string, the title of the plot
 #' @param p.alpha numeric between 0 and 1, the alpha value of the points. Lower values will prodeuce more transparet points
@@ -308,10 +309,19 @@ plotPieNet <- function(X,
 #' @export
 #'
 #' @examples
-PlotPG <- function(X, TargetPG, BootPG = NULL, PGCol = "EPG", PlotProjections = "none",
-                   GroupsLab = NULL, PointViz = "points", Main = '', p.alpha = .3,
-                   PointSize = NULL, NodeLabels = NULL, LabMult = 1,
-                   Do_PCA = TRUE, DimToPlot = c(1,2)) {
+PlotPG <- function(X,
+                   TargetPG,
+                   BootPG = NULL,
+                   PGCol = "EPG",
+                   PlotProjections = "none",
+                   GroupsLab = NULL,
+                   PointViz = "points",
+                   Main = '', p.alpha = .3,
+                   PointSize = NULL,
+                   NodeLabels = NULL,
+                   LabMult = 1,
+                   Do_PCA = TRUE,
+                   DimToPlot = c(1,2)) {
   
   if(is.null(GroupsLab)){
     GroupsLab = factor(rep("N/A", nrow(X)))
