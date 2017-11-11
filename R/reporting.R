@@ -1,6 +1,5 @@
 #' Ex
 #'
-#' @param X
 #' @param Edges
 #' @param ProjStruct
 #' @param EdgeSeq
@@ -9,9 +8,9 @@
 #' @export
 #'
 #' @examples
-getPseudotime <- function(X, Edges, ProjStruct, EdgeSeq){
+getPseudotime <- function(Edges, ProjStruct, EdgeSeq){
 
-  Pt <- rep(NA, nrow(X))
+  Pt <- rep(NA, nrow(ProjStruct$X_projected))
   tLen <- 0
   NodePos <- 0
 
@@ -94,6 +93,117 @@ getPrimitiveGraphStructureBarCode <- function(ElasticMatrix) {
 
   return(barcode)
 }
+
+
+
+
+
+
+#' Title
+#'
+#' @param ExpData 
+#' @param Paths 
+#' @param TargetPG 
+#' @param Partition 
+#' @param PrjStr 
+#' @param Main 
+#' @param genes 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+CompareExpOnBranches <- function(ExpData,
+                                 Paths,
+                                 TargetPG,
+                                 Partition,
+                                 PrjStr,
+                                 Main = "",
+                                 genes = 4) {
+  
+  CombDF <- NULL
+  
+  # ExpData <- AllData_ST12_Early_somitic_muscle
+  
+  
+  if(is.numeric(genes)){
+    
+    GenesByVar <- apply(ExpData, 1, var)
+    
+    if(length(GenesByVar) <= genes){
+      genes = length(GenesByVar)
+    }
+    
+    genes <- names(GenesByVar[order(GenesByVar, decreasing = TRUE)])[1:genes]
+    
+  }
+  
+  tExpData <- ExpData[genes, ]
+  
+  for(i in 1:length(Paths)){
+    PtOnPath <- getPseudotime(Edges = TargetPG$Edges$Edges,
+                              ProjStruct = PrjStr, EdgeSeq = Paths[[i]])
+    
+    PtVect <- PtOnPath$Pt
+    names(PtVect) <- colnames(tExpData)
+    MetlExp <- reshape::melt(t(tExpData))
+    
+    CombDF <- rbind(
+      CombDF, data.frame(Pt = PtVect[as.character(MetlExp$X1)],
+                         gene = MetlExp$X2, exp = MetlExp$value,
+                         traj = i)
+    )
+    
+  }
+  
+  CombDF$traj <- factor(CombDF$traj)
+  
+  CombDF <- CombDF[!is.na(CombDF$Pt), ]
+  
+  if(nrow(CombDF)>0){
+    p <- ggplot2::ggplot(CombDF,
+                         ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = .3) +
+      ggplot2::geom_smooth() + ggplot2::scale_color_discrete("Branch") +
+      ggplot2::facet_wrap(~gene, scales = "free_y") +
+      ggplot2::labs(title = Main, y = "Gene expression", x = "Pseudotime")
+    
+    return(p)
+    
+  } else {
+    
+    return(NULL)
+    
+  }
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -353,3 +463,4 @@ ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, Par
 
 
 }
+
