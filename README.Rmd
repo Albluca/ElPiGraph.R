@@ -3,14 +3,14 @@ title: "ElPiGraph.R"
 author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
 date: "November 2017"
 output:
+  md_document:
+    toc: yes
+    toc_depth: 2
   html_document:
     depth: 3
     keep_md: yes
     number_sections: yes
     toc: yes
-  md_document:
-    toc: yes
-    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This package provides an R implementation of the ElPiGraph algorithm. A self-contained description of the algorithm is available [here](https://github.com/auranic/Elastic-principal-graphs/blob/master/ElPiGraph_Methods.pdf)
 
-A native MATLAB implementation of the algorithm (coded by Andrei Zinovyev) is also [available](https://github.com/auranic/Elastic-principal-graphs)
+A native MATLAB implementation of the algorithm (coded by [Andrei Zinovyev](https://github.com/auranic) and [Evgeny Mirkes](https://github.com/Mirkes)) is also [available](https://github.com/auranic/Elastic-principal-graphs)
 
 # Installation
 
