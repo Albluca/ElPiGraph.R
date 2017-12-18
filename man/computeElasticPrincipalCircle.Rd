@@ -74,6 +74,9 @@ Currently fork clustering only works in Linux}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 }
+\value{
+A named list
+}
 \description{
 This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 when constructing a circle

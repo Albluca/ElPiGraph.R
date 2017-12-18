@@ -3,7 +3,7 @@
 \docType{data}
 \name{curve_data}
 \alias{curve_data}
-\title{Points on a tree}
+\title{Points on a curve}
 \format{A data frame with 500 rows and 3 variables}
 \description{
 An example dataset containing 3d points distribued on a curve

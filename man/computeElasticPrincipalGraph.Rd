@@ -69,7 +69,28 @@ Currently fork clustering only works in Linux}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 }
+\value{
+a named list with a number of elements:
+\describe{
+  \item{NodePositions}{A numeric matrix containing the positions of the nodes}
+  \item{Edges}{A numeric matrix containing the pairs of nodes connected by edges}
+  \item{ElasticMatrix}{The elastic matrix of the graph}
+  \item{ReportTable}{The report table for the graph construction}
+  \item{FinalReport}{The report table associated with the final graph configuration}
+  \item{Lambda}{The lambda parameter used during the graph construction}
+  \item{Mu}{The mu parameter used during the graph construction}
+  \item{FastSolve}{was FastSolve being used?}
+}
+}
 \description{
 This allow to perform basic data regularization before constructing a principla elastic graph.
 The function also allows plotting the results.
+}
+\examples{
+
+This is a low level function. See  \\code{\\link{computeElasticPrincipalCircle}},
+\\code{\\link{computeElasticPrincipalCurve}}, or \\code{\\link{computeElasticPrincipalTree}}
+for examples
+
+
 }

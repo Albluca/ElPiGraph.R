@@ -1,6 +1,6 @@
 
 
-#' Core function to contract a principal elestic graph
+#' Core function to construct a principal elestic graph
 #' 
 #' The core function that takes the n m-dimensional points and construct a principal elastic graph using the
 #' grammars provided. 
@@ -31,10 +31,25 @@
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
 #'
-#' @return
+#' @return a named list with a number of elements:
+#' \describe{
+#'   \item{NodePositions}{A numeric matrix containing the positions of the nodes}
+#'   \item{ElasticMatrix}{The elastic matrix of the graph}
+#'   \item{ReportTable}{The report table for the graph construction}
+#'   \item{FinalReport}{The report table associated with the final graph configuration}
+#'   \item{Lambda}{The lambda parameter used during the graph construction}
+#'   \item{Mu}{The mu parameter used during the graph construction}
+#'   \item{FastSolve}{was FastSolve being used?}
+#' }
+#' 
 #' @export
 #'
 #' @examples
+#' 
+#' This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
+#' \code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
+#' for examples
+#' 
 ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix, NodesPositions,
                          verbose = FALSE, n.cores = 1, ClusType = "Sock", CompileReport = FALSE,
                          ShowTimer = FALSE, ComputeMSEP = TRUE, Mode = 1,
@@ -313,11 +328,29 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
-#'
-#' @return
+#' 
+#' 
+#' @return a named list with a number of elements:
+#' \describe{
+#'   \item{NodePositions}{A numeric matrix containing the positions of the nodes}
+#'   \item{Edges}{A numeric matrix containing the pairs of nodes connected by edges}
+#'   \item{ElasticMatrix}{The elastic matrix of the graph}
+#'   \item{ReportTable}{The report table for the graph construction}
+#'   \item{FinalReport}{The report table associated with the final graph configuration}
+#'   \item{Lambda}{The lambda parameter used during the graph construction}
+#'   \item{Mu}{The mu parameter used during the graph construction}
+#'   \item{FastSolve}{was FastSolve being used?}
+#' }
+#' 
 #' @export
 #'
 #' @examples
+#' 
+#' This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
+#' \code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
+#' for examples
+#' 
+#' 
 computeElasticPrincipalGraph <- function(Data,
                                          NumNodes,
                                          NumEdges = Inf,
@@ -532,6 +565,9 @@ computeElasticPrincipalGraph <- function(Data,
 #' Currently fork clustering only works in Linux
 #'
 #' @return
+#' 
+#' A named list 
+#' 
 #' @export
 #'
 #' @examples

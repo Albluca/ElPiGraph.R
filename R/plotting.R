@@ -323,13 +323,34 @@ PlotPG <- function(X,
                    Do_PCA = TRUE,
                    DimToPlot = c(1,2)) {
   
-  if(is.null(GroupsLab)){
-    GroupsLab = factor(rep("N/A", nrow(X)))
-  }
+  
+  # X = Data.Kowa.CV$Analysis$FinalExpMat
+  # TargetPG = Data.Kowa.CV$Analysis$FinalStruct
+  # GroupsLab = Data.Kowa.CV$Analysis$FinalGroup
+  # p.alpha = .4
+  # Main = 'Kowalczyk et al (CV Sel)'
+  # DimToPlot = 1:3
+  # 
+  # BootPG = NULL
+  # PGCol = "EPG"
+  # PlotProjections = "none"
+  # PointViz = "points"
+  # PointSize = NULL
+  # NodeLabels = NULL
+  # LabMult = 1
+  # Do_PCA = TRUE
+  # 
+  # 
   
   if(length(PGCol) == 1){
     PGCol = rep(PGCol, nrow(TargetPG$NodePositions))
   }
+  
+  if(is.null(GroupsLab)){
+    GroupsLab = factor(rep("N/A", nrow(X)))
+  }
+  
+  levels(GroupsLab) <- c(levels(GroupsLab), unique(PGCol))
   
   if(!is.null(PointSize)){
     if(length(PointSize) == 1){
@@ -373,14 +394,14 @@ PlotPG <- function(X,
     Inizialized <- FALSE
     
     if(PointViz == "points"){
-      p <- ggplot2::ggplot(data = df1, mapping = ggplot2::aes(x = PCA, y = PCB, color = Group), environment = environment()) +
-        ggplot2::geom_point(alpha = p.alpha)
+      p <- ggplot2::ggplot(data = df1, mapping = ggplot2::aes(x = PCA, y = PCB), environment = environment()) +
+        ggplot2::geom_point(alpha = p.alpha, mapping = ggplot2::aes(color = Group))
       Inizialized <- TRUE
     }
     
     if(PointViz == "density"){
-      p <- ggplot2::ggplot(data = df1, mapping = ggplot2::aes(x = PCA, y = PCB, color = Group), environment = environment()) +
-        ggplot2::stat_density2d(geom="raster", ggplot2::aes(fill = Group, alpha = ..density..), contour = FALSE) +
+      p <- ggplot2::ggplot(data = df1, mapping = ggplot2::aes(x = PCA, y = PCB), environment = environment()) +
+        ggplot2::stat_density2d(geom="raster", ggplot2::aes(color = Group, fill = Group, alpha = ..density..), contour = FALSE) +
         ggplot2::theme_minimal()
       Inizialized <- TRUE
     }
@@ -431,6 +452,8 @@ PlotPG <- function(X,
                       yend = as.numeric(AllEdg[,4]),
                       Col = AllEdg[,5],
                       Rep = as.numeric(AllEdg[,6]), stringsAsFactors = FALSE)
+    
+    # df2$Col <- factor(df2$Col, levels = levels(GroupsLab))
     
     
     # Replicas
@@ -506,10 +529,9 @@ PlotPG <- function(X,
     }
     
     
-    
     if(is.factor(GroupsLab)){
-      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, color = Col),
-                                     inherit.aes = FALSE)
+      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, linetype = Col),
+                                     inherit.aes = TRUE) + ggplot2::labs(linetype = "")
     } else {
       p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend),
                                      inherit.aes = FALSE)
@@ -524,7 +546,7 @@ PlotPG <- function(X,
     
     if(!is.null(PointSize)){
       if(is.factor(GroupsLab)){
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, color = PGCol, size = PointSize),
+        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, size = PointSize),
                                      data = df4,
                                      inherit.aes = FALSE)
       } else {
@@ -534,7 +556,7 @@ PlotPG <- function(X,
       }
     } else {
       if(is.factor(GroupsLab)){
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, color = PGCol),
+        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
                                      data = df4,
                                      inherit.aes = FALSE)
       } else {
