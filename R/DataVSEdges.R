@@ -1,10 +1,10 @@
 #' Title
 #'
-#' @param X 
-#' @param TargetPG 
-#' @param GroupsLab 
+#' @param X a data matrix
+#' @param TargetPG an ElPiGraph object
+#' @param GroupsLab a vector of labels for the point of the matrix 
 #'
-#' @return
+#' @return a list with assocition tables and Chi-squred test for category associtions with Edges+Nodes and Nodes
 #' @export
 #'
 #' @examples

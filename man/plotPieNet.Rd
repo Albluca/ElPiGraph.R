@@ -5,9 +5,9 @@
 \title{Plot a graph with pie chart associated with each node}
 \usage{
 plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
-  TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely", Main = "",
-  ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL, PlotNet = TRUE,
-  DirectionMat = NULL, Thr = 0.05, Arrow.size = 0.5, Leg.cex = 1)
+  TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
+  TreeRoot = numeric(), Main = "", ScaleFunction = sqrt,
+  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -16,13 +16,31 @@ plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
 
 \item{GroupsLab}{string factor, a vector indicating the category of each data point}
 
-\item{Partition}{}
+\item{Partition}{A vector associating each point to a node of the ElPiGraph. If NULL (the default), this will be computed}
 
-\item{TrimmingRadius}{}
+\item{TrimmingRadius}{numeric, the trimming radius to use when associting points to nodes when Partition = NULL}
 
-\item{PlotNet}{}
+\item{Graph}{a igraph object of the ElPiGraph, if NULL (the default) it will be computed by the function}
 
-\item{Leg.cex}{}
+\item{LayOut}{the global layout of yhe final network. It can be
+\itemize{
+ \item 'tree', a tree
+ \item 'circle', a closed circle
+ \item 'circle_line', a line arranged as a circle
+ \item 'nicely', the topology will be inferred by ighraph
+}}
+
+\item{TreeRoot}{the id of the node to use as the root of the tree when LayOut = 'tree'}
+
+\item{Main}{string, the title of the plot}
+
+\item{ScaleFunction}{function, a function used to scale the nuumber of points (sqrt by default)}
+
+\item{NodeSizeMult}{integer, an adjustment factor to control the size of the pies}
+
+\item{ColCat}{string vector, a vector of colors to associate to each category}
+
+\item{Leg.cex}{naumeric, a value to adjust the size of the legend}
 }
 \description{
 Plot a graph with pie chart associated with each node

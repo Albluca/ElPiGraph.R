@@ -25,7 +25,8 @@ and "onEdges" (the projections will indicate how points are projected on edges o
 \item{GroupsLab}{factor or numeric vector. A vector indicating either a category or a numeric value associted with
 each data point}
 
-\item{PointViz}{}
+\item{PointViz}{string, the modality to show points. It can be 'points' (data will be represented a dot) or
+'density' (the data will be represented by a field)}
 
 \item{Main}{string, the title of the plot}
 

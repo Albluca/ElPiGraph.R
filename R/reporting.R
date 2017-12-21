@@ -453,6 +453,18 @@ project_point_onto_edge <- function(X, NodePositions, Edge) {
 
 
 
+#' Title
+#'
+#' @param X 
+#' @param NodePositions 
+#' @param ElasticMatrix 
+#' @param PartData 
+#' @param ComputeMSEP 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, PartData=NULL, ComputeMSEP = FALSE) {
 
   # %   This function computes various measurements concerning a primitive
