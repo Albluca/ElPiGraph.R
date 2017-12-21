@@ -2,13 +2,31 @@
 % Please edit documentation in R/graphs.R
 \name{GetSubGraph}
 \alias{GetSubGraph}
-\title{Title}
+\title{Extract a subgraph with a given topology from a graph}
 \usage{
 GetSubGraph(Net, Structure = "auto", Nodes = NULL, Circular = TRUE)
 }
 \arguments{
-\item{Circular}{}
+\item{Net}{an igraph network object}
+
+\item{Structure}{a string specifying the structure to return. The following options are
+available:
+\itemize{
+ \item 'circle', all the circles of a given length (specified by Nodes) present in the data.
+ If Nodes is unspecified the algorithm will look for the largest circle avaialble.
+ \item 'branches', all the linear path connecting the branching points
+ \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
+the branching points and the closests branching points and end points)
+}}
+
+\item{Nodes}{the n}
+
+\item{Circular}{a boolean indicating whether the circle should contain the initial points at the
+beginning and at the end}
+}
+\value{
+a list of nodes defining the structures under consideration
 }
 \description{
-Title
+Extract a subgraph with a given topology from a graph
 }
