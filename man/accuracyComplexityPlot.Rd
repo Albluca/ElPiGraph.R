@@ -2,14 +2,28 @@
 % Please edit documentation in R/plotting.R
 \name{accuracyComplexityPlot}
 \alias{accuracyComplexityPlot}
-\title{Title}
+\title{Accuracy-Complexity plot}
 \usage{
 accuracyComplexityPlot(ReportTable, AdjFactor = 1, Main = "",
   Mode = "LocMin", Xlims = NULL)
 }
 \arguments{
-\item{Xlims}{}
+\item{ReportTable}{A report table as returned from an ElPiGraph computation function}
+
+\item{AdjFactor}{numeric, the factor used to adjust the values on the y axis (computed as UR*NNODE^AdjFactor)}
+
+\item{Main}{string, tht title of the plot}
+
+\item{Mode}{integer or string, the mode used to identify minima: if 'LocMin', the barcode of the 
+local minima will be plotted, if the number n, the barcode will be plotted each n configurations.
+If NULL, no barcode will be plotted}
+
+\item{Xlims}{a numeric vector of length 2 indicating the minimum and maximum of the x axis. If NULL (the default)
+the rage of the data will be used}
+}
+\value{
+a ggplot plot
 }
 \description{
-Title
+Accuracy-Complexity plot
 }

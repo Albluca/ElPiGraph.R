@@ -6,7 +6,7 @@
 #' @param PrintGraph a struct returned by computeElasticPrincipalGraph
 #' @param Main string, title of the plot
 #'
-#' @return
+#' @return a ggplot plot
 #' @export
 #'
 #' @examples
@@ -33,16 +33,19 @@ plotMSDEnergyPlot <- function(ReportTable, Main = ''){
 
 
 
-#' Title
+#' Accuracy-Complexity plot
 #'
-#' @param PrintGraph
-#' @param Main
-#' @param Cex.Main
-#' @param Mode
-#' @param Xlims
+#' @param Main string, tht title of the plot
+#' @param Mode integer or string, the mode used to identify minima: if 'LocMin', the barcode of the 
+#' local minima will be plotted, if the number n, the barcode will be plotted each n configurations.
+#' If NULL, no barcode will be plotted
+#' @param Xlims a numeric vector of length 2 indicating the minimum and maximum of the x axis. If NULL (the default)
+#' the rage of the data will be used
+#' @param ReportTable A report table as returned from an ElPiGraph computation function
+#' @param AdjFactor numeric, the factor used to adjust the values on the y axis (computed as UR*NNODE^AdjFactor)
 #'
-#' @return
-#' @export
+#' @return a ggplot plot
+#' @export 
 #'
 #' @examples
 accuracyComplexityPlot <- function(ReportTable, AdjFactor=1, Main = '', Mode = 'LocMin', Xlims = NULL){
@@ -121,22 +124,25 @@ accuracyComplexityPlot <- function(ReportTable, AdjFactor=1, Main = '', Mode = '
 #'
 #' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
 #' @param TargetPG the main principal graph to plot
-#' @param Graph
-#' @param LayOut
-#' @param Main
-#' @param ScaleFunction
-#' @param NodeSizeMult
-#' @param ColCat
-#' @param DirectionMat
-#' @param Thr
-#' @param Arrow.size
+#' @param Graph a igraph object of the ElPiGraph, if NULL (the default) it will be computed by the function
+#' @param LayOut the global layout of yhe final network. It can be
+#' \itemize{
+#'  \item 'tree', a tree
+#'  \item 'circle', a closed circle
+#'  \item 'circle_line', a line arranged as a circle
+#'  \item 'nicely', the topology will be inferred by ighraph
+#' }
+#' @param TreeRoot the id of the node to use as the root of the tree when LayOut = 'tree'
+#' @param Main string, the title of the plot
+#' @param ScaleFunction function, a function used to scale the nuumber of points (sqrt by default)
+#' @param NodeSizeMult integer, an adjustment factor to control the size of the pies 
+#' @param ColCat string vector, a vector of colors to associate to each category
 #' @param GroupsLab string factor, a vector indicating the category of each data point
-#' @param Partition 
-#' @param TrimmingRadius 
-#' @param PlotNet 
-#' @param Leg.cex 
+#' @param Partition A vector associating each point to a node of the ElPiGraph. If NULL (the default), this will be computed
+#' @param TrimmingRadius numeric, the trimming radius to use when associting points to nodes when Partition = NULL
+#' @param Leg.cex naumeric, a value to adjust the size of the legend
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
 #' @examples
@@ -147,14 +153,11 @@ plotPieNet <- function(X,
                        TrimmingRadius = Inf,
                        Graph = NULL,
                        LayOut = 'nicely',
+                       TreeRoot = numeric(),
                        Main="",
                        ScaleFunction = sqrt,
                        NodeSizeMult = 1,
                        ColCat = NULL,
-                       PlotNet = TRUE,
-                       DirectionMat = NULL,
-                       Thr = 0.05,
-                       Arrow.size = .5,
                        Leg.cex = 1) {
 
   if(!is.factor(GroupsLab)){
@@ -204,76 +207,66 @@ plotPieNet <- function(X,
   
   PieColList <- lapply(PieList, function(x){ColCat})
   
+  LayOutDONE <- FALSE
   
-  if(PlotNet){
-
-    LayOutDONE <- FALSE
-
-    # if(LayOut == 'metro'){
-    #   RestrNodes <- computeMetroMapLayout(Results)
-    #   LayOutDONE <- TRUE
-    # }
-
-    if(LayOut == 'tree'){
-      RestrNodes <- igraph::layout_as_tree(graph = igraph::as.undirected(Net, mode = 'collapse'))
-      LayOutDONE <- TRUE
-    }
-
-    if(LayOut == 'circle'){
-      IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = TRUE)
-      Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net, mode = 'collapse'), IsoGaph)
-      if(length(Iso)>0){
-        VerOrder <- igraph::V(Net)[Iso[[1]]]
-        RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder)
-        LayOutDONE <- TRUE
-      } else {
-        Net1 <- ConstructGraph(PrintGraph = TargetPG)
-        IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net1), directed = FALSE, circular = TRUE)
-        Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net1, mode = 'collapse'), IsoGaph)
-        VerOrder <- igraph::V(Net1)[Iso[[1]]]
-        RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder$name)
-        LayOutDONE <- TRUE
-      }
-    }
-
-    if(LayOut == 'circle_line'){
-      IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = FALSE)
-      Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net, mode = 'collapse'), IsoGaph)
-      if(length(Iso) > 0){
-        VerOrder <- igraph::V(Net)[Iso[[1]]]
-        RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder)
-        LayOutDONE <- TRUE
-      } else {
-        Net1 <- ConstructGraph(PrintGraph = TargetPG)
-        IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net1), directed = FALSE, circular = FALSE)
-        Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net1, mode = 'collapse'), IsoGaph)
-        VerOrder <- igraph::V(Net1)[Iso[[1]]]
-        RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder$name)
-        LayOutDONE <- TRUE
-      }
-
-    }
-
-    if(LayOut == 'nicely'){
-      RestrNodes <- igraph::layout_nicely(graph = Net)
-      LayOutDONE <- TRUE
-    }
-
-    if(!LayOutDONE){
-      print(paste("LayOut =", LayOut, "unrecognised"))
-      return(NULL)
-    }
-
-    igraph::plot.igraph(Net, layout = RestrNodes[,1:2], main = Main,
-                        vertex.shape="pie", vertex.pie.color = PieColList,
-                        vertex.pie=PieList, vertex.pie.border = NA,
-                        vertex.size=NodeSizeMult*do.call(what = ScaleFunction,
-                                                         list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions))))),
-                        edge.color = "black", edge.arrow.size = Arrow.size, vertex.label.dist = 0.7, vertex.label.color = "black")
-    
-    legend(x = "bottom", legend = names(ColCat), fill = ColCat, horiz = TRUE, cex = Leg.cex)
-
+  if(LayOut == 'tree'){
+    RestrNodes <- igraph::layout_as_tree(graph = igraph::as.undirected(Net, mode = 'collapse'), root = TreeRoot)
+    LayOutDONE <- TRUE
   }
+  
+  if(LayOut == 'circle'){
+    IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = TRUE)
+    Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net, mode = 'collapse'), IsoGaph)
+    if(length(Iso)>0){
+      VerOrder <- igraph::V(Net)[Iso[[1]]]
+      RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder)
+      LayOutDONE <- TRUE
+    } else {
+      Net1 <- ConstructGraph(PrintGraph = TargetPG)
+      IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net1), directed = FALSE, circular = TRUE)
+      Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net1, mode = 'collapse'), IsoGaph)
+      VerOrder <- igraph::V(Net1)[Iso[[1]]]
+      RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder$name)
+      LayOutDONE <- TRUE
+    }
+  }
+  
+  if(LayOut == 'circle_line'){
+    IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = FALSE)
+    Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net, mode = 'collapse'), IsoGaph)
+    if(length(Iso) > 0){
+      VerOrder <- igraph::V(Net)[Iso[[1]]]
+      RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder)
+      LayOutDONE <- TRUE
+    } else {
+      Net1 <- ConstructGraph(PrintGraph = TargetPG)
+      IsoGaph <- igraph::graph.ring(n = igraph::vcount(Net1), directed = FALSE, circular = FALSE)
+      Iso <- igraph::graph.get.isomorphisms.vf2(igraph::as.undirected(Net1, mode = 'collapse'), IsoGaph)
+      VerOrder <- igraph::V(Net1)[Iso[[1]]]
+      RestrNodes <- igraph::layout_in_circle(graph = Net, order = VerOrder$name)
+      LayOutDONE <- TRUE
+    }
+    
+  }
+  
+  if(LayOut == 'nicely'){
+    RestrNodes <- igraph::layout_nicely(graph = Net)
+    LayOutDONE <- TRUE
+  }
+  
+  if(!LayOutDONE){
+    print(paste("LayOut =", LayOut, "unrecognised"))
+    return(NULL)
+  }
+  
+  igraph::plot.igraph(Net, layout = RestrNodes[,1:2], main = Main,
+                      vertex.shape="pie", vertex.pie.color = PieColList,
+                      vertex.pie=PieList, vertex.pie.border = NA,
+                      vertex.size=NodeSizeMult*do.call(what = ScaleFunction,
+                                                       list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions))))),
+                      edge.color = "black", edge.arrow.size = Arrow.size, vertex.label.dist = 0.7, vertex.label.color = "black")
+  
+  legend(x = "bottom", legend = names(ColCat), fill = ColCat, horiz = TRUE, cex = Leg.cex)
 
 }
 
@@ -294,7 +287,8 @@ plotPieNet <- function(X,
 #' and "onEdges" (the projections will indicate how points are projected on edges or nodes of the graph)
 #' @param GroupsLab factor or numeric vector. A vector indicating either a category or a numeric value associted with
 #' each data point
-#' @param PointViz 
+#' @param PointViz string, the modality to show points. It can be 'points' (data will be represented a dot) or
+#' 'density' (the data will be represented by a field)
 #' @param Main string, the title of the plot
 #' @param p.alpha numeric between 0 and 1, the alpha value of the points. Lower values will prodeuce more transparet points
 #' @param PointSize numeric vector, a vector indicating the size to be associted with each node of the graph

@@ -7,11 +7,14 @@
 EdgeCatAssociation(X, TargetPG, GroupsLab = NULL)
 }
 \arguments{
-\item{X}{}
+\item{X}{a data matrix}
 
-\item{TargetPG}{}
+\item{TargetPG}{an ElPiGraph object}
 
-\item{GroupsLab}{}
+\item{GroupsLab}{a vector of labels for the point of the matrix}
+}
+\value{
+a list with assocition tables and Chi-squred test for category associtions with Edges+Nodes and Nodes
 }
 \description{
 Title
