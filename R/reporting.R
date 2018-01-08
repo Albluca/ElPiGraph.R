@@ -1,6 +1,5 @@
-#' Ex
+#' Obtain the pseudotime associted with a path
 #'
-#' @param Edges
 #' @param ProjStruct
 #' @param EdgeSeq
 #'
@@ -8,17 +7,17 @@
 #' @export
 #'
 #' @examples
-getPseudotime <- function(Edges, ProjStruct, EdgeSeq){
+getPseudotime <- function(ProjStruct, NodeSeq){
 
   Pt <- rep(NA, nrow(ProjStruct$X_projected))
   tLen <- 0
   NodePos <- 0
 
-  for(i in 2:length(EdgeSeq)){
+  for(i in 2:length(NodeSeq)){
     SelEdgID <- which(
       apply(
-        apply(Edges, 1, function(x) {
-          x %in% EdgeSeq[(i-1):i]
+        apply(ProjStruct$Edges, 1, function(x) {
+          x %in% NodeSeq[(i-1):i]
         }), 2, all)
     )
 
@@ -29,7 +28,7 @@ getPseudotime <- function(Edges, ProjStruct, EdgeSeq){
     }
 
     Selected <- ProjStruct$EdgeID == SelEdgID
-    if(all(Edges[SelEdgID,] == EdgeSeq[(i-1):i])){
+    if(all(ProjStruct$Edges[SelEdgID,] == NodeSeq[(i-1):i])){
       rev <- FALSE
     } else {
       rev <- TRUE
@@ -138,8 +137,7 @@ CompareExpOnBranches <- function(ExpData,
   tExpData <- ExpData[genes, ]
   
   for(i in 1:length(Paths)){
-    PtOnPath <- getPseudotime(Edges = TargetPG$Edges$Edges,
-                              ProjStruct = PrjStr, EdgeSeq = Paths[[i]])
+    PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = Paths[[i]])
     
     PtVect <- PtOnPath$Pt
     names(PtVect) <- colnames(tExpData)
@@ -237,8 +235,7 @@ ExpOnPath <- function(ExpData,
   
   tExpData <- ExpData[genes, ]
   
-  PtOnPath <- getPseudotime(Edges = TargetPG$Edges$Edges,
-                            ProjStruct = PrjStr, EdgeSeq = Path)
+  PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = Path)
   
   PtVect <- PtOnPath$Pt
   names(PtVect) <- colnames(tExpData)
@@ -360,7 +357,10 @@ project_point_onto_graph <- function(X, NodePositions, Edges, Partition = NULL){
   return(list(X_projected = X_projected,
               MSEP = mean(Distances_squared),
               ProjectionValues = ProjectionValues,
-              EdgeID = EdgeID, EdgeLen = EdgeLen))
+              EdgeID = EdgeID,
+              EdgeLen = EdgeLen,
+              NodePositions = NodePositions,
+              Edges = Edges))
 
 }
 
