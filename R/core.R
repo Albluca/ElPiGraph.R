@@ -15,7 +15,11 @@
 #'
 #' @examples
 
-PartitionData <- function(X, NodePositions, SquaredX, TrimmingRadius = Inf, nCores = 1) {
+PartitionData <- function(X, NodePositions, SquaredX = NULL, TrimmingRadius = Inf, nCores = 1) {
+  
+  if(is.null(SquaredX)){
+    SquaredX = rowSums(X^2)
+  }
   
   if(nCores == 1){
     
