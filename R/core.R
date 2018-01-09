@@ -6,7 +6,7 @@
 #' @param NodePositions an k-by-m numeric matrix with the coordiante of the nodes
 #' @param TrimmingRadius Maximum distance of data points to the nodes to assign a point to a node
 #' @param nCores number of cores to use.
-#' @param SquaredX the sum by row of the squared positions rowSums(X^2)
+#' @param SquaredX the sum by row of the squared positions rowSums(X^2). If NULL it will be calculated by the fucntion.
 #'
 #' @return A list containing two components: Partition (containing the associated nodes) and 
 #' Dists (containing the squqred distance from the node)

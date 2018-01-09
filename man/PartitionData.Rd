@@ -4,14 +4,15 @@
 \alias{PartitionData}
 \title{Assign data points to a set of nodes}
 \usage{
-PartitionData(X, NodePositions, SquaredX, TrimmingRadius = Inf, nCores = 1)
+PartitionData(X, NodePositions, SquaredX = NULL, TrimmingRadius = Inf,
+  nCores = 1)
 }
 \arguments{
 \item{X}{an n-by-m numeric matrix with the coordinates of the data points}
 
 \item{NodePositions}{an k-by-m numeric matrix with the coordiante of the nodes}
 
-\item{SquaredX}{the sum by row of the squared positions rowSums(X^2)}
+\item{SquaredX}{the sum by row of the squared positions rowSums(X^2). If NULL it will be calculated by the fucntion.}
 
 \item{TrimmingRadius}{Maximum distance of data points to the nodes to assign a point to a node}
 
