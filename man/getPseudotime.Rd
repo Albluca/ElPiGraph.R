@@ -2,13 +2,13 @@
 % Please edit documentation in R/reporting.R
 \name{getPseudotime}
 \alias{getPseudotime}
-\title{Ex}
+\title{Obtain the pseudotime associted with a path}
 \usage{
-getPseudotime(Edges, ProjStruct, EdgeSeq)
+getPseudotime(ProjStruct, NodeSeq)
 }
 \arguments{
 \item{EdgeSeq}{}
 }
 \description{
-Ex
+Obtain the pseudotime associted with a path
 }

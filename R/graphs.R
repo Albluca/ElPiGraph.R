@@ -39,10 +39,11 @@ ConstructGraph <- function(PrintGraph) {
 #'  \item 'branches', all the linear path connecting the branching points
 #'  \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
 #' the branching points and the closests branching points and end points)
+#' \item 'end2end', all linear paths connecting end points (or leaf)
 #' }
 #' @param Circular a boolean indicating whether the circle should contain the initial points at the
 #' beginning and at the end
-#' @param Nodes the n
+#' @param Nodes the number of nodes (for cycle detection)
 #'
 #' @return a list of nodes defining the structures under consideration
 #' @export
@@ -145,6 +146,29 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
     return(Allbr)
     
   }
+  
+  
+  
+  if(Structure == 'end2end'){
+    
+    EndPoints <- which(igraph::degree(Net)==1)
+    
+    Allbr <- list()
+    
+    for(i in EndPoints){
+      for(j in setdiff(EndPoints, i)){
+        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+        Allbr[[length(Allbr)+1]] <- Path
+      }
+    }
+    
+    return(Allbr)
+    
+  }
+  
+  
+  
+  
   
 
 }

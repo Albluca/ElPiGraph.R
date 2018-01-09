@@ -17,9 +17,10 @@ available:
  \item 'branches', all the linear path connecting the branching points
  \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
 the branching points and the closests branching points and end points)
+\item 'end2end', all linear paths connecting end points (or leaf)
 }}
 
-\item{Nodes}{the n}
+\item{Nodes}{the number of nodes (for cycle detection)}
 
 \item{Circular}{a boolean indicating whether the circle should contain the initial points at the
 beginning and at the end}
