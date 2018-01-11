@@ -10,6 +10,10 @@ ExpOnPath(ExpData, Group = NULL, Path, TargetPG, Partition, PrjStr,
 \arguments{
 \item{ExpData}{}
 
+\item{Group}{}
+
+\item{Path}{}
+
 \item{TargetPG}{}
 
 \item{Partition}{}
@@ -19,8 +23,6 @@ ExpOnPath(ExpData, Group = NULL, Path, TargetPG, Partition, PrjStr,
 \item{Main}{}
 
 \item{genes}{}
-
-\item{Paths}{}
 }
 \description{
 Title

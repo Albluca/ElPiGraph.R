@@ -2,13 +2,28 @@
 % Please edit documentation in R/pseudotime.R
 \name{getPseudotime}
 \alias{getPseudotime}
-\title{Obtain the pseudotime associted with a path}
+\title{Compute the pseudotime associted with a path}
 \usage{
 getPseudotime(ProjStruct, NodeSeq)
 }
 \arguments{
-\item{EdgeSeq}{}
+\item{ProjStruct}{A projection structure list as obtained by the project_point_onto_graph function}
+
+\item{NodeSeq}{string, a sequence of nodes that forms a path in the graph.}
+}
+\value{
+a list containing three elements:
+\itemize{
+ \item{Pt:}{ numerical vector, the pseudotime associted with each points in the specified path}
+ \item{PathLen:}{ The total length of the path}
+ \item{NodePos:}{ The pseudotime associated with the of the nodes of the graph}
+}
 }
 \description{
-Obtain the pseudotime associted with a path
+Compute the pseudotime associated to the points over the specified path.
+Note that the pseudotime of points not associted with any edges of the specified path 
+will be set to NA.
+}
+\examples{
+
 }
