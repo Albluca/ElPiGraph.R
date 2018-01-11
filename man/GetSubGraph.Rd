@@ -33,5 +33,6 @@ Structure = 'branches' or 'branching'}
 a list of nodes defining the structures under consideration
 }
 \description{
-Extract a subgraph with a given topology from a graph
+Note that all subgraph are returned only once. So, for example, if A and B are two end leaves of a tree
+and 'end2end' is being used, only the path for A to B or the path from Bt o A will be returned.
 }

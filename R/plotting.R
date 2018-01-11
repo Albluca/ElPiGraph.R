@@ -291,7 +291,8 @@ plotPieNet <- function(X,
 #' 'density' (the data will be represented by a field)
 #' @param Main string, the title of the plot
 #' @param p.alpha numeric between 0 and 1, the alpha value of the points. Lower values will prodeuce more transparet points
-#' @param PointSize numeric vector, a vector indicating the size to be associted with each node of the graph
+#' @param PointSize numeric vector, a vector indicating the size to be associted with each node of the graph.
+#' If NA points will have size 0.
 #' @param NodeLabels string vector, a vector indicating the label to be associted with each node of the graph
 #' @param LabMult numeric, a multiplier controlling the size of node labels
 #' @param Do_PCA bolean, should the node of the principal graph be used to derive principal component projections and
@@ -306,7 +307,7 @@ plotPieNet <- function(X,
 PlotPG <- function(X,
                    TargetPG,
                    BootPG = NULL,
-                   PGCol = "EPG",
+                   PGCol = "",
                    PlotProjections = "none",
                    GroupsLab = NULL,
                    PointViz = "points",
@@ -347,10 +348,13 @@ PlotPG <- function(X,
   levels(GroupsLab) <- c(levels(GroupsLab), unique(PGCol))
   
   if(!is.null(PointSize)){
-    if(length(PointSize) == 1){
-      PointSize = rep(PointSize, nrow(TargetPG$NodePositions))
+    if(!is.na(PointSize)){
+      if(length(PointSize) == 1){
+        PointSize = rep(PointSize, nrow(TargetPG$NodePositions))
+      }
     }
   }
+  
   
 
   if(Do_PCA){
@@ -418,15 +422,15 @@ PlotPG <- function(X,
       Node_2 <- TargetPG$Edges$Edges[i, 2]
       
       if(PGCol[Node_1] ==  PGCol[Node_2]){
-        tCol = PGCol[Node_1]
+        tCol = paste("ElPiG", PGCol[Node_1])
       }
       
       if(PGCol[Node_1] !=  PGCol[Node_2]){
-        tCol = "Multi"
+        tCol = "ElPiG Multi"
       }
       
       if(any(PGCol[c(Node_1, Node_2)] == "None")){
-        tCol = "None"
+        tCol = "ElPiG None"
       }
       
       c(RotData[Node_1,c(Idx1, Idx2)], RotData[Node_2,c(Idx1, Idx2)], tCol)
@@ -524,7 +528,7 @@ PlotPG <- function(X,
     
     
     if(is.factor(GroupsLab)){
-      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, linetype = Col),
+      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, col = Col),
                                      inherit.aes = TRUE) + ggplot2::labs(linetype = "")
     } else {
       p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend),
@@ -539,28 +543,23 @@ PlotPG <- function(X,
     
     
     if(!is.null(PointSize)){
-      if(is.factor(GroupsLab)){
+      if(!is.na(PointSize)){
         p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, size = PointSize),
-                                     data = df4,
-                                     inherit.aes = FALSE)
+                                   data = df4,
+                                   inherit.aes = FALSE)
       } else {
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, size = PointSize),
-                                     data = df4,
+        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
+                                     data = df4, size = 0,
                                      inherit.aes = FALSE)
       }
     } else {
-      if(is.factor(GroupsLab)){
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
-                                     data = df4,
-                                     inherit.aes = FALSE)
-      } else {
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
-                                     data = df4,
-                                     inherit.aes = FALSE)
-      }
-      
-      
+      p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
+                                   data = df4,
+                                   inherit.aes = FALSE)
     }
+    
+    
+    
     
     
     if(!is.null(NodeLabels)){

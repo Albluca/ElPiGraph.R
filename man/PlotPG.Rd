@@ -4,10 +4,10 @@
 \alias{PlotPG}
 \title{Plot data and principal graph(s)}
 \usage{
-PlotPG(X, TargetPG, BootPG = NULL, PGCol = "EPG",
-  PlotProjections = "none", GroupsLab = NULL, PointViz = "points",
-  Main = "", p.alpha = 0.3, PointSize = NULL, NodeLabels = NULL,
-  LabMult = 1, Do_PCA = TRUE, DimToPlot = c(1, 2))
+PlotPG(X, TargetPG, BootPG = NULL, PGCol = "", PlotProjections = "none",
+  GroupsLab = NULL, PointViz = "points", Main = "", p.alpha = 0.3,
+  PointSize = NULL, NodeLabels = NULL, LabMult = 1, Do_PCA = TRUE,
+  DimToPlot = c(1, 2))
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -32,7 +32,8 @@ each data point}
 
 \item{p.alpha}{numeric between 0 and 1, the alpha value of the points. Lower values will prodeuce more transparet points}
 
-\item{PointSize}{numeric vector, a vector indicating the size to be associted with each node of the graph}
+\item{PointSize}{numeric vector, a vector indicating the size to be associted with each node of the graph.
+If NA points will have size 0.}
 
 \item{NodeLabels}{string vector, a vector indicating the label to be associted with each node of the graph}
 

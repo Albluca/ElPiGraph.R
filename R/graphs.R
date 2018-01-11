@@ -47,8 +47,15 @@ ConstructGraph <- function(PrintGraph) {
 #' @param KeepEnds boolean, should the end points (overlapping between structures) be included when
 #' Structure = 'branches' or 'branching'
 #'
+#' @description
+#' 
+#' Note that all subgraph are returned only once. So, for example, if A and B are two end leaves of a tree
+#' and 'end2end' is being used, only the path for A to B or the path from Bt o A will be returned.
+#'
 #' @return a list of nodes defining the structures under consideration
 #' @export
+#'
+#'
 #'
 #' @examples
 GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds = TRUE) {
@@ -61,11 +68,11 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
   }
 
   if(Structure == 'circle'){
-
+    
     if(is.null(Nodes)){
       print("Looking for the largest cycle")
       
-      for(i in rev(1:igraph::vcount(Net))){
+      for(i in rev(3:igraph::vcount(Net))){
         RefNet <- igraph::graph.ring(n = i, directed = FALSE, circular = TRUE)
         if(igraph::graph.subisomorphic.lad(target = Net, pattern = RefNet)$iso){
           print(paste("A cycle of lenght", i, "has been found"))
@@ -79,6 +86,8 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
     RefNet <- igraph::graph.ring(n = i, directed = FALSE, circular = TRUE)
 
     SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
+    
+    SubIsoProjList <- SubIsoProjList[!duplicated(sapply(SubIsoProjList, function(x){x[1]}))]
 
     if(Circular){
       return(lapply(SubIsoProjList, function(x) {c(x, x[1])}))
@@ -167,9 +176,9 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
     
     Allbr <- list()
     
-    for(i in EndPoints){
-      for(j in setdiff(EndPoints, i)){
-        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+    for(i in 1:(length(EndPoints)-1)){
+      for(j in (i+1):length(EndPoints)){
+        Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
         Allbr[[length(Allbr)+1]] <- Path
       }
     }
