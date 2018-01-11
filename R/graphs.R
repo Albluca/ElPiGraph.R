@@ -44,12 +44,14 @@ ConstructGraph <- function(PrintGraph) {
 #' @param Circular a boolean indicating whether the circle should contain the initial points at the
 #' beginning and at the end
 #' @param Nodes the number of nodes (for cycle detection)
+#' @param KeepEnds boolean, should the end points (overlapping between structures) be included when
+#' Structure = 'branches' or 'branching'
 #'
 #' @return a list of nodes defining the structures under consideration
 #' @export
 #'
 #' @examples
-GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) {
+GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds = TRUE) {
 
   if(Structure == 'auto'){
 
@@ -108,6 +110,12 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
       }
     }
     
+    if(!KeepEnds){
+      Allbr <- lapply(Allbr, function(x){
+        setdiff(x, BrPoints)
+      })
+    }
+    
     return(Allbr)
     
   }
@@ -139,7 +147,11 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
         }
       }
       
-      Allbr[[length(Allbr) + 1]] <- union(Points, Terminal.Branching)
+      if(KeepEnds){
+        Allbr[[length(Allbr) + 1]] <- union(Points, Terminal.Branching)
+      } else {
+        Allbr[[length(Allbr) + 1]] <- Points
+      }
       
     }
     

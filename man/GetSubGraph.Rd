@@ -4,7 +4,8 @@
 \alias{GetSubGraph}
 \title{Extract a subgraph with a given topology from a graph}
 \usage{
-GetSubGraph(Net, Structure = "auto", Nodes = NULL, Circular = TRUE)
+GetSubGraph(Net, Structure, Nodes = NULL, Circular = TRUE,
+  KeepEnds = TRUE)
 }
 \arguments{
 \item{Net}{an igraph network object}
@@ -24,6 +25,9 @@ the branching points and the closests branching points and end points)
 
 \item{Circular}{a boolean indicating whether the circle should contain the initial points at the
 beginning and at the end}
+
+\item{KeepEnds}{boolean, should the end points (overlapping between structures) be included when
+Structure = 'branches' or 'branching'}
 }
 \value{
 a list of nodes defining the structures under consideration
