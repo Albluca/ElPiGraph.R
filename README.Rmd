@@ -121,4 +121,6 @@ PlotPG(X = circle_data, TargetPG = CircleEPG.Boot[[length(CircleEPG.Boot)]],
        Main = "A bootstrapped circle", DimToPlot = 1:2)
 ```
 
+# More info
 
+Additional details on the derivation of [substructures](/guides/) and on the use of [pseudotime](guides/struct.md) derivation are also available
