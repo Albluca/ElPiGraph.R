@@ -37,6 +37,8 @@ ConstructGraph <- function(PrintGraph) {
 #'  \item 'circle', all the circles of a given length (specified by Nodes) present in the data.
 #'  If Nodes is unspecified the algorithm will look for the largest circle avaialble.
 #'  \item 'branches', all the linear path connecting the branching points
+#'  \item 'branches&bpoints', all the linear path connecting the branching points and all of
+#'  the branching points
 #'  \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
 #' the branching points and the closests branching points and end points)
 #' \item 'end2end', all linear paths connecting end points (or leaf)
@@ -89,6 +91,8 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
     
     SubIsoProjList <- SubIsoProjList[!duplicated(sapply(SubIsoProjList, function(x){x[1]}))]
 
+    names(SubIsoProjList) <- paste("Circle", 1:length(SubIsoProjList), sep = "_")
+    
     if(Circular){
       return(lapply(SubIsoProjList, function(x) {c(x, x[1])}))
     } else {
@@ -125,9 +129,55 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
       })
     }
     
+    names(Allbr) <- paste("Branch", 1:length(Allbr), sep = "_")
+    
     return(Allbr)
     
   }
+  
+  
+  
+  
+  if(Structure == 'branches&bpoints'){
+    
+    BrPoints <- which(igraph::degree(Net)>2)
+    EndPoints <- which(igraph::degree(Net)==1)
+    
+    Allbr <- list()
+    SelEp <- union(BrPoints, EndPoints)
+    
+    for(i in BrPoints){
+      
+      SelEp <- setdiff(SelEp, i)
+      
+      for(j in SelEp){
+        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+        if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
+          Allbr[[length(Allbr)+1]] <- Path
+        }
+      }
+    }
+    
+    Allbr <- lapply(Allbr, function(x){
+      setdiff(x, BrPoints)
+    })
+    
+    BaseNameVect <- paste("Branch", 1:length(Allbr), sep = "_")
+    
+    BrCount <- 0
+    
+    for(i in BrPoints){
+      BrCount <- BrCount + 1
+      Allbr[[length(Allbr)+1]] <- i
+      BaseNameVect <- c(BaseNameVect, paste("BrPoint", BrCount, sep = "_"))
+    }
+    
+    names(Allbr) <- BaseNameVect
+    
+    return(Allbr)
+    
+  }
+  
   
   
   if(Structure == 'branching'){
@@ -164,6 +214,8 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
       
     }
     
+    names(Allbr) <- paste("Subtree", 1:length(Allbr), sep = "_")
+    
     return(Allbr)
     
   }
@@ -182,6 +234,8 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
         Allbr[[length(Allbr)+1]] <- Path
       }
     }
+    
+    names(Allbr) <- paste("Path", 1:length(Allbr), sep = "_")
     
     return(Allbr)
     

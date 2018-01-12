@@ -121,10 +121,17 @@ CompareOnBranches <- function(X,
     names(PtVect) <- rownames(tX)
     MetlExp <- reshape::melt(tX)
     
+    if(!is.null(names(Paths)[i])){
+      TrjName <- names(Paths)[i]
+    } else {
+      TrjName <- i
+    }
+     
+    
     CombDF <- rbind(
       CombDF, data.frame(Pt = PtVect[MetlExp$X1],
                          gene = MetlExp$X2, exp = MetlExp$value,
-                         traj = i)
+                         traj = TrjName)
     )
     
   }

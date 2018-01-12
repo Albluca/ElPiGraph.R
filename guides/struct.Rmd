@@ -3,14 +3,14 @@ title: "Exploring graph substructures"
 author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
 date: "11 janvier 2018"
 output:
+  md_document:
+    toc: yes
+    toc_depth: 2
   html_document:
     depth: 3
     keep_md: yes
     number_sections: yes
     toc: yes
-  md_document:
-    toc: yes
-    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -51,6 +51,8 @@ The first step in the analysis consists in selecting various substructures prese
 Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
 
 Tree_Brches <- GetSubGraph(Net = Tree_Graph, Structure = 'branches')
+
+Tree_BrBrPt <- GetSubGraph(Net = Tree_Graph, Structure = 'branches&bpoints')
 
 Tree_SubTrees <- GetSubGraph(Net = Tree_Graph, Structure = 'branching')
 ```
@@ -140,6 +142,9 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = V(Tree_Graph) %in% Tree_e
 
 Note that `GetSubGraph` returns each structure only once. Therefore, the path from node 4 to node 2 will not be present in the list.
 
+
+
+
 # Looking at the points associted with the structures
 
 With the previourly computed information, it is also easy to extract the points asscoited with each substructure via the association of points to nodes. We begin by associating the points to the nodes
@@ -164,4 +169,36 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = 1:nrow(tree_data) %in
 ```{r}
 PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = 1:nrow(tree_data) %in% PtInBr[[3]])
 ```
+
+If we use the 'branches&bpoints' structure options, we obtain a complete partition of the tree into branches and branching points, that can looked at in different ways
+
+```{r}
+PointLabel = rep("", length(PartStruct$Partition))
+
+for(i in 1:length(Tree_BrBrPt)){
+  PointLabel[PartStruct$Partition %in% Tree_BrBrPt[[i]]] <- names(Tree_BrBrPt)[i]
+}
+
+barplot(table(PointLabel), las = 2, ylab="Number of points")
+```
+
+```{r}
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = PointLabel)
+```
+
+```{r}
+boxplot(tree_data[, 1] ~ PointLabel, ylab = "Coordinate on the 1st dimension", las = 2)
+```
+
+```{r}
+boxplot(tree_data[, 2] ~ PointLabel, ylab = "Coordinate on the 2nd dimension", las = 2)
+```
+
+
+
+```{r}
+boxplot(tree_data[, 3] ~ PointLabel, ylab = "Coordinate on the 3rd dimension", las = 2)
+```
+
+
 

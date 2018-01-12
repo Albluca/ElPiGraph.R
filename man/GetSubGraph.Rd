@@ -16,6 +16,8 @@ available:
  \item 'circle', all the circles of a given length (specified by Nodes) present in the data.
  If Nodes is unspecified the algorithm will look for the largest circle avaialble.
  \item 'branches', all the linear path connecting the branching points
+ \item 'branches&bpoints', all the linear path connecting the branching points and all of
+ the branching points
  \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
 the branching points and the closests branching points and end points)
 \item 'end2end', all linear paths connecting end points (or leaf)
