@@ -127,6 +127,6 @@ CompareOnBranches(X = tree_data,
                   TargetPG = TreeEPG[[1]],
                   Partition = PartStruct$Partition,
                   PrjStr = ProjStruct,
-                  Main = "",
+                  Main = "A simple tree example",
                   Features = 2)
 ```
