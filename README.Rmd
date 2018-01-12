@@ -40,7 +40,13 @@ Once `distutils` has been installed, `ElPiGraph.R` can be installed by typing
 devtools::install_github("Albluca/ElPiGraph.R")
 ```
 
-the package can then be loaded via the command
+It is also possible to get the most recent developmental version (which will contains more feature, but is potentially more unstable) via:
+
+```{r inst.Elpi.Dev, eval=FALSE}
+devtools::install_github("Albluca/ElPiGraph.R", ref = "Development")
+```
+
+The package can then be loaded via the command
 
 ```{r load.Elpi}
 library("ElPiGraph.R")

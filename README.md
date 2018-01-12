@@ -39,7 +39,12 @@ typing
 
     devtools::install_github("Albluca/ElPiGraph.R")
 
-the package can then be loaded via the command
+It is also possible to get the most recent developmental version (which
+will contains more feature, but is potentially more unstable) via:
+
+    devtools::install_github("Albluca/ElPiGraph.R", ref = "Development")
+
+The package can then be loaded via the command
 
     library("ElPiGraph.R")
 
@@ -91,7 +96,7 @@ the example dataset `line_data`, it is sufficient to write
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||50    0.1163  50  49  48  0   0   0   0.05429 0.05149 0.9819  0.9828  0.05109 0.01088 0.5438  27.19   0
-    ## 3.293 sec elapsed
+    ## 2.943 sec elapsed
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-1-1.png)![](README_files/figure-markdown_strict/unnamed-chunk-1-2.png)
 
@@ -175,7 +180,7 @@ sufficient to write
     ## 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 1|2||50  0.01568 50  49  41  2   0   0   0.004137    0.003432    0.9923  0.9936  0.01114 0.0004032   0.02016 1.008   0
-    ## 13.701 sec elapsed
+    ## 15.074 sec elapsed
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-2-1.png)![](README_files/figure-markdown_strict/unnamed-chunk-2-2.png)
 
@@ -202,7 +207,7 @@ is sufficient to write
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||50    0.0456  50  50  50  0   0   0   0.02624 0.02528 0.9754  0.9763  0.01754 0.001818    0.09089 4.545   0
-    ## 2.738 sec elapsed
+    ## 2.959 sec elapsed
 
 ![](README_files/figure-markdown_strict/unnamed-chunk-3-1.png)![](README_files/figure-markdown_strict/unnamed-chunk-3-2.png)
 
@@ -236,36 +241,13 @@ also prevent the plotting, for now.
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
+    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04703 50  50  50  0   0   0   0.02675 0.02582 0.9748  0.9757  0.01809 0.002186    0.1093  5.465   0
-    ## 2.669 sec elapsed
+    ## 0||50    0.04538 50  50  50  0   0   0   0.02486 0.02402 0.977   0.9778  0.01846 0.002055    0.1027  5.136   0
+    ## 2.695 sec elapsed
     ## [1] "Constructing curve 2 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 167 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04598 50  50  50  0   0   0   0.027   0.02604 0.9746  0.9755  0.01724 0.001738    0.08692 4.346   0
-    ## 2.344 sec elapsed
-    ## [1] "Constructing curve 3 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04387 50  50  50  0   0   0   0.02438 0.02351 0.9773  0.9781  0.01771 0.001786    0.08928 4.464   0
-    ## 2.595 sec elapsed
-    ## [1] "Graphical output will be suppressed for the remaining replicas"
-    ## [1] "Constructing curve 4 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -274,9 +256,54 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04379 50  50  50  0   0   0   0.02425 0.02329 0.9774  0.9783  0.01763 0.00191 0.0955  4.775   0
-    ## 2.667 sec elapsed
+    ## 0||50    0.04163 50  50  50  0   0   0   0.02277 0.02202 0.979   0.9797  0.01731 0.001552    0.07759 3.879   0
+    ## 2.645 sec elapsed
+    ## [1] "Constructing curve 3 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 168 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04643 50  50  50  0   0   0   0.02592 0.02501 0.9759  0.9768  0.01822 0.002288    0.1144  5.721   0
+    ## 2.887 sec elapsed
+    ## [1] "Graphical output will be suppressed for the remaining replicas"
+    ## [1] "Constructing curve 4 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 157 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04598 50  50  50  0   0   0   0.02634 0.0255  0.975   0.9758  0.01742 0.002215    0.1107  5.537   0
+    ## 2.634 sec elapsed
     ## [1] "Constructing curve 5 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 157 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04584 50  50  50  0   0   0   0.02525 0.02432 0.9769  0.9777  0.01842 0.002166    0.1083  5.414   0
+    ## 2.634 sec elapsed
+    ## [1] "Constructing curve 6 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 165 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04499 50  50  50  0   0   0   0.02584 0.02489 0.9755  0.9764  0.01729 0.001863    0.09314 4.657   0
+    ## 2.661 sec elapsed
+    ## [1] "Constructing curve 7 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -285,30 +312,8 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04526 50  50  50  0   0   0   0.02407 0.02298 0.9775  0.9786  0.01846 0.002723    0.1362  6.808   0
-    ## 2.326 sec elapsed
-    ## [1] "Constructing curve 6 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04708 50  50  50  0   0   0   0.02685 0.02588 0.9752  0.9761  0.01819 0.002049    0.1025  5.124   0
-    ## 2.603 sec elapsed
-    ## [1] "Constructing curve 7 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 152 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04206 50  50  50  0   0   0   0.0232  0.02216 0.9782  0.9792  0.01715 0.001713    0.08565 4.282   0
-    ## 2.398 sec elapsed
+    ## 0||50    0.0469  50  50  50  0   0   0   0.02668 0.02582 0.9746  0.9754  0.01786 0.002362    0.1181  5.905   0
+    ## 2.878 sec elapsed
     ## [1] "Constructing curve 8 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -318,53 +323,42 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04345 50  50  50  0   0   0   0.02498 0.02418 0.9761  0.9769  0.01687 0.001603    0.08013 4.006   0
-    ## 2.569 sec elapsed
+    ## 0||50    0.04705 50  50  50  0   0   0   0.02776 0.02693 0.9745  0.9753  0.01759 0.001695    0.08475 4.237   0
+    ## 2.645 sec elapsed
     ## [1] "Constructing curve 9 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
+    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04465 50  50  50  0   0   0   0.02455 0.02369 0.9774  0.9782  0.01804 0.002058    0.1029  5.145   0
-    ## 2.633 sec elapsed
+    ## 0||50    0.04522 50  50  50  0   0   0   0.02513 0.0241  0.9762  0.9772  0.01787 0.002225    0.1112  5.562   0
+    ## 2.658 sec elapsed
     ## [1] "Constructing curve 10 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 157 points and 3 dimensions"
+    ## [1] "Computing EPG with 50 nodes on 174 points and 3 dimensions"
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04388 50  50  50  0   0   0   0.02487 0.02402 0.9767  0.9775  0.01746 0.001551    0.07755 3.877   0
-    ## 2.377 sec elapsed
+    ## 0||50    0.04611 50  50  50  0   0   0   0.02708 0.02619 0.9745  0.9754  0.01727 0.001755    0.08777 4.388   0
+    ## 2.897 sec elapsed
     ## [1] "Constructing curve 11 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
+    ## [1] "Computing EPG with 50 nodes on 167 points and 3 dimensions"
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04593 50  50  50  0   0   0   0.02538 0.02432 0.9763  0.9773  0.01819 0.002364    0.1182  5.911   0
-    ## 2.594 sec elapsed
+    ## 0||50    0.04493 50  50  50  0   0   0   0.02516 0.02434 0.9765  0.9773  0.01777 0.001997    0.09983 4.992   0
+    ## 2.675 sec elapsed
     ## [1] "Constructing curve 12 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04435 50  50  50  0   0   0   0.02555 0.0247  0.9754  0.9762  0.01711 0.001683    0.08413 4.206   0
-    ## 2.643 sec elapsed
-    ## [1] "Constructing curve 13 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -373,86 +367,20 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04429 50  50  50  0   0   0   0.02573 0.02479 0.976   0.9769  0.01707 0.001497    0.07486 3.743   0
-    ## 2.399 sec elapsed
+    ## 0||50    0.04352 50  50  50  0   0   0   0.02373 0.02284 0.9778  0.9786  0.0178  0.001981    0.09903 4.951   0
+    ## 2.95 sec elapsed
+    ## [1] "Constructing curve 13 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04382 50  50  50  0   0   0   0.02458 0.02369 0.9767  0.9776  0.01767 0.001576    0.07879 3.939   0
+    ## 2.464 sec elapsed
     ## [1] "Constructing curve 14 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04463 50  50  50  0   0   0   0.02489 0.02393 0.9767  0.9776  0.01779 0.001952    0.0976  4.88    0
-    ## 2.596 sec elapsed
-    ## [1] "Constructing curve 15 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 171 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04626 50  50  50  0   0   0   0.02652 0.02568 0.9752  0.9759  0.01786 0.00188 0.094   4.7 0
-    ## 2.704 sec elapsed
-    ## [1] "Constructing curve 16 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04602 50  50  50  0   0   0   0.02578 0.02483 0.9759  0.9768  0.01796 0.002286    0.1143  5.714   0
-    ## 2.402 sec elapsed
-    ## [1] "Constructing curve 17 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04443 50  50  50  0   0   0   0.02465 0.02373 0.9768  0.9777  0.01765 0.002124    0.1062  5.309   0
-    ## 2.603 sec elapsed
-    ## [1] "Constructing curve 18 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04643 50  50  50  0   0   0   0.02774 0.0269  0.9738  0.9746  0.01704 0.001644    0.0822  4.11    0
-    ## 2.682 sec elapsed
-    ## [1] "Constructing curve 19 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 171 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.0443  50  50  50  0   0   0   0.02531 0.02441 0.9764  0.9772  0.01733 0.00166 0.08298 4.149   0
-    ## 2.44 sec elapsed
-    ## [1] "Constructing curve 20 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 150 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.0473  50  50  50  0   0   0   0.02678 0.02591 0.9749  0.9758  0.01794 0.002576    0.1288  6.439   0
-    ## 2.599 sec elapsed
-    ## [1] "Constructing curve 21 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -461,19 +389,96 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04537 50  50  50  0   0   0   0.02524 0.02432 0.9766  0.9774  0.01807 0.002065    0.1033  5.163   0
+    ## 0||50    0.04494 50  50  50  0   0   0   0.02534 0.02431 0.9761  0.9771  0.01761 0.001995    0.09977 4.989   0
+    ## 2.924 sec elapsed
+    ## [1] "Constructing curve 15 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 157 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04739 50  50  50  0   0   0   0.02712 0.02605 0.9743  0.9753  0.01795 0.002318    0.1159  5.796   0
+    ## 2.665 sec elapsed
+    ## [1] "Constructing curve 16 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 155 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04168 50  50  50  0   0   0   0.02147 0.02069 0.9798  0.9806  0.01796 0.002255    0.1128  5.638   0
+    ## 2.906 sec elapsed
+    ## [1] "Constructing curve 17 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04443 50  50  50  0   0   0   0.02299 0.02205 0.9788  0.9796  0.0188  0.002644    0.1322  6.609   0
+    ## 2.678 sec elapsed
+    ## [1] "Constructing curve 18 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04386 50  50  50  0   0   0   0.02509 0.02429 0.9761  0.9768  0.01714 0.001638    0.08191 4.096   0
+    ## 2.916 sec elapsed
+    ## [1] "Constructing curve 19 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 152 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.0474  50  50  50  0   0   0   0.02597 0.02498 0.976   0.9769  0.01884 0.00259 0.1295  6.476   0
     ## 2.674 sec elapsed
+    ## [1] "Constructing curve 20 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 162 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04479 50  50  50  0   0   0   0.0265  0.02558 0.975   0.9759  0.01703 0.001258    0.06288 3.144   0
+    ## 2.912 sec elapsed
+    ## [1] "Constructing curve 21 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04516 50  50  50  0   0   0   0.02688 0.02595 0.9748  0.9756  0.01708 0.001203    0.06013 3.007   0
+    ## 2.7 sec elapsed
     ## [1] "Constructing curve 22 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
+    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04538 50  50  50  0   0   0   0.02523 0.02434 0.9769  0.9777  0.01802 0.00213 0.1065  5.324   0
-    ## 2.415 sec elapsed
+    ## 0||50    0.04302 50  50  50  0   0   0   0.02255 0.0216  0.9795  0.9804  0.01839 0.00207 0.1035  5.174   0
+    ## 2.913 sec elapsed
     ## [1] "Constructing curve 23 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -483,20 +488,9 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04351 50  50  50  0   0   0   0.02501 0.0242  0.9765  0.9773  0.01703 0.001472    0.07359 3.68    0
-    ## 2.61 sec elapsed
+    ## 0||50    0.0467  50  50  50  0   0   0   0.02767 0.02669 0.9738  0.9747  0.01711 0.001918    0.09592 4.796   0
+    ## 2.69 sec elapsed
     ## [1] "Constructing curve 24 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 162 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04594 50  50  50  0   0   0   0.02475 0.02389 0.9769  0.9777  0.01855 0.002642    0.1321  6.606   0
-    ## 2.671 sec elapsed
-    ## [1] "Constructing curve 25 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -505,273 +499,20 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04356 50  50  50  0   0   0   0.02475 0.02392 0.9767  0.9775  0.01722 0.001602    0.08009 4.005   0
-    ## 2.704 sec elapsed
+    ## 0||50    0.0455  50  50  50  0   0   0   0.02512 0.02421 0.9768  0.9777  0.01823 0.002146    0.1073  5.365   0
+    ## 2.901 sec elapsed
+    ## [1] "Constructing curve 25 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 165 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04403 50  50  50  0   0   0   0.02423 0.02321 0.9774  0.9784  0.01795 0.001848    0.09241 4.62    0
+    ## 2.712 sec elapsed
     ## [1] "Constructing curve 26 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04636 50  50  50  0   0   0   0.02623 0.02548 0.9753  0.976   0.01772 0.002413    0.1206  6.032   0
-    ## 2.405 sec elapsed
-    ## [1] "Constructing curve 27 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 159 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04653 50  50  50  0   0   0   0.0265  0.02561 0.9752  0.976   0.01774 0.002282    0.1141  5.705   0
-    ## 2.664 sec elapsed
-    ## [1] "Constructing curve 28 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04502 50  50  50  0   0   0   0.02461 0.02375 0.9765  0.9773  0.01797 0.002441    0.122   6.102   0
-    ## 2.682 sec elapsed
-    ## [1] "Constructing curve 29 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 165 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04554 50  50  50  0   0   0   0.02663 0.02567 0.975   0.9759  0.01726 0.001649    0.08245 4.122   0
-    ## 2.425 sec elapsed
-    ## [1] "Constructing curve 30 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 148 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04679 50  50  50  0   0   0   0.02755 0.02678 0.9741  0.9748  0.01731 0.001933    0.09663 4.831   0
-    ## 2.601 sec elapsed
-    ## [1] "Constructing curve 31 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 154 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04521 50  50  50  0   0   0   0.02485 0.02388 0.9768  0.9777  0.01807 0.002296    0.1148  5.739   0
-    ## 2.667 sec elapsed
-    ## [1] "Constructing curve 32 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 169 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04815 50  50  50  0   0   0   0.0287  0.02775 0.9734  0.9742  0.01767 0.001778    0.08892 4.446   0
-    ## 2.7 sec elapsed
-    ## [1] "Constructing curve 33 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 159 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04558 50  50  50  0   0   0   0.0254  0.02453 0.9762  0.977   0.01791 0.002269    0.1135  5.674   0
-    ## 2.42 sec elapsed
-    ## [1] "Constructing curve 34 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 169 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04459 50  50  50  0   0   0   0.0255  0.0246  0.976   0.9768  0.01736 0.001741    0.08706 4.353   0
-    ## 2.646 sec elapsed
-    ## [1] "Constructing curve 35 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 153 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.0442  50  50  50  0   0   0   0.02421 0.02323 0.9776  0.9785  0.01805 0.001933    0.09665 4.832   0
-    ## 2.673 sec elapsed
-    ## [1] "Constructing curve 36 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 165 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04422 50  50  50  0   0   0   0.0256  0.02466 0.9757  0.9766  0.01706 0.00155 0.07748 3.874   0
-    ## 2.443 sec elapsed
-    ## [1] "Constructing curve 37 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 164 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04508 50  50  50  0   0   0   0.02581 0.02497 0.9756  0.9764  0.01735 0.001915    0.09573 4.787   0
-    ## 2.641 sec elapsed
-    ## [1] "Constructing curve 38 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 172 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04773 50  50  50  0   0   0   0.0288  0.02793 0.9733  0.9741  0.01737 0.001562    0.07808 3.904   0
-    ## 2.697 sec elapsed
-    ## [1] "Constructing curve 39 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 159 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.0448  50  50  50  0   0   0   0.0248  0.02386 0.9769  0.9777  0.01787 0.002127    0.1063  5.317   0
-    ## 2.717 sec elapsed
-    ## [1] "Constructing curve 40 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 159 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04421 50  50  50  0   0   0   0.02581 0.02487 0.9759  0.9768  0.01704 0.001361    0.06806 3.403   0
-    ## 2.402 sec elapsed
-    ## [1] "Constructing curve 41 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 153 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04652 50  50  50  0   0   0   0.02702 0.02619 0.9748  0.9756  0.01783 0.00167 0.08349 4.175   0
-    ## 2.632 sec elapsed
-    ## [1] "Constructing curve 42 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 154 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04428 50  50  50  0   0   0   0.02276 0.02182 0.9791  0.98    0.01866 0.002867    0.1434  7.168   0
-    ## 2.678 sec elapsed
-    ## [1] "Constructing curve 43 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04606 50  50  50  0   0   0   0.02615 0.02527 0.9756  0.9765  0.01789 0.002023    0.1011  5.057   0
-    ## 2.73 sec elapsed
-    ## [1] "Constructing curve 44 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 167 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04569 50  50  50  0   0   0   0.02571 0.02485 0.9759  0.9767  0.01781 0.002162    0.1081  5.406   0
-    ## 2.676 sec elapsed
-    ## [1] "Constructing curve 45 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04629 50  50  50  0   0   0   0.0264  0.02556 0.9756  0.9764  0.01792 0.001969    0.09847 4.923   0
-    ## 2.432 sec elapsed
-    ## [1] "Constructing curve 46 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04393 50  50  50  0   0   0   0.02387 0.02305 0.978   0.9787  0.01815 0.001912    0.0956  4.78    0
-    ## 2.692 sec elapsed
-    ## [1] "Constructing curve 47 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04661 50  50  50  0   0   0   0.0263  0.02531 0.9755  0.9764  0.01813 0.002172    0.1086  5.431   0
-    ## 2.76 sec elapsed
-    ## [1] "Constructing curve 48 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04574 50  50  50  0   0   0   0.02491 0.02416 0.977   0.9776  0.01841 0.002419    0.121   6.048   0
-    ## 2.736 sec elapsed
-    ## [1] "Constructing curve 49 of 50 / Subset 1 of 1"
-    ## [1] "Performing PCA on the data"
-    ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
-    ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 168 points and 3 dimensions"
-    ## [1] "Using a single core"
-    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
-    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.0424  50  50  50  0   0   0   0.02388 0.02312 0.9775  0.9782  0.01706 0.001455    0.07274 3.637   0
-    ## 2.539 sec elapsed
-    ## [1] "Constructing curve 50 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
@@ -780,8 +521,272 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.04592 50  50  50  0   0   0   0.02607 0.02513 0.9751  0.976   0.01754 0.002306    0.1153  5.765   0
-    ## 2.743 sec elapsed
+    ## 0||50    0.0439  50  50  50  0   0   0   0.02472 0.02375 0.9766  0.9775  0.01752 0.001656    0.08282 4.141   0
+    ## 2.918 sec elapsed
+    ## [1] "Constructing curve 27 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 155 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04408 50  50  50  0   0   0   0.02449 0.02373 0.9772  0.9779  0.01754 0.002049    0.1025  5.124   0
+    ## 2.686 sec elapsed
+    ## [1] "Constructing curve 28 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04536 50  50  50  0   0   0   0.02576 0.02485 0.9758  0.9767  0.01761 0.001989    0.09945 4.973   0
+    ## 2.706 sec elapsed
+    ## [1] "Constructing curve 29 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04332 50  50  50  0   0   0   0.02364 0.02275 0.9781  0.9789  0.01777 0.001909    0.09544 4.772   0
+    ## 2.929 sec elapsed
+    ## [1] "Constructing curve 30 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 159 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.0442  50  50  50  0   0   0   0.0257  0.02488 0.9757  0.9765  0.01683 0.001662    0.08312 4.156   0
+    ## 2.695 sec elapsed
+    ## [1] "Constructing curve 31 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04406 50  50  50  0   0   0   0.02438 0.02343 0.9768  0.9777  0.01765 0.002021    0.1011  5.053   0
+    ## 2.937 sec elapsed
+    ## [1] "Constructing curve 32 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04515 50  50  50  0   0   0   0.02643 0.02546 0.9752  0.9762  0.01715 0.001571    0.07856 3.928   0
+    ## 2.944 sec elapsed
+    ## [1] "Constructing curve 33 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04453 50  50  50  0   0   0   0.02549 0.02448 0.976   0.977   0.01729 0.001751    0.08756 4.378   0
+    ## 2.325 sec elapsed
+    ## [1] "Constructing curve 34 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04495 50  50  50  0   0   0   0.02632 0.02554 0.9751  0.9758  0.01699 0.001639    0.08196 4.098   0
+    ## 2.595 sec elapsed
+    ## [1] "Constructing curve 35 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.0437  50  50  50  0   0   0   0.02435 0.02343 0.9773  0.9782  0.01763 0.001721    0.08607 4.304   0
+    ## 2.386 sec elapsed
+    ## [1] "Constructing curve 36 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 161 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04597 50  50  50  0   0   0   0.02756 0.02678 0.9742  0.975   0.0171  0.001314    0.06568 3.284   0
+    ## 2.572 sec elapsed
+    ## [1] "Constructing curve 37 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 163 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04592 50  50  50  0   0   0   0.02528 0.02434 0.9764  0.9773  0.01823 0.002411    0.1205  6.027   0
+    ## 2.657 sec elapsed
+    ## [1] "Constructing curve 38 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04271 50  50  50  0   0   0   0.02352 0.02269 0.9779  0.9787  0.0176  0.001591    0.07953 3.977   0
+    ## 2.316 sec elapsed
+    ## [1] "Constructing curve 39 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 162 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.0454  50  50  50  0   0   0   0.02666 0.02573 0.975   0.9758  0.01708 0.001661    0.08304 4.152   0
+    ## 2.636 sec elapsed
+    ## [1] "Constructing curve 40 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04478 50  50  50  0   0   0   0.02453 0.02362 0.9768  0.9777  0.01823 0.002025    0.1012  5.062   0
+    ## 2.346 sec elapsed
+    ## [1] "Constructing curve 41 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 155 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04518 50  50  50  0   0   0   0.02453 0.02375 0.9771  0.9779  0.01816 0.002487    0.1243  6.217   0
+    ## 2.599 sec elapsed
+    ## [1] "Constructing curve 42 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04519 50  50  50  0   0   0   0.0257  0.02492 0.9758  0.9765  0.01744 0.002044    0.1022  5.11    0
+    ## 2.423 sec elapsed
+    ## [1] "Constructing curve 43 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 160 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04537 50  50  50  0   0   0   0.0267  0.02577 0.9748  0.9756  0.01707 0.001597    0.07987 3.994   0
+    ## 2.561 sec elapsed
+    ## [1] "Constructing curve 44 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 158 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04794 50  50  50  0   0   0   0.0279  0.02713 0.9739  0.9746  0.01776 0.00228 0.114   5.7 0
+    ## 2.644 sec elapsed
+    ## [1] "Constructing curve 45 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04422 50  50  50  0   0   0   0.02553 0.02471 0.9761  0.9769  0.01716 0.001529    0.07643 3.821   0
+    ## 2.347 sec elapsed
+    ## [1] "Constructing curve 46 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 166 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04195 50  50  50  0   0   0   0.02214 0.02124 0.9796  0.9804  0.01804 0.001775    0.08877 4.439   0
+    ## 2.621 sec elapsed
+    ## [1] "Constructing curve 47 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04549 50  50  50  0   0   0   0.02572 0.02487 0.9762  0.977   0.01777 0.002001    0.1001  5.003   0
+    ## 2.362 sec elapsed
+    ## [1] "Constructing curve 48 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 155 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.0429  50  50  50  0   0   0   0.02346 0.02252 0.9786  0.9795  0.01776 0.001674    0.08369 4.184   0
+    ## 2.568 sec elapsed
+    ## [1] "Constructing curve 49 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 164 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04504 50  50  50  0   0   0   0.02591 0.02511 0.9759  0.9766  0.01742 0.001714    0.08568 4.284   0
+    ## 2.674 sec elapsed
+    ## [1] "Constructing curve 50 of 50 / Subset 1 of 1"
+    ## [1] "Performing PCA on the data"
+    ## [1] "Using standard PCA"
+    ## [1] "3 dimensions are being used"
+    ## [1] "100% of the original variance has been retained"
+    ## [1] "Computing EPG with 50 nodes on 156 points and 3 dimensions"
+    ## [1] "Using a single core"
+    ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
+    ## 0||50    0.04364 50  50  50  0   0   0   0.02371 0.0228  0.9775  0.9783  0.0176  0.00233 0.1165  5.824   0
+    ## 2.353 sec elapsed
     ## [1] "Constructing average tree"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -791,8 +796,8 @@ also prevent the plotting, for now.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||50    0.01913 50  50  50  0   0   0   0.002468    0.001735    0.9976  0.9983  0.0161  0.0005585   0.02792 1.396   0
-    ## 4.899 sec elapsed
+    ## 0||50    0.01911 50  50  50  0   0   0   0.002412    0.0017  0.9976  0.9983  0.01614 0.0005592   0.02796 1.398   0
+    ## 4.444 sec elapsed
 
 `CircleEPG.Boot` will be a list with 51 elements: the 50 bootstrapped
 circles and the final consensus one.
