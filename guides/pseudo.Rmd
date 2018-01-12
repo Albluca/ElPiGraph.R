@@ -115,9 +115,18 @@ When can then visualize the pseudotime on the points via the `PlotPG` function
 PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = PointsPT)
 ```
 
-# Exploring
+# Exploring features over pseudotime
 
+Once the pseudotime has been computed, it is possible to explore how the different features of the data behave over the psedutime. This feature is particulartly helpful for gene expression data as it allow checking how gene dynamics contribute to the topoligical features of the data.
 
+It is possible to visualize this information using the `CompareOnBranches` function
 
-
-
+```{r}
+CompareOnBranches(X = tree_data,
+                  Paths = lapply(SelPaths[1:4], function(x){names(x)}),
+                  TargetPG = TreeEPG[[1]],
+                  Partition = PartStruct$Partition,
+                  PrjStr = ProjStruct,
+                  Main = "",
+                  Features = 2)
+```

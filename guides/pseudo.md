@@ -4,7 +4,8 @@
 -   [Getting the supporting
     structures](#getting-the-supporting-structures)
 -   [Computnig pseudotime](#computnig-pseudotime)
--   [Exploring](#exploring)
+-   [Exploring features over
+    pseudotime](#exploring-features-over-pseudotime)
 
 The ElPiGraph package contains a number of functions to derive the
 pseudotime associated with each point. This is particularly relevant in
@@ -89,7 +90,7 @@ As a first step, we will construct a tree structure on the sample data
     ## 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 1|2||50  0.01568 50  49  41  2   0   0   0.004137    0.003432    0.9923  0.9936  0.01114 0.0004032   0.02016 1.008   0
-    ## 14.257 sec elapsed
+    ## 14.839 sec elapsed
     ## [[1]]
 
 ![](pseudo_files/figure-markdown_strict/unnamed-chunk-1-1.png)
@@ -139,23 +140,23 @@ are compatible with our expectations
     SelPaths
 
     ## [[1]]
-    ## + 23/50 vertices, named, from 64186f4:
+    ## + 23/50 vertices, named, from ccfd619:
     ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 43 48 40 8  4 
     ## 
     ## [[2]]
-    ## + 22/50 vertices, named, from 64186f4:
+    ## + 22/50 vertices, named, from ccfd619:
     ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  42 45 41 33 35 7  15
     ## 
     ## [[3]]
-    ## + 19/50 vertices, named, from 64186f4:
+    ## + 19/50 vertices, named, from ccfd619:
     ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 20
     ## 
     ## [[4]]
-    ## + 20/50 vertices, named, from 64186f4:
+    ## + 20/50 vertices, named, from ccfd619:
     ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  31 49 37 21 23
     ## 
     ## [[5]]
-    ## + 23/50 vertices, named, from 64186f4:
+    ## + 23/50 vertices, named, from ccfd619:
     ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  27 34 39 50 47 44 14 29
 
 Getting the supporting structures
@@ -204,5 +205,25 @@ function
 
 ![](pseudo_files/figure-markdown_strict/unnamed-chunk-11-1.png)
 
-Exploring
-=========
+Exploring features over pseudotime
+==================================
+
+Once the pseudotime has been computed, it is possible to explore how the
+different features of the data behave over the psedutime. This feature
+is particulartly helpful for gene expression data as it allow checking
+how gene dynamics contribute to the topoligical features of the data.
+
+It is possible to visualize this information using the
+`CompareOnBranches` function
+
+    CompareOnBranches(X = tree_data,
+                      Paths = lapply(SelPaths[1:4], function(x){names(x)}),
+                      TargetPG = TreeEPG[[1]],
+                      Partition = PartStruct$Partition,
+                      PrjStr = ProjStruct,
+                      Main = "",
+                      Features = 2)
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+![](pseudo_files/figure-markdown_strict/unnamed-chunk-12-1.png)
