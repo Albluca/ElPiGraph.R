@@ -3,14 +3,14 @@ title: "ElPiGraph.R"
 author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
 date: "November 2017"
 output:
+  md_document:
+    toc: yes
+    toc_depth: 2
   html_document:
     depth: 3
     keep_md: yes
     number_sections: yes
     toc: yes
-  md_document:
-    toc: yes
-    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}

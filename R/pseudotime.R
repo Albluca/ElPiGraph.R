@@ -80,7 +80,7 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #' @param Partition 
 #' @param PrjStr 
 #' @param Main 
-#' @param genes 
+#' @param features 
 #'
 #' @return
 #' @export
@@ -92,23 +92,23 @@ CompareExpOnBranches <- function(ExpData,
                                  Partition,
                                  PrjStr,
                                  Main = "",
-                                 genes = 4) {
+                                 features = 4) {
   
   CombDF <- NULL
   
-  if(is.numeric(genes)){
+  if(is.numeric(features)){
     
     GenesByVar <- apply(ExpData, 1, var)
     
-    if(length(GenesByVar) <= genes){
-      genes = length(GenesByVar)
+    if(length(GenesByVar) <= features){
+      features = length(GenesByVar)
     }
     
-    genes <- names(GenesByVar[order(GenesByVar, decreasing = TRUE)])[1:genes]
+    features <- names(GenesByVar[order(GenesByVar, decreasing = TRUE)])[1:features]
     
   }
   
-  tExpData <- ExpData[genes, ]
+  tExpData <- ExpData[features, ]
   
   for(i in 1:length(Paths)){
     PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = Paths[[i]])
@@ -134,7 +134,7 @@ CompareExpOnBranches <- function(ExpData,
                          ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = .3) +
       ggplot2::geom_smooth() + ggplot2::scale_color_discrete("Branch") +
       ggplot2::facet_wrap(~gene, scales = "free_y") +
-      ggplot2::labs(title = Main, y = "Gene expression", x = "Pseudotime")
+      ggplot2::labs(title = Main, y = "Feature value", x = "Pseudotime")
     
     return(p)
     

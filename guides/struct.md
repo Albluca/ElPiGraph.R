@@ -146,7 +146,7 @@ TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
 ## 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
 ## BARCODE	ENERGY	NNODES	NEDGES	NRIBS	NSTARS	NRAYS	NRAYS2	MSE	MSEP	FVE	FVEP	UE	UR	URN	URN2	URSD
 ## 1|2||50	0.01568	50	49	41	2	0	0	0.004137	0.003432	0.9923	0.9936	0.01114	0.0004032	0.02016	1.008	0
-## 14.38 sec elapsed
+## 14.901 sec elapsed
 ## [[1]]
 ```
 
@@ -170,13 +170,13 @@ CircleEPG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40,
 ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
 ## BARCODE	ENERGY	NNODES	NEDGES	NRIBS	NSTARS	NRAYS	NRAYS2	MSE	MSEP	FVE	FVEP	UE	UR	URN	URN2	URSD
 ## 0||40	0.05136	40	40	40	0	0	0	0.02904	0.02755	0.9728	0.9742	0.0206	0.001721	0.06885	2.754	0
-## 1.399 sec elapsed
+## 1.342 sec elapsed
 ## [[1]]
 ```
 
 ![](struct_files/figure-html/unnamed-chunk-1-2.png)<!-- -->
 
-We then generate `igraph` networks fom the ElPiGraph structure
+We then generate `igraph` networks from the ElPiGraph structure
 
 
 ```r
@@ -187,7 +187,7 @@ Circle_Graph <- ConstructGraph(PrintGraph = CircleEPG[[1]])
 
 # Obtaining notable structures in trees
 
-The first step in the analysis consists in selecting various substructures present in the tree. This can be done via the `GetSubGraph` function, by specified the appropriate value for the `structure` parameter. For trees the most relevant options include 'end2end' (that extracts the paths connecting all of the leaves of the tree), `branches` (that extracts all the different branches composing the tree), and `branching`, (that extracts all the branching subtrees).
+The first step in the analysis consists in selecting various substructures present in the tree. This can be done via the `GetSubGraph` function, by specified the appropriate value for the `structure` parameter. For trees the most relevant options include 'end2end' (that extracts the paths connecting all of the leaves of the tree), `branches` (that extracts all the different branches composing the tree), and `branching`, (that extracts all the branching sub-trees).
 
 
 ```r
@@ -198,7 +198,7 @@ Tree_Brches <- GetSubGraph(Net = Tree_Graph, Structure = 'branches')
 Tree_SubTrees <- GetSubGraph(Net = Tree_Graph, Structure = 'branching')
 ```
 
-The extracted structures can be visualized on the data using the `PlotPG` fucntions, with minimal manipulation:
+The extracted structures can be visualized on the data using the `PlotPG` function, with minimal manipulation:
 
 
 ```r
@@ -211,7 +211,7 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = V(Tree_Graph) %in% Tree_e
 
 ![](struct_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
-As we can see from the plot, the function will highlight the edges connecting the nodes selected (marked TRUE), the edges connecting the nodes not selected (marked FALSE), and the edges connecting the teo groups (marked Multi).
+As we can see from the plot, the function will highlight the edges connecting the nodes selected (marked TRUE), the edges connecting the nodes not selected (marked FALSE), and the edges connecting the the groups (marked Multi).
 
 Similarly, we have
 
@@ -263,7 +263,7 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = NodesID, PointSize = NA, 
 
 # Obtaining notable structures in circle
 
-Similarly to tree, `GetSubGraph` can be used to obtain circles by setting `structure` to `circle`. When looing for circles it is possible to specify the length of the circle via the `Nodes` parameter, if uspecified, the function will try to find teh largest cicle in the data (this is potentially time consuming for large structures). Furthermore, by setting `Circular` to `TRUE` we will get a path with coinciding initial and terminal node.
+Similarly to tree, `GetSubGraph` can be used to obtain circles by setting `structure` to `circle`. When looking for circles it is possible to specify the length of the circle via the `Nodes` parameter, if unspecified, the function will try to find the largest circle in the data (this is potentially time consuming for large structures). Furthermore, by setting `Circular` to `TRUE` we will get a path with coinciding initial and terminal node.
 
 
 ```r
@@ -275,7 +275,7 @@ Circle_all <- GetSubGraph(Net = Circle_Graph, Structure = 'circle', Circular = T
 ## [1] "A cycle of lenght 40 has been found"
 ```
 
-Since the graph is a circle, all the edges will be part of any sustructure selected:
+Since the graph is a circle, all the edges will be part of any substructure selected:
 
 
 ```r
@@ -293,7 +293,7 @@ PlotPG(X = circle_data, TargetPG = CircleEPG[[1]], PGCol = V(Tree_Graph) %in% Ci
 
 To select the structure of interest it is necessary to understand in a more precise way how they are mapped to graph.
 
-Let us consider the first substree computed:
+Let us consider the first subs-tree computed:
 
 
 ```r
@@ -305,7 +305,7 @@ Tree_SubTrees[[1]]
 ## [24] 19
 ```
 
-To look how the nodes maps to the graph, we can label the nodes in the `PlotPG` fucntion. This can be done using the `NodeLabels` parameter.
+To look how the nodes maps to the graph, we can label the nodes in the `PlotPG` function. This can be done using the `NodeLabels` parameter.
 
 
 ```r
@@ -340,7 +340,7 @@ Tree_e2e[[1]]
 ```
 
 ```
-## + 23/50 vertices, named, from 0161658:
+## + 23/50 vertices, named, from a562772:
 ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 43 48 40 8  4
 ```
 
@@ -356,3 +356,45 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = V(Tree_Graph) %in% Tree_e
 ![](struct_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 Note that `GetSubGraph` returns each structure only once. Therefore, the path from node 4 to node 2 will not be present in the list.
+
+# Looking at the points associted with the structures
+
+With the previourly computed information, it is also easy to extract the points asscoited with each substructure via the association of points to nodes. We begin by associating the points to the nodes
+
+
+```r
+PartStruct <- PartitionData(X = tree_data, NodePositions = TreeEPG[[1]]$NodePositions)
+```
+
+And then obtain the points associted with each substrucutre
+
+
+```r
+PtInBr <- lapply(Tree_Brches, function(x){which(PartStruct$Partition %in% x)})
+```
+
+Again, we can visualize the inforlation with `PlotPG`
+
+
+```r
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = 1:nrow(tree_data) %in% PtInBr[[1]])
+```
+
+```
+## [[1]]
+```
+
+![](struct_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+
+
+
+```r
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = 1:nrow(tree_data) %in% PtInBr[[3]])
+```
+
+```
+## [[1]]
+```
+
+![](struct_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+

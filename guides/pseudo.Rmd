@@ -3,21 +3,21 @@ title: "Usig pseudotime"
 author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
 date: "11 janvier 2018"
 output:
+  md_document:
+    toc: yes
+    toc_depth: 2
   html_document:
     depth: 3
     keep_md: yes
     number_sections: yes
     toc: yes
-  md_document:
-    toc: yes
-    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The ElPiGraph package contains a number of functions to derive the pseudotime associted with each point. This is particularly relevant in biological contexts. 
+The ElPiGraph package contains a number of functions to derive the pseudotime associated with each point. This is particularly relevant in biological contexts. 
 
 # Setup
 
@@ -46,10 +46,11 @@ In this example, we will look at all the path originating in 2 and extending to 
 We will begin by computing all of the paths between leaves.
 
 ```{r}
+Tree_Graph <- ConstructGraph(TreeEPG[[1]])
 Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
 ```
 
-Since the paths derived are unique, the node 2 could be either at the beginning or at the end of teh path considered. therefore, we select all the path starting or ending in 2 
+Since the paths derived are unique, the node 2 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 2 
 
 ```{r}
 Root <- 2
@@ -83,7 +84,7 @@ To optimize the computation, certain structures used to compute the pseudotime a
 PartStruct <- PartitionData(X = tree_data, NodePositions = TreeEPG[[1]]$NodePositions)
 ```
 
-Then, we will compute a projection structure, which contains inforlation relative to the projection of points on the edge of the graph
+Then, we will compute a projection structure, which contains information relative to the projection of points on the edge of the graph
 
 ```{r}
 ProjStruct <- project_point_onto_graph(X = tree_data,
@@ -92,7 +93,9 @@ ProjStruct <- project_point_onto_graph(X = tree_data,
                                        Partition = PartStruct$Partition)
 ```
 
-We are now able to obtain the pseudotime, via the `getPseudotime` function. We will use `lapply` to compute all of the pseudotime at once. Moreover, the functions requires nodes to be passed as a vector os strings, so we will need to use the `names` function to convert the sequence of vertices.
+# Computnig pseudotime
+
+We are now able to obtain the pseudotime, via the `getPseudotime` function. We will use `lapply` to compute all of the pseudotime at once. Moreover, the functions requires nodes to be passed as a vector of strings, so we will need to use the `names` function to convert the sequence of vertices.
 
 ```{r}
 AllPt <- lapply(SelPaths, function(x){
@@ -100,10 +103,19 @@ AllPt <- lapply(SelPaths, function(x){
 })
 ```
 
+At this point, we can merge the pseudotime projections. This is possible because points are uniquely projected on the graph and all the paths selected have a common root
 
+```{r}
+PointsPT <- apply(sapply(AllPt, "[[", "Pt"), 1, function(x){unique(x[!is.na(x)])})
+```
 
+When can then visualize the pseudotime on the points via the `PlotPG` function 
 
+```{r}
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = PointsPT)
+```
 
+# Exploring
 
 
 
