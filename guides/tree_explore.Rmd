@@ -1,0 +1,58 @@
+---
+title: "Use structure to redefine dimensionality"
+author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
+date: "11 janvier 2018"
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Once a tree structure has been defined, it is possible to use it to redefine the dimensionality of the data in such way to obtain a structure dependend dimension
+
+# Setup
+
+At first we will create a tree ElPiGraph.
+
+```{r}
+library(ElPiGraph.R)
+library(igraph)
+
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+```
+
+We then need to select a node that will act as a root for the analysis. To do so, we need to visualize the labels of the nodes. To simplify the operation, we will only visualize the id of nodes with degree 1 (i.e., the leaves).
+
+```{r}
+Net <- ConstructGraph(PrintGraph = TreeEPG[[1]])
+Nodelab <- 1:vcount(Net)
+Nodelab[degree(Net) > 1] <-NA
+
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], NodeLabels = Nodelab, LabMult = 8)
+```
+
+For the following example we will use 2 as a the root
+
+```{r}
+BrcStruct <- BranchingDimension(X = tree_data, PrintGraph = TreeEPG[[1]], Start = "2")
+```
+
+The `BrcStruct$DimMatrix` will now contain the points re-dimensionalised. Each column of the matrix contain a branch dimension between 0 and1
+
+```{r}
+BrcStruct$DimMatrix[is.na(BrcStruct$DimMatrix)] <- 0
+pheatmap::pheatmap(BrcStruct$DimMatrix)
+```
+
+
+

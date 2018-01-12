@@ -143,8 +143,6 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = V(Tree_Graph) %in% Tree_e
 Note that `GetSubGraph` returns each structure only once. Therefore, the path from node 4 to node 2 will not be present in the list.
 
 
-
-
 # Looking at the points associted with the structures
 
 With the previourly computed information, it is also easy to extract the points asscoited with each substructure via the association of points to nodes. We begin by associating the points to the nodes

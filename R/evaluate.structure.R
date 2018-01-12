@@ -624,7 +624,7 @@
 
 
 
-#' Produce a multidimensiona dimension matrix
+#' Produce a multidimensional dimension matrix
 #'
 #' @param X a data matrix
 #' @param PrintGraph an ElPiGraph object
@@ -655,18 +655,20 @@ BranchingDimension <- function(X, PrintGraph, Start = NULL) {
   FixedBr <- list()
   
   RetStruct <- matrix(NA, nrow = nrow(X), ncol = length(AllBr))
+  colnames(RetStruct) <- names(AllBr)
   
   for(i in 1:length(AllBr)){
     
     Paths <- igraph::get.shortest.paths(graph = Net, from = Start,
-                                        to = names(Allbr[[i]][c(1, length(Allbr[[i]]))]))$vpath
+                                        to = names(AllBr[[i]][c(1, length(AllBr[[i]]))]))$vpath
     
     if( length(Paths[[1]]) < length(Paths[[2]]) ){
       FixedBr[[i]] <- AllBr[[i]]
     } else {
       FixedBr[[i]] <- rev(AllBr[[i]])
     }
-    Pt <- getPseudotime(Edges = PrintGraph$Edges$Edges, ProjStruct = ProjStruct, EdgeSeq = FixedBr[[i]])
+    Pt <- getPseudotime(ProjStruct = ProjStruct, NodeSeq = FixedBr[[i]])
+
     RetStruct[which(!is.na(Pt$Pt)), i] <- Pt$Pt[!is.na(Pt$Pt)]/Pt$PathLen
     
   }
