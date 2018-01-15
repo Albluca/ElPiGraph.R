@@ -89,7 +89,6 @@ To limit the effect of noise, we can specifiy a trimming radius (which informs t
 
 When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration.
 
-The primary disadvange of 
 
 ```{r}
 TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
@@ -125,20 +124,14 @@ PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, 
 
 # Density dependent inizialisation and trimming radius and bootstrapping
 
-To limit the effect of noise, we can specifiy a trimming radius (which informs the algorithm to use only points with a distance lower than this rasius when computing the position of the nodes), and use a density dependent initialization `ICOver = "Density"`. Note that when using `ICOver = "Density"`, the parameter `DensityRadius`, which is used to determine the area of the space with the highest density of points, need to be specified as well.
-
-When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration.
-
-The primary disadvange of 
-
 ```{r}
 TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
-                                       nReps = 50, ProbPoint = .9,
-                                       TrimmingRadius = .15,
+                                       nReps = 10, ProbPoint = .8,
+                                       TrimmingRadius = .16,
                                        ICOver = "Density", DensityRadius = .15)
 
-PlotPG(X = TD_LowNoise, BootPG = TreeEPG[1:50], TargetPG = TreeEPG[[51]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_LowNoise, BootPG = TreeEPG[1:10], TargetPG = TreeEPG[[11]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
 ```
 
 
