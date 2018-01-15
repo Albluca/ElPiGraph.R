@@ -1,0 +1,168 @@
+---
+  title: "Dealing with noise and outliers via the trimming radius"
+author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
+date: "15 janvier 2018"
+output:
+  html_document:
+  depth: 3
+keep_md: yes
+number_sections: yes
+toc: yes
+md_document:
+  toc: yes
+toc_depth: 2
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In real word examples, the data distributins to be approximated can be *contaminated* by the presence of outliers or poits belonging to a different distribution. To address this aspect, the ElPiGraph.R package implement two functionalities that can be used to minimize the impact of these points: density-dependent inizialisartion and trimming radius.
+
+# Setup
+
+To show the effect of these features, we will start by generating noisy datasets from the tree example present in the package. Similar ideas and concepts apply to the construction fo curves as well.
+
+```{r}
+library(ElPiGraph.R)
+library(igraph)
+
+nPoints <- round(nrow(tree_data)*.5)
+
+NewPoints <- apply(apply(tree_data, 2, range), 2, function(x){
+  runif(n = nPoints, x[1], x[2])
+})
+
+TD_LowNoise <- rbind(tree_data, NewPoints)
+TD_LowNoise_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
+
+
+nPoints <- nrow(tree_data)*2
+
+NewPoints <- apply(apply(tree_data, 2, range), 2, function(x){
+  runif(n = nPoints, x[1], x[2])
+})
+
+TD_MedNoise <- rbind(tree_data, NewPoints)
+TD_MedNoise_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
+
+
+nPoints <- nrow(tree_data)*9
+
+NewPoints <- apply(apply(tree_data, 2, range), 2, function(x){
+  runif(n = nPoints, x[1], x[2])
+})
+
+TD_HighNoise <- rbind(tree_data, NewPoints)
+TD_HighNoise_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
+
+```
+
+# Effect of noisy points
+
+By default the ElPiGraph algorithm uses all the points and generate the initial points on the 1st PC of the data. Therefore, noise can affect significantly the reconstructed tree.
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
+PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+```
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+```
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+```
+
+
+# Density dependent inizialisation and trimming radius
+
+To limit the effect of noise, we can specifiy a trimming radius (which informs the algorithm to use only points with a distance lower than this rasius when computing the position of the nodes), and use a density dependent initialization `ICOver = "Density"`. Note that when using `ICOver = "Density"`, the parameter `DensityRadius`, which is used to determine the area of the space with the highest density of points, need to be specified as well.
+
+When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration.
+
+The primary disadvange of 
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+```
+
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+```
+
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+```
+
+
+# Density dependent inizialisation and trimming radius and bootstrapping
+
+To limit the effect of noise, we can specifiy a trimming radius (which informs the algorithm to use only points with a distance lower than this rasius when computing the position of the nodes), and use a density dependent initialization `ICOver = "Density"`. Note that when using `ICOver = "Density"`, the parameter `DensityRadius`, which is used to determine the area of the space with the highest density of points, need to be specified as well.
+
+When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration.
+
+The primary disadvange of 
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       nReps = 50, ProbPoint = .9,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_LowNoise, BootPG = TreeEPG[1:50], TargetPG = TreeEPG[[51]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+```
+
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+```
+
+
+
+```{r}
+TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+                                       TrimmingRadius = .15,
+                                       ICOver = "Density", DensityRadius = .15)
+
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+```
+
+
+
+
