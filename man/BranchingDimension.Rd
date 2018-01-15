@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluate.structure.R
 \name{BranchingDimension}
 \alias{BranchingDimension}
-\title{Produce a multidimensiona dimension matrix}
+\title{Produce a multidimensional dimension matrix}
 \usage{
 BranchingDimension(X, PrintGraph, Start = NULL)
 }
@@ -22,5 +22,5 @@ a list with two elements
 }
 }
 \description{
-Produce a multidimensiona dimension matrix
+Produce a multidimensional dimension matrix
 }

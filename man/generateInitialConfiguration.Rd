@@ -5,7 +5,8 @@
 \title{Produce an initial graph with a given structure}
 \usage{
 generateInitialConfiguration(X, Nodes, Configuration = "Line",
-  DensityRadius = NULL, MaxPoints = 25000)
+  DensityRadius = NULL, MaxPoints = 25000, PCADensity = TRUE,
+  CenterDataDensity = TRUE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -18,6 +19,8 @@ generateInitialConfiguration(X, Nodes, Configuration = "Line",
 
 \item{MaxPoints}{integer, the maximum number of points for which the local density will be estimated. If the number of data points is
 larger than MaxPoints, a subset of the original points will be sampled}
+
+\item{PCADensity}{boolean, should PCA be applied to the data before computing the most dense area}
 }
 \description{
 Produce an initial graph with a given structure

@@ -1229,12 +1229,15 @@ computeElasticPrincipalCurve <- function(X,
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when Configuration is equal to "Density"
 #' @param MaxPoints integer, the maximum number of points for which the local density will be estimated. If the number of data points is
 #' larger than MaxPoints, a subset of the original points will be sampled
+#' @param PCADensity boolean, should PCA be applied to the data before computing the most dense area 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-generateInitialConfiguration <- function(X, Nodes, Configuration = "Line", DensityRadius = NULL, MaxPoints = 25000){
+generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
+                                         DensityRadius = NULL, MaxPoints = 10000,
+                                         PCADensity = TRUE, CenterDataDensity = TRUE){
   
   DONE <- FALSE
   
@@ -1295,20 +1298,32 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line", Densi
   if(Configuration == "Density"){
     
     if(is.null(DensityRadius)){
-      stop("DensityRadius need to be be specified for density-dependent inizialization!")
+      stop("DensityRadius need to be specified for density-dependent inizialization!")
     }
     
     # Starting from Random Points in the data
     print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
     
-    if(nrow(X) > MaxPoints){
+    if(PCADensity){
+      tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
+      tX <- tX.PCA$x
+    } else {
+      tX <- X
+    }
+    
+    if(nrow(tX) > MaxPoints){
       
-      print(paste("Too many points, a subset"))
+      print(paste("Too many points, a subset of", MaxPoints, "will be sampled"))
       
-      SampedIdxs <- sample(1:nrow(X), MaxPoints)
+      SampedIdxs <- sample(1:nrow(tX), MaxPoints)
       
-      PartStruct <- distutils::PartialDistance(X[SampedIdxs, ], X[SampedIdxs, ])
+      PartStruct <- distutils::PartialDistance(tX[SampedIdxs, ], tX[SampedIdxs, ])
       PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
+      
+      if(max(PointsInNei) < 2){
+        stop("DensityRadius too small (Not enough points found in the neighborhood))!!")
+      }
+      
       IdMax <- which.max(PointsInNei)
       
       NodePositions <- X[SampedIdxs[sample(which(PartStruct[IdMax, ] < DensityRadius), 2)], ]
@@ -1318,11 +1333,11 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line", Densi
       
       DONE <- TRUE
     } else {
-      PartStruct <- distutils::PartialDistance(X, X)
+      PartStruct <- distutils::PartialDistance(tX, tX)
       PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
       
       if(max(PointsInNei) < 2){
-        stop("Too small DensityRadius!!")
+        stop("DensityRadius too small (Not enough points found in the neighborhood))!!")
       }
       
       IdMax <- which.max(PointsInNei)
@@ -1334,6 +1349,8 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line", Densi
       
       DONE <- TRUE
     }
+    
+    
     
   }
   
