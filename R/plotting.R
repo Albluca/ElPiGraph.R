@@ -140,7 +140,7 @@ accuracyComplexityPlot <- function(ReportTable, AdjFactor=1, Main = '', Mode = '
 #' @param GroupsLab string factor, a vector indicating the category of each data point
 #' @param Partition A vector associating each point to a node of the ElPiGraph. If NULL (the default), this will be computed
 #' @param TrimmingRadius numeric, the trimming radius to use when associting points to nodes when Partition = NULL
-#' @param Leg.cex naumeric, a value to adjust the size of the legend
+#' @param Leg.cex numeric, a value to adjust the size of the legend
 #'
 #' @return NULL
 #' @export
@@ -158,7 +158,8 @@ plotPieNet <- function(X,
                        ScaleFunction = sqrt,
                        NodeSizeMult = 1,
                        ColCat = NULL,
-                       Leg.cex = 1) {
+                       Leg.cex = 1,
+                       Arrow.size = 1) {
 
   if(!is.factor(GroupsLab)){
     GroupsLab <- factor(GroupsLab)
@@ -264,7 +265,7 @@ plotPieNet <- function(X,
                       vertex.pie=PieList, vertex.pie.border = NA,
                       vertex.size=NodeSizeMult*do.call(what = ScaleFunction,
                                                        list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions))))),
-                      edge.color = "black", edge.arrow.size = Arrow.size, vertex.label.dist = 0.7, vertex.label.color = "black")
+                      edge.color = "black", vertex.label.dist = 0.7, vertex.label.color = "black")
   
   legend(x = "bottom", legend = names(ColCat), fill = ColCat, horiz = TRUE, cex = Leg.cex)
 
