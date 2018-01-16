@@ -1286,7 +1286,16 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     # Starting from Random Points in the data
     print("Creating a line between two random points of the data")
     
-    NodePositions = X[sample(1:nrow(X), 2),]
+    ID1 <- sample(1:nrow(X), 1)
+    
+    Dist <- distutils::PartialDistance(matrix(X[ID1,], nrow = 1), Br = X)
+    
+    Probs <- 1/Dist
+    Probs[is.infinite(Probs)] <- 0
+    
+    ID2 <- sample(1:nrow(X), 1, prob = Probs)
+    
+    NodePositions <- X[c(ID1, ID2),]
     
     # Creating edges
     edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
@@ -1351,6 +1360,65 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
     
+    
+  }
+  
+  if(Configuration == "DensityProb"){
+    
+    if(is.null(DensityRadius)){
+      stop("DensityRadius need to be specified for density-dependent inizialization!")
+    }
+    
+    # Starting from Random Points in the data
+    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    
+    if(PCADensity){
+      tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
+      tX <- tX.PCA$x
+    } else {
+      tX <- X
+    }
+    
+    if(nrow(tX) > MaxPoints){
+      
+      print(paste("Too many points, a subset of", MaxPoints, "will be sampled"))
+      
+      SampedIdxs <- sample(1:nrow(tX), MaxPoints)
+      
+      PartStruct <- distutils::PartialDistance(tX[SampedIdxs, ], tX[SampedIdxs, ])
+      PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
+      
+      if(max(PointsInNei) < 2){
+        stop("DensityRadius too small (Not enough points found in the neighborhood))!!")
+      }
+      
+      PointsInNei[PointsInNei == 1] <- 0
+      IdMax <- sample(1:length(PointsInNei), prob = PointsInNei)
+      
+      NodePositions <- X[SampedIdxs[sample(which(PartStruct[IdMax, ] < DensityRadius), 2)], ]
+      
+      # Creating edges
+      edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+      
+      DONE <- TRUE
+    } else {
+      PartStruct <- distutils::PartialDistance(tX, tX)
+      PointsInNei <- apply(PartStruct < DensityRadius, 1, sum)
+      
+      if(max(PointsInNei) < 2){
+        stop("DensityRadius too small (Not enough points found in the neighborhood))!!")
+      }
+      
+      PointsInNei[PointsInNei == 1] <- 0
+      IdMax <- sample(1:length(PointsInNei), prob = PointsInNei)
+      
+      NodePositions <- X[sample(which(PartStruct[IdMax, ] < DensityRadius), 2), ]
+      
+      # Creating edges
+      edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+      
+      DONE <- TRUE
+    }
     
   }
   
