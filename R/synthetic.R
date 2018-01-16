@@ -56,7 +56,7 @@ InizializeWalkers <- function(Number = 1,
 #' Data <- GrowPath(Walkers = Walkers, StepSize = 50, nSteps = 2000, BranchProb = .0015, MinAgeBr = 75, BrDim = 15)
 #' 
 GrowPath <- function(Walkers,
-                     StepSize = .1,
+                     StepSD = .1,
                      nSteps = 100,
                      BranchProb = .01,
                      MinAgeBr = 50,
@@ -64,13 +64,18 @@ GrowPath <- function(Walkers,
   
   Trace <- matrix(0, nrow = 0, ncol = length(Walkers[[1]]$Pos))
   Branch = NULL
+  TimeVect = NULL
+  TimeVal <- -1
   
   while(nrow(Trace) < nSteps){
     nWalkers <- length(Walkers)
+    TimeVal <- TimeVal + 1
     for(j in 1:nWalkers){
       # Create a new point by diffusion
-      Walkers[[j]]$Pos <- Walkers[[j]]$Pos + Walkers[[j]]$Dif + rnorm(n = Walkers[[j]]$nDim, sd = StepSize)
+      Walkers[[j]]$Pos <- Walkers[[j]]$Pos + Walkers[[j]]$Dif + rnorm(n = Walkers[[j]]$nDim, sd = StepSD)
       Trace <- rbind(Trace, Walkers[[j]]$Pos)
+      # Keep track of the time
+      TimeVect <- c(TimeVect, TimeVal)
       # In crese the age of the walker
       Walkers[[j]]$Age <- Walkers[[j]]$Age + 1
       # Keep Track of the originating population
@@ -94,7 +99,7 @@ GrowPath <- function(Walkers,
     }
   }
   
-  return(list(UpdatedWalker = Walkers, Trace = Trace, Branch = Branch))
+  return(list(UpdatedWalker = Walkers, Trace = Trace, Branch = Branch, Time = TimeVect))
   
 }
 
