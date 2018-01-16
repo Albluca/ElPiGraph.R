@@ -6,7 +6,7 @@
 \usage{
 PrimitiveElasticGraphEmbedment(X, NodePositions, ElasticMatrix,
   MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1, SquaredX = NULL,
-  verbose = FALSE, FastSolve = FALSE)
+  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE)
 }
 \arguments{
 \item{X}{is n-by-m matrix containing the positions of the n points in the m-dimensional space}
@@ -32,7 +32,9 @@ to be considered the graph embedded (convergence criteria)}
 
 \item{verbose}{is a boolean indicating whether diagnostig informations should be plotted}
 
-\item{FastSolve}{boolena. Shuold the Fastsolve of Armadillo by enabled?}
+\item{FastSolve}{boolean, shuold the Fastsolve of Armadillo by enabled?}
+
+\item{DisplayWarnings}{boolean, should warning about convergence be displayed?}
 }
 \description{
 Function fitting a primitive elastic graph to the data

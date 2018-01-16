@@ -299,7 +299,9 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param Mode integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 #' 2 (difference is computed using the changes in elestic energy of the configuraztions)
 #' @param SquaredX the sum (by node) of X squared. It not specified, it will be calculated by the fucntion
-#' @param FastSolve boolena. Shuold the Fastsolve of Armadillo by enabled?
+#' @param FastSolve boolean, shuold the Fastsolve of Armadillo by enabled?
+#' @param DisplayWarnings boolean, should warning about convergence be displayed? 
+#' 
 #'
 #' @return
 #' @export
@@ -314,7 +316,8 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            Mode = 1,
                                            SquaredX = NULL,
                                            verbose = FALSE,
-                                           FastSolve = FALSE) {
+                                           FastSolve = FALSE,
+                                           DisplayWarnings = FALSE) {
 
   N = nrow(X)
   PointWeights = rep(1, N)
@@ -423,7 +426,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
   }
   
-  if(!Converged){
+  if(DisplayWarnings & !Converged){
     warning(paste0("Maximum number of iterations (", MaxNumberOfIterations, ") has been reached. diff = ", difference))
   }
 

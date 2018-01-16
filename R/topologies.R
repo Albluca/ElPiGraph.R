@@ -859,6 +859,9 @@ computeElasticPrincipalTree <- function(X,
                                         ICOver = NULL,
                                         DensityRadius = NULL) {
   
+  
+  # Create a cluster if requested
+  
   if(n.cores > 1){
     if(ClusType == "Fork"){
       print(paste("Creating a fork cluster with", n.cores, "nodes"))
@@ -872,39 +875,32 @@ computeElasticPrincipalTree <- function(X,
     cl = 1
   }
   
+  # Be default we are using a predefined initial configuration
+  ComputeIC <- FALSE
+  
+  # Generate a dummy subset is not specified
   if(length(Subsets) == 0){
     Subsets[[1]] <- 1:ncol(X)
   }
   
+  # Prepare the list to be returned
   ReturnList <- list()
   
+  # Copy the original matrix, this is need in case of subsetting
   Base_X <- X
   
+  # For each subset
   for(j in 1:length(Subsets)){
     
+    # Generate the appropriate matrix
     X <- Base_X[, Subsets[[j]]]
     
+    # Export the data matrix to the cluster is needed
     if(n.cores > 1 & ClusType != "Fork"){
       parallel::clusterExport(cl, varlist = c("X"), envir=environment())
     }
     
-    if(is.null(InitNodePositions) | is.null(InitEdges)){
-      if(is.null(ICOver)){
-        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = "Line")
-      } else {
-        InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
-      }
-      
-      InitEdges <- InitialConf$Edges
-      
-      EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
-      
-      InitNodePositions <- PrimitiveElasticGraphEmbedment(
-        X = X, NodePositions = InitialConf$NodePositions,
-        MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
-        ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
-    }
-    
+    # Define temporary variable to avoid excessing plotting
     Intermediate.drawPCAView <- drawPCAView
     Intermediate.drawAccuracyComplexity <- drawAccuracyComplexity 
     Intermediate.drawEnergy <- drawEnergy
@@ -913,10 +909,36 @@ computeElasticPrincipalTree <- function(X,
     # print(Subsets[[j]] %in% colnames(Base_X))
     # print(dim(Base_X))
     
-   
-    
+    # For each repetition
     for(i in 1:nReps){
       
+      # De we need to compute the initial conditions?
+      if(is.null(InitNodePositions) | is.null(InitEdges)){
+        
+        # We are computing the initial conditions. InitNodePositions need to be reset after each step!
+        ComputeIC <- TRUE
+        
+        # are we using an user-defined configuration for the initial configuration?
+        if(is.null(ICOver)){
+          InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = "Line")
+        } else {
+          InitialConf <- generateInitialConfiguration(X, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
+        }
+        
+        # Set the initial edge configuration
+        InitEdges <- InitialConf$Edges
+        
+        # Compute the initial elastic matrix
+        EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+        
+        # Compute the initial node position
+        InitNodePositions <- PrimitiveElasticGraphEmbedment(
+          X = X, NodePositions = InitialConf$NodePositions,
+          MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+          ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+      }
+      
+      # Limit plotting after a few examples
       if(length(ReturnList) == 3){
         print("Graphical output will be suppressed for the remaining replicas")
         Intermediate.drawPCAView <- FALSE
@@ -926,6 +948,7 @@ computeElasticPrincipalTree <- function(X,
       
       print(paste("Constructing tree", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
       
+      # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = X[runif(nrow(X)) <= ProbPoint, ], NumNodes = NumNodes, NumEdges = NumEdges,
                                                       InitNodePositions = InitNodePositions, InitEdges = InitEdges,
                                                       GrowGrammars = list(c('bisectedge','addnode2node'),c('bisectedge','addnode2node')),
@@ -941,16 +964,50 @@ computeElasticPrincipalTree <- function(X,
                                                       n.cores = cl, ClusType = ClusType,
                                                       FastSolve = FastSolve)
       
+      # Save extra information
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
       
+      # Reset InitNodePositions for the next iteration
+      if(ComputeIC){
+        InitNodePositions <- NULL
+      }
+      
     }
     
+    # Are we using bootstrapping (nRep > 1). If yes we compute the consensus tree
     if(nReps>1){
       
       print("Constructing average tree")
       
+      # The nodes of the principal trees will be used as points to compute the consensus tree
       AllPoints <- do.call(rbind, lapply(ReturnList[sapply(ReturnList, "[[", "SubSetID") == j], "[[", "NodePositions"))
+      
+      # De we need to compute the initial conditions?
+      if(is.null(InitNodePositions) | is.null(InitEdges)){
+        
+        # are we using an user-defined configuration for the initial configuration?
+        if(is.null(ICOver)){
+          InitialConf <- generateInitialConfiguration(AllPoints, Nodes = InitNodes, Configuration = "Line")
+        } else {
+          InitialConf <- generateInitialConfiguration(AllPoints, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
+        }
+        
+          print(InitialConf)
+          
+        # Set the initial edge configuration
+        InitEdges <- InitialConf$Edges
+        
+        # Compute the initial elastic matrix
+        EM <- Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+        
+        # Compute the initial node position
+        InitNodePositions <- PrimitiveElasticGraphEmbedment(
+          X = X, NodePositions = InitialConf$NodePositions,
+          MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+          ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+      }
+      
       
       ReturnList[[length(ReturnList)+1]] <- computeElasticPrincipalGraph(Data = AllPoints, NumNodes = NumNodes, NumEdges = NumEdges,
                                                             InitNodePositions = InitNodePositions, InitEdges = InitEdges,
@@ -963,8 +1020,9 @@ computeElasticPrincipalTree <- function(X,
                                                             ReduceDimension = ReduceDimension, Mode = Mode,
                                                             drawAccuracyComplexity = drawAccuracyComplexity,
                                                             drawPCAView = drawPCAView, drawEnergy = drawEnergy,
-                                                            n.cores = cl, FastSolve = FastSolve)
+                                                            n.cores = 1, FastSolve = FastSolve)
       
+      # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
       
@@ -972,6 +1030,7 @@ computeElasticPrincipalTree <- function(X,
     
   }
   
+  # if we created a cluster we need to stop it
   if(n.cores > 1){
     parallel::stopCluster(cl)
   }
@@ -1224,7 +1283,19 @@ computeElasticPrincipalCurve <- function(X,
 #' Produce an initial graph with a given structure
 #'
 #' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param Configuration string, type of graph to return. It can be "Line", "Circle", or "Density"
+#' @param Configuration string, type of graph to return. It should be one of the following value
+#' \describe{
+#'   \item{"Line"}{Points are placed on the 1st principal component between mean-sd and mean+sd}
+#'   \item{"Circle"}{Points are placed on the the plane induced by the 1st and 2nd principal components.
+#'   In both dimensions they are placed between mean-sd and mean+sd}
+#'   \item{"Density"}{Two points are selected randomly in the neighborhood of one of the points with
+#'   the largest number of neighbour points}
+#'   \item{"DensityProb"}{Two points are selected randomly in the neighborhood of one of a point randomly
+#'   selected with a probability proportional to the number of neighbour points}
+#'   \item{"Random"}{Two points are returned. The first is selected at random, and the second is selected with
+#'   a probability inversely proportional to thr distance to the 1st point selected}
+#' }
+#' 
 #' @param Nodes integer, number of nodes of the graph
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when Configuration is equal to "Density"
 #' @param MaxPoints integer, the maximum number of points for which the local density will be estimated. If the number of data points is
