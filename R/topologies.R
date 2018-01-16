@@ -1393,7 +1393,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
       }
       
       PointsInNei[PointsInNei == 1] <- 0
-      IdMax <- sample(1:length(PointsInNei), prob = PointsInNei)
+      IdMax <- sample(1:length(PointsInNei), size = 1, prob = PointsInNei)
       
       NodePositions <- X[SampedIdxs[sample(which(PartStruct[IdMax, ] < DensityRadius), 2)], ]
       
@@ -1410,7 +1410,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
       }
       
       PointsInNei[PointsInNei == 1] <- 0
-      IdMax <- sample(1:length(PointsInNei), prob = PointsInNei)
+      IdMax <- sample(1:length(PointsInNei), size = 1, prob = PointsInNei)
       
       NodePositions <- X[sample(which(PartStruct[IdMax, ] < DensityRadius), 2), ]
       
