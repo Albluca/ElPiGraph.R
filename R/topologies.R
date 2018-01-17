@@ -993,7 +993,7 @@ computeElasticPrincipalTree <- function(X,
           InitialConf <- generateInitialConfiguration(AllPoints, Nodes = InitNodes, Configuration = ICOver, DensityRadius = DensityRadius)
         }
         
-          print(InitialConf)
+        # print(InitialConf)
           
         # Set the initial edge configuration
         InitEdges <- InitialConf$Edges
