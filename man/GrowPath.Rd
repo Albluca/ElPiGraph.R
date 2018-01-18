@@ -4,14 +4,11 @@
 \alias{GrowPath}
 \title{Grow a branching path using walkers}
 \usage{
-GrowPath(Walkers, StepSize = 0.1, nSteps = 100, BranchProb = 0.01,
+GrowPath(Walkers, StepSD = 0.1, nSteps = 100, BranchProb = 0.01,
   MinAgeBr = 50, BrDim = 5)
 }
 \arguments{
 \item{Walkers}{list, a list of walker as returned from the InizializeWalkers function}
-
-\item{StepSize}{positive numeric, the standard deviation associated with the movement
-in each direction for each step}
 
 \item{nSteps}{integer, the number of steps}
 
@@ -20,6 +17,9 @@ in each direction for each step}
 \item{MinAgeBr}{integer, the minimal number of steps before a newly introduced walker will start branhing}
 
 \item{BrDim}{integer, the number of dimensions affected during branching}
+
+\item{StepSize}{positive numeric, the standard deviation associated with the movement
+in each direction for each step}
 }
 \description{
 Grow a branching path using walkers

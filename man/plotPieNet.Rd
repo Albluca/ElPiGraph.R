@@ -7,7 +7,7 @@
 plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
   TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
   TreeRoot = numeric(), Main = "", ScaleFunction = sqrt,
-  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1)
+  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1, Arrow.size = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -40,7 +40,7 @@ plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
 
 \item{ColCat}{string vector, a vector of colors to associate to each category}
 
-\item{Leg.cex}{naumeric, a value to adjust the size of the legend}
+\item{Leg.cex}{numeric, a value to adjust the size of the legend}
 }
 \description{
 Plot a graph with pie chart associated with each node
