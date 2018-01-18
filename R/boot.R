@@ -21,7 +21,7 @@
 #'   }
 #' @param TargetPG an optional parameter describing the target ElPiGraph. Currently unused.
 #'
-#' @return a numeric vector with the same length as the number of rows of X. Higher values indicates larger uncertainty.
+#' @return a numeric vector with the same length as the number of rows of X. Higher values indicate larger uncertainty.
 #' @export
 #'
 #' @examples
@@ -53,6 +53,9 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
   })
   
   X_Proj <- lapply(AllPrj, "[[", "X_projected")
+  # X_dist <- lapply(AllPrj, function(x){
+  #   sqrt(rowSums((X - x$X_projected)^2))
+  # })
   
   X_Proj_Mat <- do.call(rbind, X_Proj)
   
@@ -90,10 +93,85 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
     })
   }
   
+  if(Mode == "MedianDistCentroid"){
+    PointUnc <- sapply(1:nrow(X), function(i){
+      Sel <- seq(from=i, to=nrow(X_Proj_Mat), by = nrow(X))
+      X_Proj_Dist <- distutils::PartialDistance(matrix(colMeans(X_Proj_Mat[Sel,]), nrow = 1), X_Proj_Mat[Sel,])
+      mean(X_Proj_Dist)
+    })
+  }
+  
   return(PointUnc)
 }
 
 
 
 
-
+# 
+# 
+# GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist") {
+#   
+#   AllNodePos <- lapply(BootPG, "[[", "NodePositions")
+#   
+#   AllNodePos_Mat <- do.call(rbind, AllNodePos)
+#   
+#   AllDists <- distutils::PartialDistance(AllNodePos_Mat, AllNodePos_Mat)
+# 
+#   plot(AllNodePos_Mat[,1:2])
+#   KM <- kmeans(x = AllNodePos_Mat, centers = BootPG[[1]]$NodePositions)
+#   
+#   
+#   plot(AllNodePos_Mat[,1:2])
+#   points(tree_data[,1:2], pch = 2, col = "blue")
+#   points(AllNodePos_Mat[rowSums(AllDists < .07) > 22, 1:2], col='red')
+#   
+#   hist(apply(AllDists, 1, quantile, .25))
+#   abline(v=median(AllDists))
+#   
+#   plot(AllNodePos_Mat[apply(AllDists, 1, quantile, .1) < quantile(AllDists, .1),1:2])
+#   
+#   NodesPerGraph <- sapply(BootPG, function(x) {nrow(x$NodePositions)})
+#   
+#   GraphID_Vect <- lapply(1:length(BootPG), function(i){
+#     rep(i, NodesPerGraph[i])
+#   })
+#   
+#   NodeID_Vect <- lapply(NodesPerGraph, function(i){
+#     1:i
+#   })
+#   
+#   GraphID_Vect <- do.call(c, GraphID_Vect)
+#   NodeID_Vect <- do.call(c, NodeID_Vect)
+#   
+#   nClust <- 
+#   
+#   
+#   plot(AllNodePos_Mat[,1:2])
+#   
+#   lapply(split(GraphID_Vect, KM$cluster), function(x){length(unique(x))})
+#   
+#   groups <- cutree(hclust(as.dist(AllDists)), k = max(NodeID_Vect))
+#   
+#   
+#   AdjMat <- matrix(0, nrow = max(NodeID_Vect), ncol = max(NodeID_Vect))
+#   
+#   for(i in 1:(length(BootPG)-1)){
+#     for(k in 1:nrow(BootPG[[i]]$Edges)){
+#       AdjMat[BootPG[[i]]$Edges[k, 1]] <- 
+#     }
+#     
+#     for(j in (i+1):length(BootPG)){
+#       apply(AllDists[GraphID_Vect == i, GraphID_Vect == j], 1, which.min)
+#     }
+#   }
+#   
+#   
+#   
+# }
+# 
+# 
+# 
+# 
+# 
+# 
+# 

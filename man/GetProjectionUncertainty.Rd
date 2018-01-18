@@ -32,7 +32,7 @@ distance of the original points from the centroid is returned}
 \item{TargetPG}{an optional parameter describing the target ElPiGraph. Currently unused.}
 }
 \value{
-a numeric vector with the same length as the number of rows of X. Higher values indicates larger uncertainty.
+a numeric vector with the same length as the number of rows of X. Higher values indicate larger uncertainty.
 }
 \description{
 Compute projection-associted uncertainty

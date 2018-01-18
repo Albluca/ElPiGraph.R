@@ -6,7 +6,7 @@
 \usage{
 PrimitiveElasticGraphEmbedment(X, NodePositions, ElasticMatrix,
   MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1, SquaredX = NULL,
-  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE)
+  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE, prob = 1)
 }
 \arguments{
 \item{X}{is n-by-m matrix containing the positions of the n points in the m-dimensional space}

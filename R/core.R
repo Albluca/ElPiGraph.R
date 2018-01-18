@@ -317,7 +317,8 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            SquaredX = NULL,
                                            verbose = FALSE,
                                            FastSolve = FALSE,
-                                           DisplayWarnings = FALSE) {
+                                           DisplayWarnings = FALSE,
+                                           prob = 1) {
 
   N = nrow(X)
   PointWeights = rep(1, N)
@@ -362,16 +363,34 @@ PrimitiveElasticGraphEmbedment <- function(X,
       difference = NA
       
       NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
-                                                      PointWeights = PointWeights,
-                                                      NodePositions = NodePositions,
-                                                      SpringLaplacianMatrix = SpringLaplacianMatrix,
-                                                      partition = PartDataStruct$Partition,
-                                                      FastSolve = FastSolve)
+                                                                 PointWeights = PointWeights,
+                                                                 NodePositions = NodePositions,
+                                                                 SpringLaplacianMatrix = SpringLaplacianMatrix,
+                                                                 partition = PartDataStruct$Partition,
+                                                                 FastSolve = FastSolve)
       
       break()
+      
     }
     
     # Updated positions
+    
+    
+    # if(prob<1){
+    #   NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[runif(nrow(X)) < prob, ],
+    #                                                              PointWeights = PointWeights,
+    #                                                              NodePositions = NodePositions,
+    #                                                              SpringLaplacianMatrix = SpringLaplacianMatrix,
+    #                                                              partition = PartDataStruct$Partition,
+    #                                                              FastSolve = FastSolve)
+    # } else {
+      NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
+                                                                 PointWeights = PointWeights,
+                                                                 NodePositions = NodePositions,
+                                                                 SpringLaplacianMatrix = SpringLaplacianMatrix,
+                                                                 partition = PartDataStruct$Partition,
+                                                                 FastSolve = FastSolve)
+    # }
     
     NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
                                                                  PointWeights = PointWeights,
