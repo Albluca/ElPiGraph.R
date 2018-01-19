@@ -525,14 +525,16 @@ PlotPG <- function(X,
                                      inherit.aes = FALSE, alpha=.3)
     }
     
-    
-    if(is.factor(GroupsLab)){
-      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, col = Col),
-                                     inherit.aes = TRUE) + ggplot2::labs(linetype = "")
-    } else {
-      p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend),
-                                     inherit.aes = FALSE)
+    if("Target" %in% VizMode){
+      if(is.factor(GroupsLab)){
+        p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend, col = Col),
+                                       inherit.aes = TRUE) + ggplot2::labs(linetype = "")
+      } else {
+        p <- p + ggplot2::geom_segment(data = df2, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend),
+                                       inherit.aes = FALSE)
+      }
     }
+    
     
     if(Do_PCA){
       df4 <- data.frame(PCA = CombPCA$x[,Idx1], PCB = CombPCA$x[,Idx2])
