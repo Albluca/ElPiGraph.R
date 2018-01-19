@@ -482,7 +482,8 @@ computeElasticPrincipalGraph <- function(Data,
 
   FinalPG <- list(NodePositions = NodePositions, Edges = Edges, ReportTable = ElData$ReportTable,
                   FinalReport = ElData$FinalReport, ElasticMatrix = ElData$ElasticMatrix,
-                  Lambda = ElData$Lambda, Mu = ElData$Mu, FastSolve = ElData$FastSolve)
+                  Lambda = ElData$Lambda, Mu = ElData$Mu, TrimmingRadius = TrimmingRadius,
+                  FastSolve = ElData$FastSolve)
   
   if(drawPCAView){
     
