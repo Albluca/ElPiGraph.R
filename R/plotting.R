@@ -300,6 +300,7 @@ plotPieNet <- function(X,
 #' rotate the space? If TRUE the plots will use the "EpG PC" as dimensions, if FALSE, the original dimensions will be used. 
 #' @param DimToPlot a integer vector specifing the PCs (if Do_PCA=TRUE) or dimension (if Do_PCA=FALSE) to plot. All the
 #' combination will be considered, so, for example, if DimToPlot = 1:3, three plot will be produced.
+#' @param VizMode vector of string, describing the ElPiGraphs to visualize. Any combination of "Target" and "Boot".
 #'
 #' @return
 #' @export
@@ -317,7 +318,8 @@ PlotPG <- function(X,
                    NodeLabels = NULL,
                    LabMult = 1,
                    Do_PCA = TRUE,
-                   DimToPlot = c(1,2)) {
+                   DimToPlot = c(1,2),
+                   VizMode = c("Target", "Boot")) {
   
   
   # X = Data.Kowa.CV$Analysis$FinalExpMat
@@ -355,8 +357,6 @@ PlotPG <- function(X,
       }
     }
   }
-  
-  
 
   if(Do_PCA){
     CombPCA <- prcomp(TargetPG$NodePositions, retx = TRUE, center = TRUE)
@@ -457,7 +457,7 @@ PlotPG <- function(X,
     
     # Replicas
     
-    if(!is.null(BootPG)){
+    if(!is.null(BootPG) & ("Boot" %in% VizMode)){
       AllEdg <- lapply(1:length(BootPG), function(i){
         tTree <- BootPG[[i]]
         
@@ -520,8 +520,6 @@ PlotPG <- function(X,
                              Group = GroupsLab)
       }
       
-      
-      
       p <- p + ggplot2::geom_segment(data = ProjDF,
                                      mapping = ggplot2::aes(x=X, y=Y, xend = Xend, yend = Yend, col = Group),
                                      inherit.aes = FALSE, alpha=.3)
@@ -542,22 +540,24 @@ PlotPG <- function(X,
       df4 <- data.frame(PCA = TargetPG$NodePositions[,Idx1], PCB = TargetPG$NodePositions[,Idx2])
     }
     
-    
-    if(!is.null(PointSize)){
-      if(!is.na(PointSize)){
-        p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, size = PointSize),
-                                   data = df4,
-                                   inherit.aes = FALSE)
+    if("Target" %in% VizMode){
+      if(!is.null(PointSize)){
+        if(!is.na(PointSize)){
+          p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB, size = PointSize),
+                                       data = df4,
+                                       inherit.aes = FALSE)
+        } else {
+          p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
+                                       data = df4, size = 0,
+                                       inherit.aes = FALSE)
+        }
       } else {
         p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
-                                     data = df4, size = 0,
+                                     data = df4,
                                      inherit.aes = FALSE)
       }
-    } else {
-      p <- p + ggplot2::geom_point(mapping = ggplot2::aes(x=PCA, y=PCB),
-                                   data = df4,
-                                   inherit.aes = FALSE)
     }
+    
     
     
     
@@ -575,6 +575,7 @@ PlotPG <- function(X,
                                   data = df4, hjust = 0,
                                   inherit.aes = FALSE, na.rm = TRUE,
                                   check_overlap = TRUE, color = "black", size = LabMult)
+      
     }
     
     if(Do_PCA){

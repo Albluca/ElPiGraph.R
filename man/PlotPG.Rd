@@ -7,7 +7,7 @@
 PlotPG(X, TargetPG, BootPG = NULL, PGCol = "", PlotProjections = "none",
   GroupsLab = NULL, PointViz = "points", Main = "", p.alpha = 0.3,
   PointSize = NULL, NodeLabels = NULL, LabMult = 1, Do_PCA = TRUE,
-  DimToPlot = c(1, 2))
+  DimToPlot = c(1, 2), VizMode = c("Target", "Boot"))
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -44,6 +44,8 @@ rotate the space? If TRUE the plots will use the "EpG PC" as dimensions, if FALS
 
 \item{DimToPlot}{a integer vector specifing the PCs (if Do_PCA=TRUE) or dimension (if Do_PCA=FALSE) to plot. All the
 combination will be considered, so, for example, if DimToPlot = 1:3, three plot will be produced.}
+
+\item{VizMode}{vector of string, describing the ElPiGraphs to visualize. Any combination of "Target" and "Boot".}
 }
 \description{
 Plot data and principal graph(s)
