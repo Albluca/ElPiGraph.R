@@ -430,6 +430,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
     # Have we converged?
     
+    if(is.nan(difference)){
+      difference = 0
+    }
+    
     if(difference < eps){
       Converged <- TRUE
       break()
