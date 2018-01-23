@@ -77,8 +77,13 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
     cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
   }
 
-  UpdatedPG <- list(ElasticMatrix = ElasticMatrix, NodePositions = NodesPositions)
+  InitNodePositions <- PrimitiveElasticGraphEmbedment(
+    X = X, NodePositions = NodesPositions,
+    MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+    ElasticMatrix = ElasticMatrix, Mode = Mode)$EmbeddedNodePositions
 
+  UpdatedPG <- list(ElasticMatrix = ElasticMatrix, NodePositions = InitNodePositions)
+  
   ReportTable <- NULL
   ToSrink <- c(2, 9, 10, 11, 12, 13, 14, 15, 16, 17)
 
@@ -125,19 +130,26 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
   }
 
   if(nrow(UpdatedPG$NodePositions) >= NumNodes){
-    return(list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
-                ReportTable = ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
-                                                              ElasticMatrix = UpdatedPG$ElasticMatrix,  
-                                                              PartData = PartitionData(X = X,
-                                                                                        NodePositions = UpdatedPG$NodePositions,
-                                                                                        SquaredX = SquaredX,
-                                                                                        TrimmingRadius = TrimmingRadius,
-                                                                                        nCores = 1),
-                                                              ComputeMSEP = ComputeMSEP)))
+    
+    FinalReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+                                                   ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                   PartData = PartitionData(X = X,
+                                                                            NodePositions = UpdatedPG$NodePositions,
+                                                                            SquaredX = SquaredX,
+                                                                            TrimmingRadius = TrimmingRadius,
+                                                                            nCores = 1),
+                                                   ComputeMSEP = ComputeMSEP)
+    
+    return(
+      list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
+           ReportTable = unlist(FinalReport), FinalReport = FinalReport, Lambda = Lambda, Mu = Mu,
+           FastSolve = FastSolve)
+      )
   }
 
   StartNodes <- nrow(UpdatedPG$NodePositions)
   
+  # print(FinalReport)
   
   for(i in StartNodes:(NumNodes-1)){
     
@@ -212,7 +224,12 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 
     if(CompileReport){
       tReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
-                                                 ElasticMatrix = UpdatedPG$ElasticMatrix, PartData = NULL,
+                                                 ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                 PartData = PartitionData(X = X,
+                                                                          NodePositions = UpdatedPG$NodePositions,
+                                                                          SquaredX = SquaredX,
+                                                                          TrimmingRadius = TrimmingRadius,
+                                                                          nCores = 1),
                                                  ComputeMSEP = ComputeMSEP)
       FinalReport <- tReport
       tReport <- unlist(tReport)
@@ -240,8 +257,6 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                                            TrimmingRadius = TrimmingRadius,
                                                                            nCores = 1),
                                                  ComputeMSEP = ComputeMSEP)
-      print(is.list(tReport))
-      FinalReport <- tReport
       tReport <- unlist(tReport)
       tReport[ToSrink] <- sapply(tReport[ToSrink], function(x) {
         signif(as.numeric(x), 4)
@@ -250,6 +265,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
       tReport <- ReportTable[nrow(ReportTable),]
       tReport <- unlist(tReport)
     }
+    
+    FinalReport <- tReport
 
     cat("\n")
     cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
@@ -263,7 +280,23 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
     print("Stopping the cluster")
     parallel::stopCluster(cl)
   }
+  
+  # print(ReportTable)
+  
+  if(is.list(ReportTable)){
+    ReportTable <- unlist(ReportTable)
+  }
+  
+  # print(ReportTable)
+  
+  if(is.null(dim(ReportTable))){
+    RPNames <- names(ReportTable)
+    ReportTable <- matrix(ReportTable, nrow = 1)
+    colnames(ReportTable) <- RPNames
+  }
 
+  # print(ReportTable)
+  
   return(list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
               ReportTable = ReportTable, FinalReport = FinalReport, Lambda = Lambda, Mu = Mu,
               FastSolve = FastSolve))
