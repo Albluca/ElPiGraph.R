@@ -257,6 +257,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                                            TrimmingRadius = TrimmingRadius,
                                                                            nCores = 1),
                                                  ComputeMSEP = ComputeMSEP)
+      FinalReport <- tReport
       tReport <- unlist(tReport)
       tReport[ToSrink] <- sapply(tReport[ToSrink], function(x) {
         signif(as.numeric(x), 4)
@@ -265,8 +266,6 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
       tReport <- ReportTable[nrow(ReportTable),]
       tReport <- unlist(tReport)
     }
-    
-    FinalReport <- tReport
 
     cat("\n")
     cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
