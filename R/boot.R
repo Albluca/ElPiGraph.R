@@ -121,7 +121,7 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
 #' @export
 #'
 #' @examples
-GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinEdgMult = 2, MinNodeMult = 2, RemoveIsolatedNodes = TRUE) {
+GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinEdgMult = 2, MinNodeMult = 2, NodesInflation = 1, RemoveIsolatedNodes = TRUE) {
   
   if(Mode == "EdgeDist"){
     
@@ -368,7 +368,7 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
     FilAllNodePos_Mat <- AllNodePos_Mat[NodeTolMult > MinNodeMult + 1, ]
     
     HC <- hclust(d = as.dist(AllNodeDist[rownames(FilAllNodePos_Mat),rownames(FilAllNodePos_Mat)]))
-    Cls <- cutree(HC, k = AllNodesCount[1]*1.2)
+    Cls <- cutree(HC, k = round(AllNodesCount[1]*NodesInflation))
     
     Crt <- sapply(1:max(Cls), function(i) {
       if(sum(Cls == i)>1){
@@ -381,7 +381,6 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
     IdNodes <- split(rownames(FilAllNodePos_Mat), Cls)
     
     ConMat <- matrix(0, max(Cls), max(Cls))
-    
     
     
     for(i in 1:(max(Cls)-1)){
@@ -430,28 +429,30 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
     
     EdgeList <- which(ConMat >= MinEdgMult, arr.ind = TRUE)
     
-    GR <- igraph::graph.edgelist(EdgeList)
+    GR <- igraph::graph.empty(n = ncol(Crt), directed = FALSE)
+    igraph::V(GR)$nodeID <- paste(1:ncol(Crt))
+    GR <- igraph::add.edges(GR, edges = t(EdgeList))
     
     if(RemoveIsolatedNodes){
       
-      ToRemove <- which(!(1:ncol(Crt) %in% unique(EdgeList)))
+      GR1 <- igraph::delete.vertices(GR, which(igraph::degree(GR) == 0))
+      ToKeep <- as.integer(igraph::V(GR1)$nodeID)
       
-      for (i in ToRemove) {
-        EdgeList[EdgeList > i] <- EdgeList[EdgeList > i] + 1
-        Crt <- Crt[, -i]
-      }
-      
-      
+      Crt <- Crt[, ToKeep]
+      EdgeList <- igraph::get.edgelist(GR1)
+    
     }
     
     if(!igraph::is.connected(GR)){
+      
       warning("Graph is not connected")
       
       plot(tree_data)
       points(t(Crt), col = "red")
       for(i in 1:nrow(EdgeList)){
-        arrows(x0 = t(Crt)[EdgeList[i, 1], 1], y0 = t(Crt)[EdgeList[i, 1], 2],
-               x1 = t(Crt)[EdgeList[i, 2], 1], y1 = t(Crt)[EdgeList[i, 2], 2], length = 0)
+        arrows(x0 = t(Crt[1, EdgeList[i, 1]]), y0 = t(Crt[2, EdgeList[i, 1]]),
+               x1 = t(Crt[1, EdgeList[i, 2]]), y1 = t(Crt[2, EdgeList[i, 2]]),
+               length = 0)
       }
       
       
@@ -530,6 +531,37 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
 
 
 
+
+
+
+#' Find the points associted with the final ElPiGraph structure
+#'
+#' @param X numeric matrix (rows are points)
+#' @param BootPG a list of ElPiGraph structures
+#' @param TrimmingRadius the trimming radius to use. If NULL (the default), the one provided by the single ElPiGraph structures will be used
+#'
+#' @return
+#' @export
+#'
+#' @examples
+FindAssocited <- function(X, BootPG, TrimmingRadius = NULL) {
+  
+  SquaredX <- rowSums(X^2)
+  
+  if(is.null(TrimmingRadius)){
+    AssocitedPoints <- sapply(BootPG, function(tStruct){
+      PD <- PartitionData(X = X, NodePositions = tStruct$NodePositions, SquaredX = SquaredX, TrimmingRadius = tStruct$TrimmingRadius, nCores = 1)
+      return(PD$Partition != 0)
+    })
+  } else {
+    AssocitedPoints <- sapply(BootPG, function(tStruct){
+      PD <- PartitionData(X = X, NodePositions = tStruct$NodePositions, SquaredX = SquaredX, TrimmingRadius = TrimmingRadius, nCores = 1)
+      return(PD$Partition != 0)
+    })
+  }
+  
+  return(rowSums(AssocitedPoints))
+}
 
 
 
