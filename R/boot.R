@@ -441,6 +441,7 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
       Crt <- Crt[, ToKeep]
       EdgeList <- igraph::get.edgelist(GR1)
     
+      GR <- GR1
     }
     
     if(!igraph::is.connected(GR)){
