@@ -589,14 +589,14 @@ PlotPG <- function(X,
     }
     
     
-    if(!is.na(TargetPG$ReportTable[nrow(TargetPG$ReportTable),"FVEP"])){
+    if(!is.na(TargetPG$FinalReport$FVEP)){
       p <- p + ggplot2::labs(x = LabX,
                              y = LabY,
                              title = paste0(Main,
                                             "/ FVE=",
-                                            signif(as.numeric(TargetPG$ReportTable[nrow(TargetPG$ReportTable),"FVE"]), 3),
+                                            signif(as.numeric(TargetPG$FinalReport$FVE), 3),
                                             "/ FVEP=",
-                                            signif(as.numeric(TargetPG$ReportTable[nrow(TargetPG$ReportTable),"FVEP"]), 3))
+                                            signif(as.numeric(TargetPG$FinalReport$FVEP), 3))
       ) +
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     } else {
@@ -604,7 +604,7 @@ PlotPG <- function(X,
                              y = LabY,
                              title = paste0(Main,
                                             "/ FVE=",
-                                            signif(as.numeric(TargetPG$ReportTable[nrow(TargetPG$ReportTable),"FVE"]), 3))
+                                            signif(as.numeric(TargetPG$FinalReport$FVE), 3))
       ) +
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
     }
