@@ -1053,7 +1053,7 @@ computeElasticPrincipalTree <- function(X,
                                                             ReduceDimension = ReduceDimension, Mode = Mode,
                                                             drawAccuracyComplexity = drawAccuracyComplexity,
                                                             drawPCAView = drawPCAView, drawEnergy = drawEnergy,
-                                                            n.cores = 1, FastSolve = FastSolve)
+                                                            n.cores = cl, FastSolve = FastSolve)
       
       # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -1292,7 +1292,7 @@ computeElasticPrincipalCurve <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = n.cores, FastSolve = FastSolve)
+                                                                         n.cores = cl, FastSolve = FastSolve)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
