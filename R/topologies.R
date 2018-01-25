@@ -30,6 +30,7 @@
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
+#' @param AvoidSolitary 
 #'
 #' @return a named list with a number of elements:
 #' \describe{
@@ -56,7 +57,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                          MaxNumberOfIterations = 10, eps = .01, TrimmingRadius = Inf,
                          GrowGrammars = list(),
                          ShrinkGrammars = list(),
-                         FastSolve = FALSE) {
+                         FastSolve = FALSE,
+                         AvoidSolitary = FALSE) {
 
   if(is.list(X)){
     warning("Data matrix must be a numeric matrix. It will be converted automatically. This can introduce inconsistencies")
@@ -153,6 +155,10 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
   
   for(i in StartNodes:(NumNodes-1)){
     
+    if(nrow(UpdatedPG$NodePositions) < i){
+      break()
+    }
+    
     nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
 
     if(nrow(UpdatedPG$NodePositions) >= NumNodes
@@ -172,26 +178,44 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
       cat(" ")
     }
 
+    ContinueOperation = TRUE
+    
+    OldPG <- UpdatedPG
+    
     if(length(GrowGrammars)>0){
       for(k in 1:length(GrowGrammars)){
         if(ShowTimer){
           print("Growing")
           tictoc::tic()
         }
+        
         UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                       operationtypes = GrowGrammars[[k]],
                                                       SquaredX = SquaredX, Mode = Mode,
                                                       MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE, n.cores = n.cores, EnvCl = cl, FastSolve = FastSolve)
-        if(i == 3){
-          # % this is needed to erase the star elasticity coefficient which was initially assigned to both leaf nodes,
-          # % one can erase this information after the number of nodes in the graph is > 2
-
-          inds = which(colSums(UpdatedPG$ElasticMatrix-diag(diag(UpdatedPG$ElasticMatrix))>0)==1)
-
-          UpdatedPG$ElasticMatrix[inds, inds] <- 0
+                                                      verbose = FALSE, n.cores = n.cores, EnvCl = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+        
+        if(!is.list(UpdatedPG)){
+          
+          ContinueOperation <- FALSE
+          UpdatedPG <- OldPG
+          break()
+          
+        } else {
+          
+          if(i == 3){
+            # % this is needed to erase the star elasticity coefficient which was initially assigned to both leaf nodes,
+            # % one can erase this information after the number of nodes in the graph is > 2
+            
+            inds = which(colSums(UpdatedPG$ElasticMatrix-diag(diag(UpdatedPG$ElasticMatrix))>0)==1)
+            
+            UpdatedPG$ElasticMatrix[inds, inds] <- 0
+          }
+          
         }
+        
+        
 
         if(ShowTimer){
           tictoc::toc()
@@ -200,7 +224,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
       }
     }
 
-    if(length(ShrinkGrammars)>0){
+    if(length(ShrinkGrammars)>0 & ContinueOperation){
       for(k in 1:length(ShrinkGrammars)){
 
         if(ShowTimer){
@@ -213,7 +237,16 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                       operationtypes = ShrinkGrammars[[k]],
                                                       SquaredX = SquaredX, Mode = Mode,
                                                       MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE, n.cores, EnvCl = cl, FastSolve = FastSolve)
+                                                      verbose = FALSE, n.cores, EnvCl = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+        
+        if(!is.list(UpdatedPG)){
+          
+          ContinueOperation <- FALSE
+          UpdatedPG <- OldPG
+          break()
+          
+        }
+        
 
         if(ShowTimer){
           tictoc::toc()
@@ -360,7 +393,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
-#' 
+#' @param AvoidSolitary 
 #' 
 #' @return a named list with a number of elements:
 #' \describe{
@@ -407,7 +440,8 @@ computeElasticPrincipalGraph <- function(Data,
                                          Mode = 1,
                                          GrowGrammars = list(),
                                          ShrinkGrammars = list(),
-                                         FastSolve = FALSE) {
+                                         FastSolve = FALSE,
+                                         AvoidSolitary = FALSE) {
 
 
   if(is.null(ReduceDimension)){
@@ -494,7 +528,7 @@ computeElasticPrincipalGraph <- function(Data,
                          CompileReport = TRUE, ShowTimer = ShowTimer, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
-                         verbose = verbose, FastSolve = FastSolve)
+                         verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
   tictoc::toc()
 
   NodePositions <- ElData$NodePositions
@@ -596,6 +630,7 @@ computeElasticPrincipalGraph <- function(Data,
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
+#' @param AvoidSolitary 
 #'
 #' @return
 #' 
@@ -642,7 +677,8 @@ computeElasticPrincipalCircle <- function(X,
                                           Subsets = list(),
                                           ProbPoint = 1,
                                           Mode = 1,
-                                          FastSolve = FALSE) {
+                                          FastSolve = FALSE,
+                                          AvoidSolitary = FALSE) {
   
   if(all(c("SOCKcluster", "cluster") %in% class(n.cores)) & ClusType != "Fork" & length(Subsets) > 0){
     stop("Impossible to use Subsetting with a user supplied cluster not produced by forking")
@@ -736,7 +772,7 @@ computeElasticPrincipalCircle <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
@@ -759,7 +795,7 @@ computeElasticPrincipalCircle <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
@@ -841,6 +877,7 @@ computeElasticPrincipalCircle <- function(X,
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
+#' @param AvoidSolitary 
 #'
 #' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
@@ -890,7 +927,8 @@ computeElasticPrincipalTree <- function(X,
                                         Mode = 1,
                                         FastSolve = FALSE,
                                         ICOver = NULL,
-                                        DensityRadius = NULL) {
+                                        DensityRadius = NULL,
+                                        AvoidSolitary = FALSE) {
   
   
   # Create a cluster if requested
@@ -995,7 +1033,7 @@ computeElasticPrincipalTree <- function(X,
                                                       drawPCAView = Intermediate.drawPCAView,
                                                       drawEnergy = Intermediate.drawEnergy,
                                                       n.cores = cl, ClusType = ClusType,
-                                                      FastSolve = FastSolve)
+                                                      FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       # Save extra information
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -1053,7 +1091,7 @@ computeElasticPrincipalTree <- function(X,
                                                             ReduceDimension = ReduceDimension, Mode = Mode,
                                                             drawAccuracyComplexity = drawAccuracyComplexity,
                                                             drawPCAView = drawPCAView, drawEnergy = drawEnergy,
-                                                            n.cores = cl, FastSolve = FastSolve)
+                                                            n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -1146,6 +1184,7 @@ computeElasticPrincipalTree <- function(X,
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
+#' @param AvoidSolitary 
 #'
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
@@ -1197,7 +1236,8 @@ computeElasticPrincipalCurve <- function(X,
                                          Mode = 1,
                                          FastSolve = FALSE,
                                          ICOver = NULL,
-                                         DensityRadius = NULL) {
+                                         DensityRadius = NULL,
+                                         AvoidSolitary = FALSE) {
   
   if(n.cores > 1){
     if(ClusType == "Fork"){
@@ -1269,7 +1309,7 @@ computeElasticPrincipalCurve <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
@@ -1292,7 +1332,7 @@ computeElasticPrincipalCurve <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0

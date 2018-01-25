@@ -12,7 +12,7 @@ computeElasticPrincipalCircle(X, NumNodes, InitNodes = 3, NumEdges = Inf,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  FastSolve = FALSE)
+  FastSolve = FALSE, AvoidSolitary = FALSE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -73,6 +73,8 @@ Currently fork clustering only works in Linux}
 \item{Mode}{integer, the energy computation mode}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
+
+\item{AvoidSolitary}{}
 }
 \value{
 A named list

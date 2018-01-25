@@ -343,10 +343,11 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # print(table(PartDataStruct$Partition))
   
   if(verbose | Mode == 2){
-    OldPriGrElEn <- distutils::ElasticEnergy(X = X, NodePositions =  NodePositions,
+    OldPriGrElEn <- distutils::ElasticEnergy(X = X,
+                                             NodePositions =  NodePositions,
                                              ElasticMatrix = ElasticMatrix,
                                              Dists = PartDataStruct$Dists,
-                                             BranchingFee = 0, FinalVal)
+                                             BranchingFee = 0)
   } else {
     OldPriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
   }

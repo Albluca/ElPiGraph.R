@@ -116,12 +116,21 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
 #' @param MinTol numeric, the smallest distance for two edges to be collapsed
 #' @param MinEdgMult integer, minimal multiplicity of the edges of the consensus graph
 #' @param MinNodeMult integer, minimal multiplicity of the nodes of the consensus graph
+#' @param NodesInflation integer, the 
+#' @param RemoveIsolatedNodes 
+#' @param OnlyLCC 
+#' @param PlotResult 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinEdgMult = 2, MinNodeMult = 2, NodesInflation = 1, RemoveIsolatedNodes = TRUE) {
+GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist",
+                                    MinTol = .3, MinEdgMult = 2,
+                                    MinNodeMult = 2, NodesInflation = 1,
+                                    RemoveIsolatedNodes = TRUE,
+                                    OnlyLCC = FALSE,
+                                    PlotResult = TRUE) {
   
   if(Mode == "EdgeDist"){
     
@@ -433,7 +442,20 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
     igraph::V(GR)$nodeID <- paste(1:ncol(Crt))
     GR <- igraph::add.edges(GR, edges = t(EdgeList))
     
-    if(RemoveIsolatedNodes){
+    if(OnlyLCC){
+      
+      AllClus <- igraph::clusters(GR)
+      
+      GR1 <- igraph::delete.vertices(GR, which(AllClus$membership != which.max(AllClus$csize)))
+      ToKeep <- as.integer(igraph::V(GR1)$nodeID)
+      
+      Crt <- Crt[, ToKeep]
+      EdgeList <- igraph::get.edgelist(GR1)
+      
+      GR <- GR1
+    }
+    
+    if(RemoveIsolatedNodes & !OnlyLCC){
       
       GR1 <- igraph::delete.vertices(GR, which(igraph::degree(GR) == 0))
       ToKeep <- as.integer(igraph::V(GR1)$nodeID)
@@ -445,18 +467,27 @@ GenertateConsensusGraph <- function(BootPG, Mode = "NodeDist", MinTol = .3, MinE
     }
     
     if(!igraph::is.connected(GR)){
-      
       warning("Graph is not connected")
+      PlotResult <- TRUE
+    }
+    
+    
+    if(PlotResult){
       
-      plot(tree_data)
-      points(t(Crt), col = "red")
-      for(i in 1:nrow(EdgeList)){
-        arrows(x0 = t(Crt[1, EdgeList[i, 1]]), y0 = t(Crt[2, EdgeList[i, 1]]),
-               x1 = t(Crt[1, EdgeList[i, 2]]), y1 = t(Crt[2, EdgeList[i, 2]]),
-               length = 0)
+      
+      if(nrow(Crt)>2){
+        RotPoints <- irlba::prcomp_irlba(t(Crt), 2, retx = TRUE)
+      } else {
+        RotPoints <- prcomp(t(Crt), retx = TRUE)
       }
       
       
+      plot(RotPoints$x, col = "red")
+      for(i in 1:nrow(EdgeList)){
+        arrows(x0 = RotPoints$x[EdgeList[i, 1], 1], y0 = RotPoints$x[EdgeList[i, 1], 2],
+               x1 = RotPoints$x[EdgeList[i, 2], 1], y1 = RotPoints$x[EdgeList[i, 2], 2],
+               length = 0)
+      }
     }
     
     # Return nodes and edges

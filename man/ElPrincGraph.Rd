@@ -9,7 +9,7 @@ ElPrincGraph(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix,
   CompileReport = FALSE, ShowTimer = FALSE, ComputeMSEP = TRUE,
   Mode = 1, MaxNumberOfIterations = 10, eps = 0.01,
   TrimmingRadius = Inf, GrowGrammars = list(), ShrinkGrammars = list(),
-  FastSolve = FALSE)
+  FastSolve = FALSE, AvoidSolitary = FALSE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -56,6 +56,8 @@ contruction of the principal graph be compiled?}
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
+
+\item{AvoidSolitary}{}
 }
 \value{
 a named list with a number of elements:

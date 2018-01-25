@@ -12,7 +12,8 @@ computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL)
+  FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
+  AvoidSolitary = FALSE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -78,6 +79,8 @@ Currently fork clustering only works in Linux}
 principal tree.}
 
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"}
+
+\item{AvoidSolitary}{}
 }
 \value{
 A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.

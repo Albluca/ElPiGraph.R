@@ -11,7 +11,7 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   ShowTimer = FALSE, ReduceDimension = NULL,
   drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
   n.cores = 1, ClusType = "Sock", Mode = 1, GrowGrammars = list(),
-  ShrinkGrammars = list(), FastSolve = FALSE)
+  ShrinkGrammars = list(), FastSolve = FALSE, AvoidSolitary = FALSE)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -68,6 +68,8 @@ Currently fork clustering only works in Linux}
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
+
+\item{AvoidSolitary}{}
 }
 \value{
 a named list with a number of elements:

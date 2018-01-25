@@ -165,7 +165,12 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Squared
 #' 
 #'
 #' @examples
-AddNode2Node <- function(X, NodePositions, SquaredX, ElasticMatrix, FastSolve = FastSolve, TrimmingRadius = TrimmingRadius) {
+AddNode2Node <- function(X,
+                         NodePositions,
+                         SquaredX,
+                         ElasticMatrix,
+                         FastSolve = FastSolve,
+                         TrimmingRadius = TrimmingRadius) {
 
   NNodes <- nrow(NodePositions)
   NumberOfGraphs <- NNodes
@@ -232,7 +237,9 @@ AddNode2Node <- function(X, NodePositions, SquaredX, ElasticMatrix, FastSolve = 
       NodeNewPosition = colMeans(xlocal)
     }
     
-    AddedNode <- f_add_nonconnected_node(NodePositions,ElasticMatrix,NodeNewPosition)
+    AddedNode <- f_add_nonconnected_node(NodePositions,
+                                         ElasticMatrix,
+                                         NodeNewPosition)
     
     NPos <- AddedNode$NodePositions
     EMat <- AddedNode$ElasticMatrix
@@ -447,7 +454,8 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              eps = .01,
                                              TrimmingRadius = Inf,
                                              Mode = 1,
-                                             FastSolve = FALSE) {
+                                             FastSolve = FALSE,
+                                             AvoidSolitary = FALSE) {
 
   # % this function applies the most optimal graph grammar operation of operationtype
   # % the embedment of an elastic graph described by ElasticMatrix
@@ -469,7 +477,8 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
 
     NewMatrices <- GraphGrammarOperation(X = X, NodePositions = NodePositions,
                                          ElasticMatrix = ElasticMatrix, type = operationtypes[i],
-                                         SquaredX = SquaredX, FastSolve = FastSolve, TrimmingRadius = TrimmingRadius)
+                                         SquaredX = SquaredX, FastSolve = FastSolve,
+                                         TrimmingRadius = TrimmingRadius)
 
     NodePositionArrayAll <- c(NodePositionArrayAll, NewMatrices$NodePositionArray)
     ElasticMatricesAll <- c(ElasticMatricesAll, NewMatrices$ElasticMatrices)
@@ -488,7 +497,24 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     print("Optimizing graphs")
   }
 
-  CombinedInfo <- lapply(as.list(1:length(NodePositionArrayAll)), function(i){
+  Valid <- as.list(1:length(NodePositionArrayAll))
+  
+  if(AvoidSolitary){
+    Valid <- lapply(Valid, function(i){
+      Partition <- PartitionData(X = X,
+                                 NodePositions = NodePositionArrayAll[[i]],
+                                 SquaredX = SquaredX,
+                                 TrimmingRadius = TrimmingRadius)$Partition
+      if(all(1:nrow(NodePositionArrayAll[[i]]) %in% Partition)){
+        return(i)
+      }
+      return(0)
+    })
+    
+    Valid <- Valid[Valid > 0]
+  }
+  
+  CombinedInfo <- lapply(Valid, function(i){
     list(NodePositions = NodePositionArrayAll[[i]], ElasticMatrix = ElasticMatricesAll[[i]])
   })
   
@@ -519,6 +545,10 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                      MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, Mode = Mode,
                                      TrimmingRadius = TrimmingRadius, FastSolve = FastSolve)
     })
+  }
+  
+  if(length(Embed)==0){
+    return(NA)
   }
   
   Best <- which.min(sapply(Embed, "[[", "ElasticEnergy"))
