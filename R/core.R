@@ -21,28 +21,10 @@ PartitionData <- function(X, NodePositions, SquaredX = NULL, TrimmingRadius = In
     SquaredX = rowSums(X^2)
   }
   
-  if(nCores == 1){
-    
-    Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
-  
-  } else {
-    
-    Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
-    
-    # Idxs <- split(1:nrow(X), as.integer(cut(CoreAss, breaks = 3)))
-    # SplitData <- lapply(Idxs, function(i){X[i,]})
-    # 
-    # cl <- parallel::makeCluster(nCores)
-    # parallel::clusterExport(cl, c('NodePositions', "SquaredX"), .GlobalEnv)
-    # Dists <- parallel::parLapply(cl = cl, X = SplitData, fun = function(Data){
-    #   distutils::Partition(X, NodePositions, SquaredX)
-    # })
-    # parallel::stopCluster(cl)
-    # 
-    # Dists <- do.call(rbind, Dists)
-  }
+  Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
 
   PartVect <- Dists$Partition
+  Dist <- Dists$Dist
   
   # print("DEBUG (PartitionData):")
   # print(Dists$Partition)
@@ -56,12 +38,13 @@ PartitionData <- function(X, NodePositions, SquaredX = NULL, TrimmingRadius = In
       PartVect[ToFilter] <- 0
       # print(Dists$Partition)
     }
+    Dist[Dist > TrimmingRadius^2] <- TrimmingRadius^2
   }
 
   # print("DEBUG (PartitionData):")
   # print(table(PartVect))
   
-  return(list(Partition = PartVect, Dists = Dists$Dist))
+  return(list(Partition = PartVect, Dists = Dist))
 
 }
 

@@ -100,12 +100,11 @@ f_get_star <- function(NodePositions,ElasticMatrix,NodeCenter) {
 # Grammar function wrapper ------------------------------------------------
 
 
-GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, SquaredX = NULL, FastSolve = FALSE, TrimmingRadius = Inf) {
+GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Partition) {
 
   if(type == 'addnode2node'){
     return(
-      AddNode2Node(X = X, NodePositions = NodePositions, SquaredX = SquaredX, ElasticMatrix = ElasticMatrix,
-                   FastSolve = FastSolve, TrimmingRadius = TrimmingRadius)
+      AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition)
     )
   }
 
@@ -167,18 +166,128 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Squared
 #' @examples
 AddNode2Node <- function(X,
                          NodePositions,
-                         SquaredX,
                          ElasticMatrix,
-                         FastSolve = FastSolve,
-                         TrimmingRadius = TrimmingRadius) {
-
+                         Partition) {
+  
   NNodes <- nrow(NodePositions)
+  NNp1 <- NNodes + 1
   NumberOfGraphs <- NNodes
 
   Mus = diag(ElasticMatrix)
   L = ElasticMatrix - diag(Mus)
   Connectivities = colSums(L>0)
 
+  # Create prototypes for new NodePositions, ElasticMatrix and inds
+  NPProt = matrix(0, nrow = NNp1, ncol = ncol(NodePositions))
+  NPProt[1:NNodes, ] = NodePositions
+  
+  EMProt = matrix(0, nrow = NNp1, ncol = NNp1)
+  EMProt[1:NNodes, 1:NNodes] = L
+  
+  MuProt = rep(0, NNp1)
+  MuProt[1:NNodes] = Mus
+  
+  GenerateMatrices <- function(i) {
+    # Compute mean edge elastisity for edges with node i 
+    LVect <- L[i,]
+    meanLambda = mean(LVect[LVect != 0])
+    
+    # Add edge to elasticity matrix
+    EMProt[NNp1, i] = meanLambda
+    EMProt[i, NNp1] = meanLambda
+    
+    if(Connectivities[i]==1){
+      # Add node to terminal node
+      StarNodeID <- which(LVect != 0)
+      # Calculate new node position
+      NewNodePosition = 2 * NodePositions[i, ] - NodePositions[StarNodeID, ];
+      # Complete elasticity matrix
+      MuProt[NNp1] = Mus[StarNodeID]
+    } else {
+      # Add node to star
+      LeafNodesID <- which(LVect != 0)
+      # If number of data points associated with star centre is zero
+      if(all(Partition != i)){
+        # then select the mean of all leaves as new position
+        if(length(LeafNodesID)>1){
+          NewNodePosition = colMeans(NodePositions[LeafNodesID, ])
+        } else {
+          NewNodePosition = NodePositions[LeafNodesID, ]
+        }
+      } else {
+        # otherwise take the mean of points associated with central node.
+        PointsID <- which(Partition == i)
+        if(length(PointsID)>1){
+          NewNodePosition = colMeans(X[PointsID, ])
+        } else {
+          NewNodePosition = X[PointsID, ]
+        }
+      }
+
+    }
+      
+    NPProt[NNp1, ] = NewNodePosition
+    diag(EMProt) <- MuProt
+    
+    return(list(NodePositions = NPProt, ElasticMatrix = EMProt))
+  }
+  
+  Results <- lapply(as.list(1:NNodes), GenerateMatrices)
+  
+  return(list(NodePositionArray = lapply(Results, "[[", "NodePositions"),
+              ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Adds a node to each graph node
+#'
+#' This grammar operation adds a node to each graph node. The positions of the node
+#' is chosen as a linear extrapolation for a leaf node (in this case the elasticity of
+#' a newborn star is chosed as in BisectEdge operation), or as the data point giving
+#' the minimum local MSE for a star (without any optimization).
+#'
+#' @param X
+#' @param NodePositions
+#' @param ElasticMatrix
+#'
+#' @return
+#' @export
+#'
+#' @details
+#'
+#' 
+#'
+#' @examples
+AddNode2Node_Old <- function(X, NodePositions, ElasticMatrix, Partition) {
+  
+  NNodes <- nrow(NodePositions)
+  NumberOfGraphs <- NNodes
+  
+  Mus = diag(ElasticMatrix)
+  L = ElasticMatrix - diag(Mus)
+  Connectivities = colSums(L>0)
+  
   InitEmbm <- PrimitiveElasticGraphEmbedment(X, NodePositions, SquaredX = SquaredX, ElasticMatrix,
                                              MaxNumberOfIterations = 0, TrimmingRadius = TrimmingRadius, eps = 1,
                                              FastSolve = FastSolve)
@@ -256,11 +365,25 @@ AddNode2Node <- function(X,
   
   Results[Connectivities == 1] <- lapply(as.list(1:NNodes)[Connectivities == 1], DoStuff_1)
   Results[Connectivities != 1] <- lapply(as.list(1:NNodes)[Connectivities != 1], DoStuff_N1)
-
+  
   return(list(NodePositionArray = lapply(Results, "[[", "NodePosition"),
               ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
-
+  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -469,6 +592,8 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   NodePositionArrayAll <- list()
   ElasticMatricesAll <- list()
 
+  Partition = PartitionData(X = X, NodePositions = NodePositions, SquaredX = SquaredX, TrimmingRadius = TrimmingRadius)$Partition
+  
   for(i in 1:length(operationtypes)){
     if(verbose){
       tictoc::tic()
@@ -477,8 +602,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
 
     NewMatrices <- GraphGrammarOperation(X = X, NodePositions = NodePositions,
                                          ElasticMatrix = ElasticMatrix, type = operationtypes[i],
-                                         SquaredX = SquaredX, FastSolve = FastSolve,
-                                         TrimmingRadius = TrimmingRadius)
+                                         Partition = Partition)
 
     NodePositionArrayAll <- c(NodePositionArrayAll, NewMatrices$NodePositionArray)
     ElasticMatricesAll <- c(ElasticMatricesAll, NewMatrices$ElasticMatrices)
