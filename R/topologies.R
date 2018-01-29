@@ -543,7 +543,7 @@ computeElasticPrincipalGraph <- function(Data,
   }
 
   if(Do_PCA){
-    NodePositions <- NodePositions %*% t(PCAData$rotation)
+    NodePositions <- NodePositions %*% t(PCAData$rotation[, ReduceDimension])
   }
 
   FinalPG <- list(NodePositions = NodePositions, Edges = Edges, ReportTable = ElData$ReportTable,
