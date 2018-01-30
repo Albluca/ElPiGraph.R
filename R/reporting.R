@@ -179,6 +179,8 @@ project_point_onto_edge <- function(X, NodePositions, Edge) {
   vec = NodePositions[Edge[2],] - NodePositions[Edge[1],]
   u = (t(t(X) - NodePositions[Edge[1],]) %*% vec) / as.vector(vec %*% vec)
 
+  u[!is.finite(u)] <- 0
+  
   X_Projected <- X
   X_Projected[] <- NA
 
