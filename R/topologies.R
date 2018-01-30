@@ -331,7 +331,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
   
   return(list(NodePositions = UpdatedPG$NodePositions, ElasticMatrix = UpdatedPG$ElasticMatrix,
               ReportTable = ReportTable, FinalReport = FinalReport, Lambda = Lambda, Mu = Mu,
-              FastSolve = FastSolve))
+              FastSolve = FastSolve, Mode = Mode, MaxNumberOfIterations = MaxNumberOfIterations,
+              eps = eps))
 
 }
 
@@ -442,7 +443,8 @@ computeElasticPrincipalGraph <- function(Data,
                                          ShrinkGrammars = list(),
                                          FastSolve = FALSE,
                                          AvoidSolitary = FALSE) {
-
+  ST <- date()
+  tictoc::tic()
 
   if(is.null(ReduceDimension)){
     ReduceDimension <- 1:min(dim(Data))
@@ -521,7 +523,6 @@ computeElasticPrincipalGraph <- function(Data,
 
   print(paste("Computing EPG with", NumNodes, "nodes on", nrow(X), "points and", ncol(X), "dimensions"))
   
-  tictoc::tic()
   ElData <- ElPrincGraph(X = X, NumNodes = NumNodes, NumEdges = NumEdges, Lambda = Lambda, Mu = Mu,
                          MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
                          NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix,
@@ -529,7 +530,6 @@ computeElasticPrincipalGraph <- function(Data,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
                          verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
-  tictoc::toc()
 
   NodePositions <- ElData$NodePositions
   Edges <- DecodeElasticMatrix(ElData$ElasticMatrix)
@@ -546,10 +546,14 @@ computeElasticPrincipalGraph <- function(Data,
     NodePositions <- NodePositions %*% t(PCAData$rotation[, ReduceDimension])
   }
 
+  EndTimer <- tictoc::toc()
+  
   FinalPG <- list(NodePositions = NodePositions, Edges = Edges, ReportTable = ElData$ReportTable,
                   FinalReport = ElData$FinalReport, ElasticMatrix = ElData$ElasticMatrix,
                   Lambda = ElData$Lambda, Mu = ElData$Mu, TrimmingRadius = TrimmingRadius,
-                  FastSolve = ElData$FastSolve)
+                  FastSolve = ElData$FastSolve, Mode = ElData$Mode,
+                  MaxNumberOfIterations = ElData$MaxNumberOfIterations,
+                  eps = ElData$eps, Date = ST, TicToc = EndTimer)
   
   if(drawPCAView){
     
@@ -776,6 +780,7 @@ computeElasticPrincipalCircle <- function(X,
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      ReturnList[[length(ReturnList)]]$ProbPoint <- ProbPoint
       
     }
     
@@ -799,6 +804,7 @@ computeElasticPrincipalCircle <- function(X,
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      ReturnList[[length(ReturnList)]]$ProbPoint <- 1
       
     }
     
@@ -1038,6 +1044,7 @@ computeElasticPrincipalTree <- function(X,
       # Save extra information
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      ReturnList[[length(ReturnList)]]$ProbPoint <- ProbPoint
       
       # Reset InitNodePositions for the next iteration
       if(ComputeIC){
@@ -1096,6 +1103,7 @@ computeElasticPrincipalTree <- function(X,
       # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      ReturnList[[length(ReturnList)]]$ProbPoint <- 1
       
     }
     
@@ -1313,6 +1321,7 @@ computeElasticPrincipalCurve <- function(X,
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
+      ReturnList[[length(ReturnList)]]$ProbPoint <- ProbPoint
       
     }
     
@@ -1336,6 +1345,7 @@ computeElasticPrincipalCurve <- function(X,
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
+      ReturnList[[length(ReturnList)]]$ProbPoint <- 1
       
     }
     
