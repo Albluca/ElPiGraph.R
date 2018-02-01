@@ -55,6 +55,7 @@ library("ElPiGraph.R")
 # Usage
 
 Several guides are available to exemplify the behaviour of ElPiGraph.R:
+
 * [Basic usage](guides/base.md)
 * [Derivation of graph substructures](guides/struct.md)
 * [Derivation and visualization of pseudotime](guides/struct.md)

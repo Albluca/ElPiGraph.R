@@ -47,9 +47,11 @@ Usage
 =====
 
 Several guides are available to exemplify the behaviour of ElPiGraph.R:
-\* [Basic usage](guides/base.md) \* [Derivation of graph
-substructures](guides/struct.md) \* [Derivation and visualization of
-pseudotime](guides/struct.md) \* [Usage of the trimming
-radius](guides/trim.md) \* [Advanced bootstrapping](guides/boot.md) \*
-[Generation of synthetic data](guides/synth.md) \*
-[Plotting](guides/plotting.md)
+
+-   [Basic usage](guides/base.md)
+-   [Derivation of graph substructures](guides/struct.md)
+-   [Derivation and visualization of pseudotime](guides/struct.md)
+-   [Usage of the trimming radius](guides/trim.md)
+-   [Advanced bootstrapping](guides/boot.md)
+-   [Generation of synthetic data](guides/synth.md)
+-   [Plotting](guides/plotting.md)
