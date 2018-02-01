@@ -1629,6 +1629,9 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
 #'
 #' @examples
 #' 
+#' TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+#' drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+#' 
 #' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "QuantCentroid", ControlPar = .5)
 #' PlotPG(X = tree_data, TargetPG = ExtStruct)
 #' 
@@ -1641,7 +1644,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
 #' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "WeigthedCentroid", ControlPar = .8)
 #' PlotPG(X = tree_data, TargetPG = ExtStruct)
 #' 
-ExtendLeaves <- function(X, TargetPG, Mode = "QuantCentroid", ControlPar = .9, 
+ExtendLeaves <- function(X, TargetPG, Mode = "WeigthedCentroid", ControlPar = .9, 
                          LeafIDs = NULL, TrimmingRadius = Inf,
                          PlotSelected = TRUE) {
   
@@ -1677,6 +1680,7 @@ ExtendLeaves <- function(X, TargetPG, Mode = "QuantCentroid", ControlPar = .9,
   
   # keep track of the used nodes
   UsedNodes <- NULL
+  WeiVal <- NULL
   
   # for each leaf
   for(i in 1:nrow(NodesMat)){
@@ -1730,7 +1734,8 @@ ExtendLeaves <- function(X, TargetPG, Mode = "QuantCentroid", ControlPar = .9,
       NNPos <- rbind(NNPos, NN)
       NEdgs <- rbind(NEdgs, c(NodesMat[i,1], NodeID))
       
-      UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1])[Wei > 1e-30])
+      UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1]))
+      WeiVal <- c(WeiVal, Wei)
     }
     
   }
@@ -1746,13 +1751,31 @@ ExtendLeaves <- function(X, TargetPG, Mode = "QuantCentroid", ControlPar = .9,
   
   
   if(PlotSelected){
-    Cats <- rep("Unused", nrow(X))
-    if(!is.null(UsedNodes)){
-      Cats[UsedNodes] <- "Used"
+    
+    if(Mode == "QuantCentroid"){
+      Cats <- rep("Unused", nrow(X))
+      if(!is.null(UsedNodes)){
+        Cats[UsedNodes] <- "Used"
+      }
+      
+      p <- PlotPG(X = X, TargetPG = TargetPG, GroupsLab = Cats)
+      print(p)
     }
     
-    p <- PlotPG(X = X, TargetPG = TargetPG, GroupsLab = Cats)
-    print(p)
+    if(Mode == "WeigthedCentroid"){
+      Cats <- rep(0, nrow(X))
+      if(!is.null(UsedNodes)){
+        Cats[UsedNodes] <- WeiVal
+      }
+      
+      p <- PlotPG(X = X[Cats>0, ], TargetPG = TargetPG, GroupsLab = Cats[Cats>0])
+      print(p)
+      
+      p1 <- PlotPG(X = X, TargetPG = TargetPG, GroupsLab = Cats)
+      print(p1)
+    }
+    
+    
   }
   
   return(TargetPG)
