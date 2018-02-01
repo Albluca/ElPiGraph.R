@@ -4,7 +4,7 @@
 \alias{ExtendLeaves}
 \title{Extend leaves with additional nodes}
 \usage{
-ExtendLeaves(X, TargetPG, Mode = "QuantCentroid", ControlPar = 0.9,
+ExtendLeaves(X, TargetPG, Mode = "WeigthedCentroid", ControlPar = 0.9,
   LeafIDs = NULL, TrimmingRadius = Inf, PlotSelected = TRUE)
 }
 \arguments{
@@ -38,6 +38,9 @@ Hence, larger values of ControlPar result in a larger influence of points farthe
 Extend leaves with additional nodes
 }
 \examples{
+
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
 
 ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "QuantCentroid", ControlPar = .5)
 PlotPG(X = tree_data, TargetPG = ExtStruct)
