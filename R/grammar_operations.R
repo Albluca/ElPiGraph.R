@@ -255,122 +255,100 @@ AddNode2Node <- function(X,
 
 
 
-
-
-
-
-
-#' Adds a node to each graph node
-#'
-#' This grammar operation adds a node to each graph node. The positions of the node
-#' is chosen as a linear extrapolation for a leaf node (in this case the elasticity of
-#' a newborn star is chosed as in BisectEdge operation), or as the data point giving
-#' the minimum local MSE for a star (without any optimization).
-#'
-#' @param X
-#' @param NodePositions
-#' @param ElasticMatrix
-#'
-#' @return
-#' @export
-#'
-#' @details
-#'
-#' 
-#'
-#' @examples
-AddNode2Node_Old <- function(X, NodePositions, ElasticMatrix, Partition) {
-  
-  NNodes <- nrow(NodePositions)
-  NumberOfGraphs <- NNodes
-  
-  Mus = diag(ElasticMatrix)
-  L = ElasticMatrix - diag(Mus)
-  Connectivities = colSums(L>0)
-  
-  InitEmbm <- PrimitiveElasticGraphEmbedment(X, NodePositions, SquaredX = SquaredX, ElasticMatrix,
-                                             MaxNumberOfIterations = 0, TrimmingRadius = TrimmingRadius, eps = 1,
-                                             FastSolve = FastSolve)
-  
-  
-  DoStuff_1 <- function(i) {
-    
-    meanLambda = mean(L[i, L[i, ]>0])
-    
-    ineighbour = which(L[i,]>0)
-    NewNodePosition = 2*NodePositions[i,] - NodePositions[ineighbour,]
-    NewNode <- f_add_nonconnected_node(NodePositions,ElasticMatrix,NewNodePosition)
-    
-    NPos <- NewNode$NodePositions
-    EMat <- NewNode$ElasticMatrix
-    rm(NewNode)
-    
-    nn <- nrow(NPos)
-    EMat <- f_add_edge(ElasticMatrix = EMat, Node1 = i, Node2 = nn, lambda = ElasticMatrix[i,ineighbour])$ElasticMatrix
-    
-    EMat[i,i] = ElasticMatrix[ineighbour,ineighbour]
-    
-    return(list(NodePosition = NPos, ElasticMatrix = EMat))
-    
-  }
-  
-  
-  DoStuff_N1 <- function(i) {
-    
-    meanLambda = mean(L[i, L[i, ]>0])
-    
-    StarStruct <- f_get_star(NodePositions,ElasticMatrix,i)
-    
-    nplocal <- StarStruct$NodePositions
-    if(is.null(dim(nplocal))){
-      dim(nplocal) <- c(1, length(nplocal))
-    }
-    
-    emlocal <- StarStruct$ElasticMatrix
-    inds <- StarStruct$NodeIndices
-    
-    indlocal <- which(InitEmbm$partition==i)
-    xlocal = X[indlocal, ]
-    
-    if(is.null(dim(xlocal))){
-      dim(xlocal) <- c(1, length(xlocal))
-    }
-    
-    if(length(indlocal)==0){
-      # empty star
-      NodeNewPosition = colMeans(nplocal)
-    } else {
-      minMSE = .Machine$double.xmax
-      m = -1
-      # mean point of the central cluster - seems to work the best
-      NodeNewPosition = colMeans(xlocal)
-    }
-    
-    AddedNode <- f_add_nonconnected_node(NodePositions,
-                                         ElasticMatrix,
-                                         NodeNewPosition)
-    
-    NPos <- AddedNode$NodePositions
-    EMat <- AddedNode$ElasticMatrix
-    
-    nn = nrow(NPos)
-    
-    EMat = f_add_edge(EMat, i, nn, meanLambda)$ElasticMatrix
-    
-    return(list(NodePosition = NPos, ElasticMatrix = EMat))
-    
-  }
-  
-  Results <- as.list(NA, NNodes)
-  
-  Results[Connectivities == 1] <- lapply(as.list(1:NNodes)[Connectivities == 1], DoStuff_1)
-  Results[Connectivities != 1] <- lapply(as.list(1:NNodes)[Connectivities != 1], DoStuff_N1)
-  
-  return(list(NodePositionArray = lapply(Results, "[[", "NodePosition"),
-              ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
-  
-}
-
+# 
+# 
+# AddNode2Node_Old <- function(X, NodePositions, ElasticMatrix, Partition) {
+#   
+#   NNodes <- nrow(NodePositions)
+#   NumberOfGraphs <- NNodes
+#   
+#   Mus = diag(ElasticMatrix)
+#   L = ElasticMatrix - diag(Mus)
+#   Connectivities = colSums(L>0)
+#   
+#   InitEmbm <- PrimitiveElasticGraphEmbedment(X, NodePositions, SquaredX = SquaredX, ElasticMatrix,
+#                                              MaxNumberOfIterations = 0, TrimmingRadius = TrimmingRadius, eps = 1,
+#                                              FastSolve = FastSolve)
+#   
+#   
+#   DoStuff_1 <- function(i) {
+#     
+#     meanLambda = mean(L[i, L[i, ]>0])
+#     
+#     ineighbour = which(L[i,]>0)
+#     NewNodePosition = 2*NodePositions[i,] - NodePositions[ineighbour,]
+#     NewNode <- f_add_nonconnected_node(NodePositions,ElasticMatrix,NewNodePosition)
+#     
+#     NPos <- NewNode$NodePositions
+#     EMat <- NewNode$ElasticMatrix
+#     rm(NewNode)
+#     
+#     nn <- nrow(NPos)
+#     EMat <- f_add_edge(ElasticMatrix = EMat, Node1 = i, Node2 = nn, lambda = ElasticMatrix[i,ineighbour])$ElasticMatrix
+#     
+#     EMat[i,i] = ElasticMatrix[ineighbour,ineighbour]
+#     
+#     return(list(NodePosition = NPos, ElasticMatrix = EMat))
+#     
+#   }
+#   
+#   
+#   DoStuff_N1 <- function(i) {
+#     
+#     meanLambda = mean(L[i, L[i, ]>0])
+#     
+#     StarStruct <- f_get_star(NodePositions,ElasticMatrix,i)
+#     
+#     nplocal <- StarStruct$NodePositions
+#     if(is.null(dim(nplocal))){
+#       dim(nplocal) <- c(1, length(nplocal))
+#     }
+#     
+#     emlocal <- StarStruct$ElasticMatrix
+#     inds <- StarStruct$NodeIndices
+#     
+#     indlocal <- which(InitEmbm$partition==i)
+#     xlocal = X[indlocal, ]
+#     
+#     if(is.null(dim(xlocal))){
+#       dim(xlocal) <- c(1, length(xlocal))
+#     }
+#     
+#     if(length(indlocal)==0){
+#       # empty star
+#       NodeNewPosition = colMeans(nplocal)
+#     } else {
+#       minMSE = .Machine$double.xmax
+#       m = -1
+#       # mean point of the central cluster - seems to work the best
+#       NodeNewPosition = colMeans(xlocal)
+#     }
+#     
+#     AddedNode <- f_add_nonconnected_node(NodePositions,
+#                                          ElasticMatrix,
+#                                          NodeNewPosition)
+#     
+#     NPos <- AddedNode$NodePositions
+#     EMat <- AddedNode$ElasticMatrix
+#     
+#     nn = nrow(NPos)
+#     
+#     EMat = f_add_edge(EMat, i, nn, meanLambda)$ElasticMatrix
+#     
+#     return(list(NodePosition = NPos, ElasticMatrix = EMat))
+#     
+#   }
+#   
+#   Results <- as.list(NA, NNodes)
+#   
+#   Results[Connectivities == 1] <- lapply(as.list(1:NNodes)[Connectivities == 1], DoStuff_1)
+#   Results[Connectivities != 1] <- lapply(as.list(1:NNodes)[Connectivities != 1], DoStuff_N1)
+#   
+#   return(list(NodePositionArray = lapply(Results, "[[", "NodePosition"),
+#               ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
+#   
+# }
+# 
 
 
 

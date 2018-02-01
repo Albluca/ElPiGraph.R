@@ -1587,7 +1587,180 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
 
 
 
-# 
-# 
-# 
-# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Extend leaves with additional nodes
+#'
+#' @param X numeric matrix, the data matrix
+#' @param TargetPG list, the ElPiGraph structure to extend
+#' @param LeafIDs integer vector, the id of nodes to extend. If NULL, all the vertices will be extended.
+#' @param TrimmingRadius positive numeric, the trimming radius used to control distance 
+#' @param ControlPar positive numeric, the paramter used to control the contribution of the different data points
+#' @param Mode string, the mode used to extend the graph. "QuantCentroid" and "WeigthedCentroid" are currently implemented
+#' @param PlotSelected boolean, should a diagnostic plot be visualized
+#'
+#' @return The extended ElPiGraph structure
+#' 
+#' The value of ControlPar has a different interpretation depending on the valus of Mode. In each case, for only the extreme points,
+#' i.e., the points associated with the leaf node that do not have a projection on any edge are considered.
+#' 
+#' If Mode = "QuantCentroid", for each leaf node, the extreme points are ordered by their distance from the node
+#' and the centroid of the points farther away than the ControlPar is returned.
+#' 
+#' If Mode = "WeigthedCentroid", for each leaf node, a weight is computed for each points by raising the distance to the ControlPar power.
+#' Hence, larger values of ControlPar result in a larger influence of points farther from the node
+#'
+#' @export
+#'
+#' @examples
+#' 
+#' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "QuantCentroid", ControlPar = .5)
+#' PlotPG(X = tree_data, TargetPG = ExtStruct)
+#' 
+#' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "QuantCentroid", ControlPar = .9)
+#' PlotPG(X = tree_data, TargetPG = ExtStruct)
+#' 
+#' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "WeigthedCentroid", ControlPar = .2)
+#' PlotPG(X = tree_data, TargetPG = ExtStruct)
+#' 
+#' ExtStruct <- ExtendLeaves(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "WeigthedCentroid", ControlPar = .8)
+#' PlotPG(X = tree_data, TargetPG = ExtStruct)
+#' 
+ExtendLeaves <- function(X, TargetPG, Mode = "QuantCentroid", ControlPar = .9, 
+                         LeafIDs = NULL, TrimmingRadius = Inf,
+                         PlotSelected = TRUE) {
+  
+  # Generate net
+  Net <- ConstructGraph(PrintGraph = TargetPG)
+  
+  # get leafs
+  if(is.null(LeafIDs)){
+    LeafIDs <- which(igraph::degree(Net) == 1)
+  }
+  
+  # check LeafIDs
+  if(any(igraph::degree(Net, LeafIDs) > 1)){
+    stop("Only leaf nodes can be extended")
+  }
+  
+  # and their neigh
+  Nei <- igraph::neighborhood(graph = Net, order = 1, nodes = LeafIDs)
+  
+  # and put stuff together
+  NeiVect <- sapply(1:length(Nei), function(i){setdiff(Nei[[i]], LeafIDs[i])})
+  NodesMat <- cbind(LeafIDs, NeiVect)
+  
+  # project data on the nodes
+  PD <- PartitionData(X = X, NodePositions = TargetPG$NodePositions, TrimmingRadius = TrimmingRadius)
+  
+  # Inizialize the new nodes and edges
+  NNPos <- NULL
+  NEdgs <- NULL
+  
+  # Keep track of the new nodes IDs
+  NodeID <- nrow(TargetPG$NodePositions)
+  
+  # keep track of the used nodes
+  UsedNodes <- NULL
+  
+  # for each leaf
+  for(i in 1:nrow(NodesMat)){
+    
+    # generate the new node id
+    NodeID <- NodeID + 1
+    
+    # get all the data associated with the leaf node
+    tData <- X[PD$Partition == NodesMat[i,1], ]
+    
+    # and project them on the edge
+    Proj <- project_point_onto_edge(X = X[PD$Partition == NodesMat[i,1], ],
+                                    NodePositions = TargetPG$NodePositions,
+                                    Edge = NodesMat[i,])
+    
+    # Select the distances of the associated points
+    Dists <- PD$Dists[PD$Partition == NodesMat[i,1]]
+    
+    # Set distances of points projected on beyond the initial position of the edge to 0
+    Dists[Proj$Projection_Value >= 0] <- 0
+    
+    if(Mode == "QuantCentroid"){
+      ThrDist <- quantile(Dists[Dists>0], ControlPar)
+      SelPoints <- which(Dists >= ThrDist)
+      
+      print(paste(length(SelPoints), "points selected to compute the centroid while extending node", NodesMat[i,1]))
+      
+      if(length(SelPoints)>1){
+        NN <- colMeans(tData[SelPoints,])
+      } else {
+        NN <- tData[SelPoints,]
+      }
+      
+      NNPos <- rbind(NNPos, NN)
+      NEdgs <- rbind(NEdgs, c(NodesMat[i,1], NodeID))
+      
+      UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1])[SelPoints])
+    }
+    
+    if(Mode == "WeigthedCentroid"){
+      
+      Dist2 <- Dists^(2*ControlPar)
+      Wei <- Dist2/max(Dist2)
+      
+      if(length(Wei)>1){
+        NN <- apply(tData, 2, function(x){sum(x*Wei)/sum(Wei)})
+      } else {
+        NN <- tData
+      }
+      
+      NNPos <- rbind(NNPos, NN)
+      NEdgs <- rbind(NEdgs, c(NodesMat[i,1], NodeID))
+      
+      UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1])[Wei > 1e-30])
+    }
+    
+  }
+  
+  # plot(X)
+  # points(TargetPG$NodePositions, col="red")
+  # points(NNPos, col="blue")
+  # 
+  TargetPG$NodePositions <- rbind(TargetPG$NodePositions, NNPos)
+  TargetPG$Edges$Edges <- rbind(TargetPG$Edges$Edges, NEdgs)
+  TargetPG$Edges$Lambdas <- c(TargetPG$Edges$Lambdas, rep(NA, nrow(NEdgs)))
+  TargetPG$Edges$Mus <- c(TargetPG$Edges$Lambdas, rep(NA, nrow(NEdgs)))
+  
+  
+  if(PlotSelected){
+    Cats <- rep("Unused", nrow(X))
+    if(!is.null(UsedNodes)){
+      Cats[UsedNodes] <- "Used"
+    }
+    
+    p <- PlotPG(X = X, TargetPG = TargetPG, GroupsLab = Cats)
+    print(p)
+  }
+  
+  return(TargetPG)
+  
+}
+
+
+
+
+
+
