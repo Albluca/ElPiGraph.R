@@ -1,0 +1,65 @@
+---
+title: "ElPiGraph.R"
+author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Descrition
+
+This package provides an R implementation of the ElPiGraph algorithm. A self-contained description of the algorithm is available [here](https://github.com/auranic/Elastic-principal-graphs/blob/master/ElPiGraph_Methods.pdf)
+
+A native MATLAB implementation of the algorithm (coded by Andrei Zinovyev) is also [available](https://github.com/auranic/Elastic-principal-graphs)
+
+# Installation
+
+To improve the performance of the algorithm, a number of functions have been implemented as C++ functions. To simplify the maintenance and updating of the package, these functions have been implemented in the package `distutils`, which needs to be installed separately. The following command will check the presence of the `devtools`, and install it if necessary, after that it will install the `distutils` package. A working internet connection is required.
+
+```{r inst.dist, eval=FALSE}
+if(!require("devtools")){
+  install.packages("devtools")
+}
+devtools::install_github("Albluca/distutils")  
+```
+
+Once `distutils` has been installed, `ElPiGraph.R` can be installed by typing 
+
+```{r inst.Elpi, eval=FALSE}
+devtools::install_github("Albluca/ElPiGraph.R")
+```
+
+It is also possible to get the most recent developmental version (which will contains more feature, but is potentially more unstable) via:
+
+```{r inst.Elpi.Dev, eval=FALSE}
+devtools::install_github("Albluca/ElPiGraph.R", ref = "Development")
+```
+
+The package can then be loaded via the command
+
+```{r load.Elpi}
+library("ElPiGraph.R")
+```
+
+# Usage
+
+Several guides are available to exemplify the behaviour of ElPiGraph.R:
+
+* [Basic usage](guides/base.md)
+* [Derivation of graph substructures](guides/struct.md)
+* [Derivation and visualization of pseudotime](guides/pseudo.md)
+* [Usage of the trimming radius](guides/trim.md)
+* [Advanced bootstrapping](guides/boot.md)
+* [Generation of synthetic data](guides/synth.md)
+* [Plotting](guides/plotting.md)
