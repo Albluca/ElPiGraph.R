@@ -1,0 +1,200 @@
+---
+title: "Generating sample data"
+author: "Luca Albergante"
+date: "16/01/2018"
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The ElPiGraph.R package includes the necessary functionalities to generate syntetic data that can be used to explore the behaviour of principal elastic graphs. This is based on the idea of walkers that leave a trace in a n-dimensional space
+
+# Initializing the walkers
+
+The first step consists in the creation of a set of Walker. The parameter of the function control the number of independent walkers (`Number`), the dimensionality of the space (`Dimensions`), the mean displacement in each direction for each step (`MeanShift`) and the standard deviation of the displacement for each step (`SdShift`).
+
+```{r pressure, echo=FALSE}
+library(ElPiGraph.R)
+library(irlba)
+library(ggplot2)
+
+Walker <- InizializeWalkers(Number = 1, Dimensions = 10, MeanShift = 1, SdShift = .3)
+```
+
+# Simulating non-branching trajectories
+
+After a walker has been created, we can generate a trace. To get a non-branching trajectory it is sufficient to set `BranchProb = 0`. The `StepSD` influences the standard deviation of the displacement (which has a 0 mean) introduced at each step in addition to the constant rate of variation associted with each dimension which is defined in side the walker. Larger values of `StepSD` will results in more irregular trajectories.
+
+```{r}
+LinTraj_1 <- GrowPath(Walkers = Walker, StepSD = 1, nSteps = 200, BranchProb = 0)
+DF <- data.frame(prcomp_irlba(LinTraj_1$Trace, 2, retx = TRUE)$x, Time = LinTraj_1$Time)
+p <- ggplot(DF, aes(x=PC1, y=PC2, color=Time)) + geom_point() + labs(title = "LinTraj_1")
+print(p)
+# pairs(LinTraj_1$Trace, main = "LinTraj_1")
+
+
+LinTraj_2 <- GrowPath(Walkers = Walker, StepSD = 5, nSteps = 200, BranchProb = 0)
+DF <- data.frame(prcomp_irlba(LinTraj_2$Trace, 2, retx = TRUE)$x, Time = LinTraj_2$Time)
+p <- ggplot(DF, aes(x=PC1, y=PC2, color=Time)) + geom_point() + labs(title = "LinTraj_2")
+print(p)
+# pairs(LinTraj_2$Trace, main = "LinTraj_2")
+```
+
+We can now fit a curve to the data
+
+```{r}
+CurveEPG_1 <- computeElasticPrincipalCurve(X = LinTraj_1$Trace, NumNodes = 50, drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+PlotPG(X = LinTraj_1$Trace, TargetPG = CurveEPG_1[[1]], GroupsLab = LinTraj_1$Time, p.alpha = .9)
+
+CurveEPG_2 <- computeElasticPrincipalCurve(X = LinTraj_2$Trace, NumNodes = 50, drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+PlotPG(X = LinTraj_2$Trace, TargetPG = CurveEPG_2[[1]], GroupsLab = LinTraj_2$Time, p.alpha = .9)
+```
+
+
+
+
+
+
+
+# Simulating branching trajectories
+
+We can also grow branching trajectories, by specifying the per-step branching probability (`BranchProb`). We can also specify the minimum amout of steps before a new walker (i.e., after a new run of the algorithm or after a new branch) can branch, and the number of dimensions affected by the branching (`BrDim`)
+
+```{r}
+BrTraj_1 <- GrowPath(Walkers = Walker, StepSD = 1, nSteps = 200, BranchProb = .01, MinAgeBr = 20, BrDim = 4)
+DF <- data.frame(prcomp_irlba(BrTraj_1$Trace, 2, retx = TRUE)$x, Time = BrTraj_1$Time)
+p <- ggplot(DF, aes(x=PC1, y=PC2, color=Time)) + geom_point() + labs(title = "BrTraj_1")
+print(p)
+# pairs(BrTraj_1$Trace, main = "BrTraj_1")
+
+
+BrTraj_2 <- GrowPath(Walkers = Walker, StepSD = 4, nSteps = 200, BranchProb = .01, MinAgeBr = 20, BrDim = 4)
+DF <- data.frame(prcomp_irlba(BrTraj_2$Trace, 2, retx = TRUE)$x, Time = BrTraj_2$Time)
+p <- ggplot(DF, aes(x=PC1, y=PC2, color=Time)) + geom_point() + labs(title = "BrTraj_2")
+print(p)
+# pairs(BrTraj_2$Trace, main = "BrTraj_2")
+```
+
+We can now fit a tree to the data
+
+```{r}
+TreeEPG_1 <- computeElasticPrincipalTree(X = BrTraj_1$Trace, NumNodes = 50, drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+PlotPG(X = BrTraj_1$Trace, TargetPG = TreeEPG_1[[1]], GroupsLab = BrTraj_1$Time, p.alpha = .9)
+
+TreeEPG_2 <- computeElasticPrincipalTree(X = BrTraj_2$Trace, NumNodes = 50, drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+PlotPG(X = BrTraj_2$Trace, TargetPG = TreeEPG_2[[1]], GroupsLab = BrTraj_2$Time, p.alpha = .9)
+```
+
+We can also explore how the different branches on the graph are associted with the different branches and pseudotime in the simulated data. To this end will employ the `EdgeCatAssociation`, which is intended to measure the extent to which edges and nodes of the graph are associted with categorical informations avaialble on the points.
+
+```{r}
+Tree_Brches <- GetSubGraph(Net = ConstructGraph(TreeEPG_1[[1]]), Structure = 'branches')
+PD <- PartitionData(X = BrTraj_1$Trace, NodePositions = TreeEPG_1[[1]]$NodePositions)
+
+PtVect <- lapply(Tree_Brches, function(vlist){
+  BrTraj_1$Time[PD$Partition %in% as.numeric(vlist)]
+})
+
+boxplot(PtVect, las = 2)
+
+BrOnEdg <- EdgeCatAssociation(X = BrTraj_1$Trace, TargetPG = TreeEPG_1[[1]], GroupsLab = BrTraj_1$Branch)
+
+BrOnEdg$OnEdges$ChiTest
+pheatmap::pheatmap(t(BrOnEdg$OnEdges$Table))
+```
+
+
+```{r}
+Tree_Brches <- GetSubGraph(Net = ConstructGraph(TreeEPG_2[[1]]), Structure = 'branches')
+PD <- PartitionData(X = BrTraj_2$Trace, NodePositions = TreeEPG_2[[1]]$NodePositions)
+
+PtVect <- lapply(Tree_Brches, function(vlist){
+  BrTraj_2$Time[PD$Partition %in% as.numeric(vlist)]
+})
+
+boxplot(PtVect, las = 2)
+
+BrOnEdg <- EdgeCatAssociation(X = BrTraj_2$Trace, TargetPG = TreeEPG_2[[1]], GroupsLab = BrTraj_2$Branch)
+
+BrOnEdg$OnEdges$ChiTest
+pheatmap::pheatmap(t(BrOnEdg$OnEdges$Table))
+```
+
+
+# Branching dimensionality
+
+One of the intended uses of this procedure is to explore the impact of branching in high dimesionality on tree reconstruction. Let us start by generating a Walker with very high dimensionality, and generate a branching trajectory.
+
+```{r}
+library(Rtsne)
+library(DDRTree)
+
+set.seed(1)
+
+Walker_HD <- InizializeWalkers(Number = 1, Dimensions = 1000, MeanShift = 1, SdShift = .3)
+
+BrTraj_HD <- GrowPath(Walkers = Walker_HD, StepSD = 15, nSteps = 500,
+                      BranchProb = .01, MinAgeBr = 20, BrDim = 100)
+
+BrTraj_HD$Trace <- BrTraj_HD$Trace + rnorm(length(BrTraj_HD$Trace), sd = 250)
+
+```
+
+We can now visualize the data using PCA, tSNE, and DDRTree
+
+```{r}
+DF <- data.frame(prcomp_irlba(BrTraj_HD$Trace, 2, retx = TRUE)$x,
+                 Time = BrTraj_HD$Time,
+                 Branch = BrTraj_HD$Branch)
+DF$Branch <- factor(DF$Branch)
+
+p <- ggplot(DF, aes(x=PC1, y=PC2, color=Branch)) + geom_point() + labs(title = "BrTraj_2 (PCA)")
+print(p)
+
+DF_1 <- data.frame(Rtsne(BrTraj_HD$Trace)$Y,
+                 Time = BrTraj_HD$Time,
+                 Branch = BrTraj_HD$Branch)
+DF_1$Branch <- factor(DF_1$Branch)
+
+p <- ggplot(DF_1, aes(x=X1, y=X2, color=Branch)) + geom_point() + labs(title = "BrTraj_2 (tSNE)")
+print(p)
+
+DF_2 <- data.frame(DDRTree(as.matrix(BrTraj_HD$Trace))$W,
+                 Time = BrTraj_HD$Time,
+                 Branch = BrTraj_HD$Branch)
+DF_2$Branch <- factor(DF_2$Branch)
+
+p <- ggplot(DF_2, aes(x=X1, y=X2, color=Branch)) + geom_point() + labs(title = "BrTraj_2 (DDRTree)")
+print(p)
+```
+
+
+```{r}
+TreeEPG_3 <- computeElasticPrincipalTree(X = BrTraj_HD$Trace, NumNodes = 60,
+                                         drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
+                                         Lambda = .1, Mu = 1,
+                                         TrimmingRadius = 20000,
+                                         ICOver = "Density", DensityRadius = 20000)
+PlotPG(X = BrTraj_HD$Trace, TargetPG = TreeEPG_3[[1]], GroupsLab = factor(BrTraj_HD$Branch),
+       p.alpha = .9, DimToPlot = 1:3)
+
+BrOnEdg <- EdgeCatAssociation(X = BrTraj_HD$Trace, TargetPG = TreeEPG_3[[1]],
+                              GroupsLab = BrTraj_HD$Branch)
+
+BrOnEdg$OnEdges$ChiTest
+pheatmap::pheatmap(t(BrOnEdg$OnEdges$Table))
+pheatmap::pheatmap(t(BrOnEdg$OnEdges$Table/rowSums(BrOnEdg$OnEdges$Table)))
+```
+
+
+

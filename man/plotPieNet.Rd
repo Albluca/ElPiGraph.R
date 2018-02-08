@@ -2,117 +2,45 @@
 % Please edit documentation in R/plotting.R
 \name{plotPieNet}
 \alias{plotPieNet}
-\title{#' Title
-#'
-#'
-#' @param Data
-#' @param PrintGraph
-#' @param GroupsLab
-#' @param ScaleFunction
-#' @param NodeSizeMult
-#' @param Col
-#' @param CirCol
-#' @param ColLabels
-#' @param LineCol
-#' @param IdCol
-#' @param Main
-#' @param Cex.Main
-#' @param Xlab
-#' @param Ylab
-#'
-#' @return
-#' @export
-#'
-#' @examples
-# plotData2D <- function(Data, PrintGraph, GroupsLab = NULL,
-#                        ScaleFunction = sqrt, NodeSizeMult=1, Labels = FALSE,
-#                        PlotProjections = FALSE, Partition = NULL, 
-#                        Main = '', Xlab = "PC1", Ylab = "PC2"){
-# 
-#   Data <- data.matrix(Data)
-# 
-#   if(is.null(GroupsLab)){
-#     GroupsLab = rep("N/A", nrow(Data))
-#   }
-#   
-#   p <- ggplot2::ggplot(data = data.frame(X = Data[,1], Y = Data[,2], Group = GroupsLab),
-#                        mapping = ggplot2::aes(x= X, y= Y, col = Group), environment = environment()) +
-#     ggplot2::geom_point()
-#   
-#   
-#   if(is.null(Partition)){
-#     print("Partition will be computed. Consider do that separetedly")
-#     Partition <- PartitionData(X = Data, NodePositions = PrintGraph$NodePositions)$Partition
-#   }
-#   
-#   if(PlotProjections == "onNodes"){
-#     ProjDF <- data.frame(X = Data[,1], Y = Data[,2],
-#                          Xend = PrintGraph$NodePositions[Partition,1], Yend = PrintGraph$NodePositions[Partition,2],
-#                          Group = GroupsLab)
-#     
-#     p <- p + ggplot2::geom_segment(data = ProjDF,
-#                                    mapping = ggplot2::aes(x=X, y=Y, xend = Xend, yend = Yend, col = Group), inherit.aes = FALSE)
-#   }
-#   
-#   if(PlotProjections == "onEdges"){
-#     OnEdgProj <- project_point_onto_graph(X = Data, NodePositions = PrintGraph$NodePositions, Edges = PrintGraph$Edges$Edges, Partition = Partition)
-#     
-#     ProjDF <- data.frame(X = Data[,1], Y = Data[,2],
-#                          Xend = OnEdgProj$X_projected[,1], Yend = OnEdgProj$X_projected[,2],
-#                          Group = GroupsLab)
-#     
-#     p <- p + ggplot2::geom_segment(data = ProjDF,
-#                                    mapping = ggplot2::aes(x=X, y=Y, xend = Xend, yend = Yend, col = Group), inherit.aes = FALSE)
-#   }
-#   
-#   
-#   Sizes <- table(factor(Partition, levels = 1:nrow(PrintGraph$NodePositions)))
-#   Sizes <- NodeSizeMult*do.call(what = ScaleFunction, list(as.vector(Sizes)))
-#   
-#   Nodes.DF <- data.frame(X = PrintGraph$NodePositions[,1],
-#                          Y = PrintGraph$NodePositions[,2],
-#                          Size = Sizes, ID = 1:nrow(PrintGraph$NodePositions))
-#   
-#   Edges.DF <- data.frame(X = PrintGraph$NodePositions[PrintGraph$Edges$Edges[,1],1],
-#                          Y = PrintGraph$NodePositions[PrintGraph$Edges$Edges[,1],2],
-#                          Xend = PrintGraph$NodePositions[PrintGraph$Edges$Edges[,2],1],
-#                          Yend = PrintGraph$NodePositions[PrintGraph$Edges$Edges[,2],2])
-#   
-#   
-#   p <- p + ggplot2::geom_point(data = Nodes.DF,
-#                                mapping = ggplot2::aes(x=X, y=Y, size = Size, col = "Graph"), inherit.aes = FALSE)
-#   
-#   p <- p + ggplot2::geom_segment(data = Edges.DF,
-#                                  mapping = ggplot2::aes(x=X, y=Y, xend = Xend, yend = Yend, col = "Graph"), inherit.aes = FALSE)
-#   
-#   if(Labels){
-#     p <- p + ggplot2::geom_label(data = Nodes.DF, mapping = ggplot2::aes(x=X, y=Y, label = ID, col = "Graph"),
-#                                  inherit.aes = FALSE, vjust = 1, hjust = 1)
-#   }
-#   
-#   p <- p + ggplot2::labs(title = Main, x=Xlab, y=Ylab)
-# 
-#   print(p)
-# 
-# }}
+\title{Plot a graph with pie chart associated with each node}
 \usage{
 plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
-  TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely", Main = "",
-  ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL, PlotNet = TRUE,
-  DirectionMat = NULL, Thr = 0.05, Arrow.size = 0.5, Leg.cex = 1)
+  TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
+  TreeRoot = numeric(), Main = "", ScaleFunction = sqrt,
+  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1, Arrow.size = 1)
 }
 \arguments{
-\item{TargetPG}{}
+\item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
 
-\item{GroupsLab}{}
+\item{TargetPG}{the main principal graph to plot}
 
-\item{Partition}{}
+\item{GroupsLab}{string factor, a vector indicating the category of each data point}
 
-\item{TrimmingRadius}{}
+\item{Partition}{A vector associating each point to a node of the ElPiGraph. If NULL (the default), this will be computed}
 
-\item{PlotNet}{}
+\item{TrimmingRadius}{numeric, the trimming radius to use when associting points to nodes when Partition = NULL}
 
-\item{Leg.cex}{}
+\item{Graph}{a igraph object of the ElPiGraph, if NULL (the default) it will be computed by the function}
+
+\item{LayOut}{the global layout of yhe final network. It can be
+\itemize{
+ \item 'tree', a tree
+ \item 'circle', a closed circle
+ \item 'circle_line', a line arranged as a circle
+ \item 'nicely', the topology will be inferred by ighraph
+}}
+
+\item{TreeRoot}{the id of the node to use as the root of the tree when LayOut = 'tree'}
+
+\item{Main}{string, the title of the plot}
+
+\item{ScaleFunction}{function, a function used to scale the nuumber of points (sqrt by default)}
+
+\item{NodeSizeMult}{integer, an adjustment factor to control the size of the pies}
+
+\item{ColCat}{string vector, a vector of colors to associate to each category}
+
+\item{Leg.cex}{numeric, a value to adjust the size of the legend}
 }
 \description{
 Plot a graph with pie chart associated with each node

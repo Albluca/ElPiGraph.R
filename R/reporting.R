@@ -1,73 +1,3 @@
-#' Ex
-#'
-#' @param X
-#' @param Edges
-#' @param ProjStruct
-#' @param EdgeSeq
-#'
-#' @return
-#' @export
-#'
-#' @examples
-getPseudotime <- function(X, Edges, ProjStruct, EdgeSeq){
-
-  Pt <- rep(NA, nrow(X))
-  tLen <- 0
-  NodePos <- 0
-
-  for(i in 2:length(EdgeSeq)){
-    SelEdgID <- which(
-      apply(
-        apply(Edges, 1, function(x) {
-          x %in% EdgeSeq[(i-1):i]
-        }), 2, all)
-    )
-
-    # print(paste(i, SelEdgID, tLen))
-
-    if(length(SelEdgID) != 1){
-      stop("Path not found in the graph")
-    }
-
-    Selected <- ProjStruct$EdgeID == SelEdgID
-    if(all(Edges[SelEdgID,] == EdgeSeq[(i-1):i])){
-      rev <- FALSE
-    } else {
-      rev <- TRUE
-    }
-
-    Pos <- ProjStruct$ProjectionValues[Selected]
-    Pos[Pos <= 0] <- 0
-    Pos[Pos >= 1] <- 1
-
-    if(rev){
-      Pos <- 1 - Pos
-    }
-
-    if(sum(Selected)>0){
-      Pt[Selected] <- tLen + Pos*ProjStruct$EdgeLen[SelEdgID]
-    }
-
-    tLen <- tLen + ProjStruct$EdgeLen[SelEdgID]
-    NodePos <- cbind(NodePos, tLen)
-  }
-
-  return(list(Pt = Pt, PathLen = tLen, NodePos = as.vector(NodePos)))
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 #' Title
 #'
 #' @param ElasticMatrix
@@ -108,14 +38,53 @@ getPrimitiveGraphStructureBarCode <- function(ElasticMatrix) {
 
 
 
-#' Title
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Project data points on the precipal graph
 #'
-#' @param X
-#' @param NodePositions
-#' @param Edges
-#' @param Partition
+#' @param X numerical matrix containg points on the rows and dimensions on the columns
+#' @param NodePositions numerical matrix containg the positions of the nodes on the rows
+#' (must have the same dimensionality of X)
+#' @param Edges a 2-dimensional matrix containing edges as pairs of integers. The integers much
+#' match the rows of NodePositions
+#' @param Partition a Partition vector associating points to at most one of the nodes of the graph.
+#' It can be NULL, in which case it will be computed by the algorithm
 #'
-#' @return
+#' @return A list with several elements:
+#' \itemize{
+#'  \item{"X_projected "}{A matrix containing the projection of the points (on rows) on the edges of the graph}
+#'  \item{"MSEP "}{The mean squared error (distance) of the points from the graph}
+#'  \item{"ProjectionValues "}{The normalized position of the point on its associted edge.
+#'  A value <0 indicates a projection before the initial position of the node.
+#'  A value >1 indicates a projection after the final position of the node.
+#'  A value betwen 0 and 1 indicates at which percentage of the edge length the point is being projected,
+#'  e.g., a value of 0.3 indicates the 30\%.}
+#'  \item{"EdgeID "}{An integer indicating the id of the edge on which each point has been projected. Note that
+#'  if a point is projected on a node, this id will indicate one of the edges connected to that node.}
+#'  \item{"EdgeLen "}{The length of the edges described by the Edges input matrix}
+#'  \item{"NodePositions "}{the NodePositions input matrix}
+#'  \item{"Edges "}{the Edges input matrix}
+#' }
+#' 
 #' @export
 #'
 #' @examples
@@ -169,7 +138,10 @@ project_point_onto_graph <- function(X, NodePositions, Edges, Partition = NULL){
   return(list(X_projected = X_projected,
               MSEP = mean(Distances_squared),
               ProjectionValues = ProjectionValues,
-              EdgeID = EdgeID, EdgeLen = EdgeLen))
+              EdgeID = EdgeID,
+              EdgeLen = EdgeLen,
+              NodePositions = NodePositions,
+              Edges = Edges))
 
 }
 
@@ -207,6 +179,8 @@ project_point_onto_edge <- function(X, NodePositions, Edge) {
   vec = NodePositions[Edge[2],] - NodePositions[Edge[1],]
   u = (t(t(X) - NodePositions[Edge[1],]) %*% vec) / as.vector(vec %*% vec)
 
+  u[!is.finite(u)] <- 0
+  
   X_Projected <- X
   X_Projected[] <- NA
 
@@ -262,6 +236,18 @@ project_point_onto_edge <- function(X, NodePositions, Edge) {
 
 
 
+#' Title
+#'
+#' @param X 
+#' @param NodePositions 
+#' @param ElasticMatrix 
+#' @param PartData 
+#' @param ComputeMSEP 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, PartData=NULL, ComputeMSEP = FALSE) {
 
   # %   This function computes various measurements concerning a primitive
@@ -353,3 +339,4 @@ ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, Par
 
 
 }
+

@@ -1,12 +1,10 @@
-# Generate an igraph from the pringicical graph ---------------------------
+# Construct igraph objects -------------------------------------------------------------
 
-#' Title
+#' Generate an igraph object from a ElPiGraph structure
 #'
-#' @param Results
-#' @param DirectionMat
-#' @param Thr
+#' @param PrintGraph A principal graph object
 #'
-#' @return
+#' @return An igraph network
 #' @export
 #'
 #' @examples
@@ -27,74 +25,42 @@ ConstructGraph <- function(PrintGraph) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# # CompareNets -------------------------------------------------------------
-#
-#
-# CompareNet <- function(G1, G2, RemNodes = 2, Tries = 10000, DoIso = FALSE) {
-#
-#   if(DoIso){
-#     Full_Iso <- graph.get.isomorphisms.vf2(graph1 = G1, graph2 = G2)
-#
-#     if(length(Full_Iso)>0){
-#       return(0)
-#     }
-#   }
-#
-#   pb <- txtProgressBar(min = 1, max = Tries, initial = 1, style = 3)
-#
-#   for (Retries in 1:Tries) {
-#     setTxtProgressBar(pb, Retries)
-#     RemVert <- sample(x = V(G1), size = RemNodes, replace = FALSE)
-#     tNet <- delete_vertices(G1, RemVert)
-#     Part_Iso <- graph.get.subisomorphisms.vf2(graph1 = G2, graph2 = tNet)
-#     if(length(Part_Iso)>0){
-#       RetVal <- list(rem)
-#       close(pb)
-#       return(list(SubIso = Part_Iso, RemVert = RemVert))
-#     }
-#   }
-#
-#   close(pb)
-#   return(NULL)
-#
-# }
-
-
-
-
-
 # Extract a subpath from the graph ----------------------------------------
 
 
-#' Title
+#' Extract a subgraph with a given topology from a graph
 #'
-#' @param Net
-#' @param Structure
-#' @param Circular
+#' @param Net an igraph network object
+#' @param Structure a string specifying the structure to return. The following options are
+#' available:
+#' \itemize{
+#'  \item 'circle', all the circles of a given length (specified by Nodes) present in the data.
+#'  If Nodes is unspecified the algorithm will look for the largest circle avaialble.
+#'  \item 'branches', all the linear path connecting the branching points
+#'  \item 'branches&bpoints', all the linear path connecting the branching points and all of
+#'  the branching points
+#'  \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
+#' the branching points and the closests branching points and end points)
+#' \item 'end2end', all linear paths connecting end points (or leaf)
+#' }
+#' @param Circular a boolean indicating whether the circle should contain the initial points at the
+#' beginning and at the end
+#' @param Nodes the number of nodes (for cycle detection)
+#' @param KeepEnds boolean, should the end points (overlapping between structures) be included when
+#' Structure = 'branches' or 'branching'
 #'
-#' @return
+#' @description
+#' 
+#' Note that all subgraph are returned only once. So, for example, if A and B are two end leaves of a tree
+#' and 'end2end' is being used, only the path for A to B or the path from Bt o A will be returned.
+#'
+#' @return a list of nodes defining the structures under consideration
 #' @export
 #'
+#'
+#'
 #' @examples
-GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) {
+GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds = TRUE) {
 
   if(Structure == 'auto'){
 
@@ -104,11 +70,11 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
   }
 
   if(Structure == 'circle'){
-
+    
     if(is.null(Nodes)){
       print("Looking for the largest cycle")
       
-      for(i in rev(1:igraph::vcount(Net))){
+      for(i in rev(3:igraph::vcount(Net))){
         RefNet <- igraph::graph.ring(n = i, directed = FALSE, circular = TRUE)
         if(igraph::graph.subisomorphic.lad(target = Net, pattern = RefNet)$iso){
           print(paste("A cycle of lenght", i, "has been found"))
@@ -122,7 +88,11 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
     RefNet <- igraph::graph.ring(n = i, directed = FALSE, circular = TRUE)
 
     SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
+    
+    SubIsoProjList <- SubIsoProjList[!duplicated(sapply(SubIsoProjList, function(x){x[1]}))]
 
+    names(SubIsoProjList) <- paste("Circle", 1:length(SubIsoProjList), sep = "_")
+    
     if(Circular){
       return(lapply(SubIsoProjList, function(x) {c(x, x[1])}))
     } else {
@@ -130,6 +100,84 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
     }
 
   }
+  
+  
+  
+  if(Structure == 'branches'){
+    
+    BrPoints <- which(igraph::degree(Net)>2)
+    EndPoints <- which(igraph::degree(Net)==1)
+    
+    Allbr <- list()
+    SelEp <- union(BrPoints, EndPoints)
+    
+    for(i in BrPoints){
+      
+      SelEp <- setdiff(SelEp, i)
+      
+      for(j in SelEp){
+        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+        if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
+          Allbr[[length(Allbr)+1]] <- Path
+        }
+      }
+    }
+    
+    if(!KeepEnds){
+      Allbr <- lapply(Allbr, function(x){
+        setdiff(x, BrPoints)
+      })
+    }
+    
+    names(Allbr) <- paste("Branch", 1:length(Allbr), sep = "_")
+    
+    return(Allbr)
+    
+  }
+  
+  
+  
+  
+  if(Structure == 'branches&bpoints'){
+    
+    BrPoints <- which(igraph::degree(Net)>2)
+    EndPoints <- which(igraph::degree(Net)==1)
+    
+    Allbr <- list()
+    SelEp <- union(BrPoints, EndPoints)
+    
+    for(i in BrPoints){
+      
+      SelEp <- setdiff(SelEp, i)
+      
+      for(j in SelEp){
+        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+        if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
+          Allbr[[length(Allbr)+1]] <- Path
+        }
+      }
+    }
+    
+    Allbr <- lapply(Allbr, function(x){
+      setdiff(x, BrPoints)
+    })
+    
+    BaseNameVect <- paste("Branch", 1:length(Allbr), sep = "_")
+    
+    BrCount <- 0
+    
+    for(i in BrPoints){
+      BrCount <- BrCount + 1
+      Allbr[[length(Allbr)+1]] <- i
+      BaseNameVect <- c(BaseNameVect, paste("BrPoint", BrCount, sep = "_"))
+    }
+    
+    names(Allbr) <- BaseNameVect
+    
+    return(Allbr)
+    
+  }
+  
   
   
   if(Structure == 'branching'){
@@ -158,9 +206,36 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
         }
       }
       
-      Allbr[[length(Allbr) + 1]] <- union(Points, Terminal.Branching)
+      if(KeepEnds){
+        Allbr[[length(Allbr) + 1]] <- union(Points, Terminal.Branching)
+      } else {
+        Allbr[[length(Allbr) + 1]] <- Points
+      }
       
     }
+    
+    names(Allbr) <- paste("Subtree", 1:length(Allbr), sep = "_")
+    
+    return(Allbr)
+    
+  }
+  
+  
+  
+  if(Structure == 'end2end'){
+    
+    EndPoints <- which(igraph::degree(Net)==1)
+    
+    Allbr <- list()
+    
+    for(i in 1:(length(EndPoints)-1)){
+      for(j in (i+1):length(EndPoints)){
+        Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
+        Allbr[[length(Allbr)+1]] <- Path
+      }
+    }
+    
+    names(Allbr) <- paste("Path", 1:length(Allbr), sep = "_")
     
     return(Allbr)
     
@@ -170,86 +245,24 @@ GetSubGraph <- function(Net, Structure = 'auto', Nodes = NULL, Circular = TRUE) 
   
   
   
-  # if(Structure == 'Lasso'){
-  #
-  #   # The largest
-  #
-  #   RefNet <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = FALSE)
-  #   SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
-  #
-  #   StartNode <- which(igraph::degree(Net)==1)
-  #
-  #   WayNode <- which(igraph::degree(Net)==3)
-  #
-  #   VerNumMat <- t(sapply(1:length(SubIsoProjList), FUN = function(i){unlist(lapply(strsplit(SubIsoProjList[[i]]$name, split = "V_"), "[[", 2))}))
-  #   VerNumMat <- VerNumMat[VerNumMat[,1] == StartNode_Numb,]
-  #
-  #   VerNameMat <- t(sapply(SubIsoProjList, names))
-  #   VerNameMat <- VerNameMat[VerNameMat[,1] == StartNode_Name,]
-  #
-  #   if(Circular){
-  #     return(list(VertPath = cbind(VerNameMat, WayNode_Name),
-  #               VertNumb = cbind(VerNumMat, WayNode_Numb)))
-  #   } else {
-  #     return(list(VertPath = VerNameMat,
-  #                 VertNumb = VerNumMat))
-  #   }
-  #
-  # }
-  #
-  # if(Structure == 'Tail'){
-  #
-  #   # The largest
-  #
-  #   if(all(igraph::degree(Net)!=1) & all(igraph::degree(Net)!=3)){
-  #     return(NULL)
-  #   }
-  #
-  #   StartNode_Name <- names(which(igraph::degree(Net)==1))
-  #   StartNode_Numb <- strsplit(StartNode_Name, "V_", TRUE)[[1]][2]
-  #
-  #   EndNode_Name <- names(which(igraph::degree(Net)==3))
-  #   EndNode_Numb <- strsplit(EndNode_Name, "V_", TRUE)[[1]][2]
-  #
-  #   VerNameMat <- names(igraph::get.shortest.paths(graph = Net, from = StartNode_Name, to = EndNode_Name)$vpath[[1]])
-  #   VerNumMat <- unlist(lapply(strsplit(VerNameMat, "V_", TRUE), "[[", 2), use.names = FALSE)
-  #
-  #   return(list(VertPath = VerNameMat, VertNumb = VerNumMat))
-  #
-  # }
-  #
-  # if(Structure == 'Line'){
-  #
-  #   # The largest
-  #
-  #   if(any(igraph::degree(Net)>2)){
-  #     return(NULL)
-  #   }
-  #
-  #   RefNet <- igraph::graph.ring(n = igraph::vcount(Net), directed = FALSE, circular = FALSE)
-  #
-  #   SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
-  #
-  #   VerNumMat <- t(sapply(1:length(SubIsoProjList), FUN = function(i){unlist(lapply(strsplit(SubIsoProjList[[i]]$name, split = "V_"), "[[", 2))}))
-  #   VerNumMat <- VerNumMat[!duplicated(VerNumMat[,1]),]
-  #
-  #   VerNameMat <- t(sapply(SubIsoProjList, names))
-  #   VerNameMat <- VerNameMat[!duplicated(VerNameMat[,1]),]
-  #
-  #   return(list(VertPath = VerNameMat, VertNumb = VerNumMat))
-  #
-  # }
 
 }
 
 
 
-#' Title
+#' Return a data frame summarizing the branching structure
 #'
-#' @param Net 
-#' @param StartingPoint 
+#' @param Net an igraph network
+#' @param StartingPoint the starting points
 #'
-#' @return
+#' @return a data frame with three columns:
+#' \itemize{
+#'  \item VName contains the vertx names
+#'  \item Branch contains the id of the branch (numbering start from the branch
+#' containing the starting point) or 0 if a branching point
+#'  \item BrPoints the branchhing point id, or 0 if not a branching point
+#' }
+#' 
 #' @export
 #'
 #' @examples
@@ -312,8 +325,7 @@ GetBranches <- function(Net, StartingPoint = NULL) {
     
   }
   
-  
-  return(data.frame(VName = Vertices, Branches = Branches, DiffPoints = DiffPoints))
+  return(data.frame(VName = Vertices, Branch = Branches, BrPoints = DiffPoints))
   
 }
 

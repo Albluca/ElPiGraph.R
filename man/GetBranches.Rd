@@ -2,15 +2,24 @@
 % Please edit documentation in R/graphs.R
 \name{GetBranches}
 \alias{GetBranches}
-\title{Title}
+\title{Return a data frame summarizing the branching structure}
 \usage{
 GetBranches(Net, StartingPoint = NULL)
 }
 \arguments{
-\item{Net}{}
+\item{Net}{an igraph network}
 
-\item{StartingPoint}{}
+\item{StartingPoint}{the starting points}
+}
+\value{
+a data frame with three columns:
+\itemize{
+ \item VName contains the vertx names
+ \item Branch contains the id of the branch (numbering start from the branch
+containing the starting point) or 0 if a branching point
+ \item BrPoints the branchhing point id, or 0 if not a branching point
+}
 }
 \description{
-Title
+Return a data frame summarizing the branching structure
 }

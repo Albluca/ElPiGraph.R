@@ -2,14 +2,14 @@
 % Please edit documentation in R/topologies.R
 \name{ElPrincGraph}
 \alias{ElPrincGraph}
-\title{Core function to contract a principal elestic graph}
+\title{Core function to construct a principal elestic graph}
 \usage{
 ElPrincGraph(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix,
   NodesPositions, verbose = FALSE, n.cores = 1, ClusType = "Sock",
   CompileReport = FALSE, ShowTimer = FALSE, ComputeMSEP = TRUE,
   Mode = 1, MaxNumberOfIterations = 10, eps = 0.01,
   TrimmingRadius = Inf, GrowGrammars = list(), ShrinkGrammars = list(),
-  FastSolve = FALSE)
+  FastSolve = FALSE, AvoidSolitary = FALSE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -56,8 +56,29 @@ contruction of the principal graph be compiled?}
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
+
+\item{AvoidSolitary}{}
+}
+\value{
+a named list with a number of elements:
+\describe{
+  \item{NodePositions}{A numeric matrix containing the positions of the nodes}
+  \item{ElasticMatrix}{The elastic matrix of the graph}
+  \item{ReportTable}{The report table for the graph construction}
+  \item{FinalReport}{The report table associated with the final graph configuration}
+  \item{Lambda}{The lambda parameter used during the graph construction}
+  \item{Mu}{The mu parameter used during the graph construction}
+  \item{FastSolve}{was FastSolve being used?}
+}
 }
 \description{
 The core function that takes the n m-dimensional points and construct a principal elastic graph using the
 grammars provided.
+}
+\examples{
+
+This is a low level function. See  \\code{\\link{computeElasticPrincipalCircle}},
+\\code{\\link{computeElasticPrincipalCurve}}, or \\code{\\link{computeElasticPrincipalTree}}
+for examples
+
 }

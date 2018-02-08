@@ -1,0 +1,133 @@
+---
+title: "Usig pseudotime"
+author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
+date: "11 janvier 2018"
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The ElPiGraph package contains a number of functions to derive the pseudotime associated with each point. This is particularly relevant in biological contexts. 
+
+# Setup
+
+As a first step, we will construct a tree structure on the sample data
+
+```{r}
+library(ElPiGraph.R)
+
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+
+```
+
+and visualize the node labels:
+
+```{r}
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]],
+       NodeLabels = 1:nrow(TreeEPG[[1]]$NodePositions),
+       LabMult = 3, PointSize = NA, p.alpha = .1)
+```
+
+
+# Getting the substructure of interest
+
+In this example, we will look at all the path originating in 2 and extending to all the other leafs of the tree. Hence, we assume that 2 is the starting points for the pseudotime.
+
+We will begin by computing all of the paths between leaves.
+
+```{r}
+Tree_Graph <- ConstructGraph(TreeEPG[[1]])
+Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
+```
+
+Since the paths derived are unique, the node 1 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 1
+
+```{r}
+Root <- 1
+SelPaths <- Tree_e2e[sapply(Tree_e2e, function(x){any(x[c(1, length(x))] == Root)})]
+```
+
+and reverse the paths ending in 1
+
+```{r}
+SelPaths <- lapply(SelPaths, function(x){
+  if(x[1] == Root){
+    return(x)
+  } else {
+    return(rev(x))
+  }
+})
+
+```
+
+At this point, we can look at `SelPaths` to make sure that the results are compatible with our expectations
+
+```{r}
+SelPaths
+```
+
+# Getting the supporting structures
+
+To optimize the computation, certain structures used to compute the pseudotime are computed externally. We begin by computing a Partition structure, which contains information on the projection of points on the nodes
+
+```{r}
+PartStruct <- PartitionData(X = tree_data, NodePositions = TreeEPG[[1]]$NodePositions)
+```
+
+Then, we will compute a projection structure, which contains information relative to the projection of points on the edge of the graph
+
+```{r}
+ProjStruct <- project_point_onto_graph(X = tree_data,
+                                       NodePositions = TreeEPG[[1]]$NodePositions,
+                                       Edges = TreeEPG[[1]]$Edges$Edges,
+                                       Partition = PartStruct$Partition)
+```
+
+# Computing pseudotime
+
+We are now able to obtain the pseudotime, via the `getPseudotime` function. We will use `lapply` to compute all of the pseudotime at once. Moreover, the functions requires nodes to be passed as a vector of strings, so we will need to use the `names` function to convert the sequence of vertices.
+
+```{r}
+AllPt <- lapply(SelPaths, function(x){
+  getPseudotime(ProjStruct = ProjStruct, NodeSeq = names(x))
+})
+```
+
+At this point, we can merge the pseudotime projections. This is possible because points are uniquely projected on the graph and all the paths selected have a common root
+
+```{r}
+PointsPT <- apply(sapply(AllPt, "[[", "Pt"), 1, function(x){unique(x[!is.na(x)])})
+```
+
+When can then visualize the pseudotime on the points via the `PlotPG` function 
+
+```{r}
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], GroupsLab = PointsPT)
+```
+
+# Exploring features over pseudotime
+
+Once the pseudotime has been computed, it is possible to explore how the different features of the data behave over the psedutime. This feature is particulartly helpful for gene expression data as it allow checking how gene dynamics contribute to the topoligical features of the data.
+
+It is possible to visualize this information using the `CompareOnBranches` function
+
+```{r}
+CompareOnBranches(X = tree_data,
+                  Paths = lapply(SelPaths[1:4], function(x){names(x)}),
+                  TargetPG = TreeEPG[[1]],
+                  Partition = PartStruct$Partition,
+                  PrjStr = ProjStruct,
+                  Main = "A simple tree example",
+                  Features = 2)
+```

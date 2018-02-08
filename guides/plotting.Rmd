@@ -1,0 +1,21 @@
+---
+title: "Plotting"
+author: "Luca Albergante"
+date: "16/01/2018"
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The ElPiGraph.R package contains several functions that can be used to visualize the results of the analysis. This guide will illustrate their usage.
+

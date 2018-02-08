@@ -13,5 +13,7 @@ Imports:
     tictoc,
     parallel,
     irlba,
-    ggplot2
+    ggplot2,
+    segmented,
+    ggpubr
 RoxygenNote: 6.0.1

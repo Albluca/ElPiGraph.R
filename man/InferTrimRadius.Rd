@@ -4,12 +4,10 @@
 \alias{InferTrimRadius}
 \title{Title}
 \usage{
-InferTrimRadius(X, nPoints, nInt = 100, plotCurves = FALSE)
+InferTrimRadius(X, nPoints = NULL, nInt = 100, plotCurves = FALSE)
 }
 \arguments{
-\item{nPoints}{}
-
-\item{plotCurves}{}
+\item{nInt}{}
 }
 \description{
 Title

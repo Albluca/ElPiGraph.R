@@ -2,13 +2,39 @@
 % Please edit documentation in R/reporting.R
 \name{project_point_onto_graph}
 \alias{project_point_onto_graph}
-\title{Title}
+\title{Project data points on the precipal graph}
 \usage{
 project_point_onto_graph(X, NodePositions, Edges, Partition = NULL)
 }
 \arguments{
-\item{Partition}{}
+\item{X}{numerical matrix containg points on the rows and dimensions on the columns}
+
+\item{NodePositions}{numerical matrix containg the positions of the nodes on the rows
+(must have the same dimensionality of X)}
+
+\item{Edges}{a 2-dimensional matrix containing edges as pairs of integers. The integers much
+match the rows of NodePositions}
+
+\item{Partition}{a Partition vector associating points to at most one of the nodes of the graph.
+It can be NULL, in which case it will be computed by the algorithm}
+}
+\value{
+A list with several elements:
+\itemize{
+ \item{"X_projected "}{A matrix containing the projection of the points (on rows) on the edges of the graph}
+ \item{"MSEP "}{The mean squared error (distance) of the points from the graph}
+ \item{"ProjectionValues "}{The normalized position of the point on its associted edge.
+ A value <0 indicates a projection before the initial position of the node.
+ A value >1 indicates a projection after the final position of the node.
+ A value betwen 0 and 1 indicates at which percentage of the edge length the point is being projected,
+ e.g., a value of 0.3 indicates the 30\%.}
+ \item{"EdgeID "}{An integer indicating the id of the edge on which each point has been projected. Note that
+ if a point is projected on a node, this id will indicate one of the edges connected to that node.}
+ \item{"EdgeLen "}{The length of the edges described by the Edges input matrix}
+ \item{"NodePositions "}{the NodePositions input matrix}
+ \item{"Edges "}{the Edges input matrix}
+}
 }
 \description{
-Title
+Project data points on the precipal graph
 }
