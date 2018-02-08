@@ -28,6 +28,7 @@ library(ElPiGraph.R)
 
 TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+
 ```
 
 and visualize the node labels:
@@ -50,14 +51,14 @@ Tree_Graph <- ConstructGraph(TreeEPG[[1]])
 Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
 ```
 
-Since the paths derived are unique, the node 2 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 2 
+Since the paths derived are unique, the node 1 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 1
 
 ```{r}
-Root <- 2
+Root <- 1
 SelPaths <- Tree_e2e[sapply(Tree_e2e, function(x){any(x[c(1, length(x))] == Root)})]
 ```
 
-and reverse the paths ending in 2
+and reverse the paths ending in 1
 
 ```{r}
 SelPaths <- lapply(SelPaths, function(x){
@@ -93,7 +94,7 @@ ProjStruct <- project_point_onto_graph(X = tree_data,
                                        Partition = PartStruct$Partition)
 ```
 
-# Computnig pseudotime
+# Computing pseudotime
 
 We are now able to obtain the pseudotime, via the `getPseudotime` function. We will use `lapply` to compute all of the pseudotime at once. Moreover, the functions requires nodes to be passed as a vector of strings, so we will need to use the `names` function to convert the sequence of vertices.
 

@@ -14,5 +14,6 @@ Imports:
     parallel,
     irlba,
     ggplot2,
+    segmented,
     ggpubr
 RoxygenNote: 6.0.1

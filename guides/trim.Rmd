@@ -63,23 +63,26 @@ TD_HighNoise_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)
 By default the ElPiGraph algorithm uses all the points and generate the initial points on the 1st PC of the data. Therefore, noise can affect significantly the reconstructed tree.
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 4)
-PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 40,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 1)
+PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 4)
-PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 40,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 1)
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 4)
-PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 40,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE, n.cores = 1)
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
@@ -87,40 +90,54 @@ PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, 
 
 To limit the effect of noise, we can specify a trimming radius (which informs the algorithm to use only points with a distance lower than this radius when computing the position of the nodes), and use a density dependent initialization `ICOver = "Density"`. Note that when using `ICOver = "Density"`, the parameter `DensityRadius`, which is used to determine the area of the space with the highest density of points, need to be specified as well.
 
-When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration. Moreover certain feature of the topology may be lost due to  corruption due by the noise.
+When a trimming radius is used, tree construction becomes *local*, hence it may be necessary to increase the number of points in order to better cover all areas of the space containing the points under consideration. Moreover certain feature of the topology may be lost due to the noise corrupting the data.
+
+`ElpiGraph.R` also contains the function `InferTrimRadius` which can be used to obtain a distribution of potential trimming radiuses.
 
 ```{r}
+TrimGuess <- InferTrimRadius(X = TD_LowNoise, nPoints = round(nrow(TD_LowNoise)/2))
+
 TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       TrimmingRadius = .15,
-                                       ICOver = "Density", DensityRadius = .15)
+                                       n.cores = 1,
+                                       TrimmingRadius = quantile(TrimGuess, .9),
+                                       ICOver = "Density",
+                                       DensityRadius = quantile(TrimGuess, .9))
 
-PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_LowNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
 
 ```{r}
+TrimGuess <- InferTrimRadius(X = TD_MedNoise, nPoints = round(nrow(TD_MedNoise)/2))
+
 TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       TrimmingRadius = .15,
-                                       ICOver = "Density", DensityRadius = .15)
+                                       n.cores = 1,
+                                       TrimmingRadius = quantile(TrimGuess, .9),
+                                       ICOver = "Density",
+                                       DensityRadius = quantile(TrimGuess, .9))
 
-PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
 
 ```{r}
+TrimGuess <- InferTrimRadius(X = TD_HighNoise, nPoints = round(nrow(TD_HighNoise)/2))
+
 TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       TrimmingRadius = .15,
-                                       ICOver = "Density", DensityRadius = .15)
+                                       n.cores = 1,
+                                       TrimmingRadius = quantile(TrimGuess, .9),
+                                       ICOver = "Density",
+                                       DensityRadius = quantile(TrimGuess, .9))
 
-PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat,
+       Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
@@ -132,62 +149,67 @@ Note that when bootstrapped is enabled (i.e. when `nRep` is larger than 1), an a
 
 Visualization of bootstrapped data can be easilty perfomred via the `PlorPG` function. To this end, it is sufficient to pass the bootstrapped structures via the `BootPG` parameter. Currently a primary ElPiGraph structure is required (the `TargetPG` parameter).
 
-It is further possible to control if the bootstrapped and target graphs shoudl be plotted via the `VizMode` parameter.
+It is further possible to control if the bootstrapped and target graphs should be plotted via the `VizMode` parameter.
  
 
 ```{r}
 nRep <- 20
 
-TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 40,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
                                        drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       nReps = nRep, ProbPoint = .6,
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
                                        TrimmingRadius = Inf,
                                        ICOver = "DensityProb", DensityRadius = .3)
 
-PlotPG(X = tree_data, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2, VizMode = c("Target", "Boot"))
+PlotPG(X = tree_data, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2, Do_PCA = FALSE, VizMode = c("Target", "Boot"))
 
-PlotPG(X = tree_data, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2, VizMode = "Boot")
+PlotPG(X = tree_data, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Boot")
 
-PlotPG(X = tree_data, TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2)
+PlotPG(X = tree_data, TargetPG = TreeEPG[[nRep+1]], DimToPlot = 1:2, Do_PCA = FALSE)
 ```
 
 
 
 
 ```{r}
+TrimGuess <- InferTrimRadius(X = TD_LowNoise, nPoints = round(nrow(TD_LowNoise)/2))
+
 nRep <- 20
 
 TreeEPG <- computeElasticPrincipalTree(X = TD_LowNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
                                        drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       nReps = nRep, ProbPoint = .6,
-                                       TrimmingRadius = .15,
-                                       ICOver = "DensityProb", DensityRadius = .15)
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
+                                       TrimmingRadius = quantile(TrimGuess, .95),
+                                       ICOver = "DensityProb",
+                                       DensityRadius = quantile(TrimGuess, .95))
 
-PlotPG(X = TD_LowNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2, VizMode = "Boot")
+PlotPG(X = TD_LowNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Boot")
 
-PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_LowNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_LowNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_LowNoise_Cat, Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
 
 ```{r}
+TrimGuess <- InferTrimRadius(X = TD_MedNoise, nPoints = round(nrow(TD_MedNoise)/4))
+
 nRep <- 20
 
-TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 60,
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
                                        drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       nReps = nRep, ProbPoint = .6,
-                                       TrimmingRadius = .15,
-                                       ICOver = "DensityProb", DensityRadius = .15)
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
+                                       TrimmingRadius = quantile(TrimGuess, .95),
+                                       ICOver = "DensityProb", DensityRadius = .28)
 
-PlotPG(X = TD_MedNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2, VizMode = "Boot")
+PlotPG(X = TD_MedNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Boot")
 
-PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_MedNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_MedNoise_Cat, Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
@@ -197,14 +219,14 @@ nRep <- 20
 TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
                                        drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       nReps = nRep, ProbPoint = .6,
-                                       TrimmingRadius = .15,
-                                       ICOver = "DensityProb", DensityRadius = .15)
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
+                                       TrimmingRadius = .2,
+                                       ICOver = "DensityProb", DensityRadius = .2)
 
-PlotPG(X = TD_HighNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2, VizMode = "Boot")
+PlotPG(X = TD_HighNoise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Boot")
 
-PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_HighNoise_Cat, DimToPlot = 1:2)
+PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_HighNoise_Cat, Do_PCA = FALSE, DimToPlot = 1:2)
 ```
 
 
@@ -221,19 +243,19 @@ This function returns a vector that describe, for each point, the number of grap
 ```{r}
 nRep <- 10
 
-TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 50,
+TreeEPG <- computeElasticPrincipalTree(X = TD_MedNoise, NumNodes = 40,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
                                        drawPCAView = FALSE,
-                                       n.cores = 4,
-                                       nReps = nRep, ProbPoint = .6,
-                                       TrimmingRadius = .155,
-                                       ICOver = "DensityProb", DensityRadius = .155)
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
+                                       TrimmingRadius = .28,
+                                       ICOver = "DensityProb", DensityRadius = .28)
 
 
 BootAssociation_Multi <- FindAssocited(X = TD_MedNoise, BootPG = TreeEPG[1:nRep])
 
 PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[nRep+1]], BootPG = TreeEPG[1:nRep],
-       GroupsLab = BootAssociation_Multi, DimToPlot = 1:2, VizMode = "Boot")
+       GroupsLab = BootAssociation_Multi, DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Boot")
 
 
 TB <- table(BootAssociation_Multi, TD_MedNoise_Cat)
@@ -242,7 +264,7 @@ pheatmap::pheatmap(t(TB)/colSums(TB), cluster_cols = FALSE)
 BootAssociation_Single <- FindAssocited(X = TD_MedNoise, BootPG = TreeEPG[nRep+1])
 
 PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[nRep+1]],
-       GroupsLab = factor(BootAssociation_Single), DimToPlot = 1:2, VizMode = "Target")
+       GroupsLab = factor(BootAssociation_Single), DimToPlot = 1:2, Do_PCA = FALSE, VizMode = "Target")
 
 TB <- table(BootAssociation_Single, TD_MedNoise_Cat)
 pheatmap::pheatmap(t(TB)/colSums(TB), cluster_cols = FALSE)
