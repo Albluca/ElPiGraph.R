@@ -534,11 +534,11 @@ computeElasticPrincipalGraph <- function(Data,
   NodePositions <- ElData$NodePositions
   Edges <- DecodeElasticMatrix(ElData$ElasticMatrix)
 
-  if(drawEnergy){
+  if(drawEnergy & !is.null(dim(ElData$ReportTable))){
     print(plotMSDEnergyPlot(ReportTable = ElData$ReportTable))
   }
 
-  if(drawAccuracyComplexity){
+  if(drawAccuracyComplexity & !is.null(dim(ElData$ReportTable))){
     print(accuracyComplexityPlot(ReportTable = ElData$ReportTable))
   }
 
