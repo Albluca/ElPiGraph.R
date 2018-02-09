@@ -247,7 +247,8 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
   # diff = immse(NodePositions,NewNodePositions)/norm(NewNodePositions);
   if(Mode == 1){
     diff = rowSums((NodePositions-NewNodePositions)^2)/rowSums(NewNodePositions^2)
-    diff = max(diff)
+    diff[!is.finite(diff)] <- NA
+    diff = max(diff, na.rm = TRUE)
   }
 
   # diff = mean(diff);
@@ -414,7 +415,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
     # Have we converged?
     
-    if(is.nan(difference)){
+    if(!is.finite(difference)){
       difference = 0
     }
     
