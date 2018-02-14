@@ -20,7 +20,7 @@ NULL
 NULL
 
 
-#' Points on a tree
+#' Points on a curve
 #'
 #' An example dataset containing 3d points distribued on a curve
 #' 

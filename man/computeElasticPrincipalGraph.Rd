@@ -11,7 +11,7 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   ShowTimer = FALSE, ReduceDimension = NULL,
   drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
   n.cores = 1, ClusType = "Sock", Mode = 1, GrowGrammars = list(),
-  ShrinkGrammars = list(), FastSolve = FALSE)
+  ShrinkGrammars = list(), FastSolve = FALSE, AvoidSolitary = FALSE)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -68,8 +68,31 @@ Currently fork clustering only works in Linux}
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
+
+\item{AvoidSolitary}{}
+}
+\value{
+a named list with a number of elements:
+\describe{
+  \item{NodePositions}{A numeric matrix containing the positions of the nodes}
+  \item{Edges}{A numeric matrix containing the pairs of nodes connected by edges}
+  \item{ElasticMatrix}{The elastic matrix of the graph}
+  \item{ReportTable}{The report table for the graph construction}
+  \item{FinalReport}{The report table associated with the final graph configuration}
+  \item{Lambda}{The lambda parameter used during the graph construction}
+  \item{Mu}{The mu parameter used during the graph construction}
+  \item{FastSolve}{was FastSolve being used?}
+}
 }
 \description{
 This allow to perform basic data regularization before constructing a principla elastic graph.
 The function also allows plotting the results.
+}
+\examples{
+
+This is a low level function. See  \\code{\\link{computeElasticPrincipalCircle}},
+\\code{\\link{computeElasticPrincipalCurve}}, or \\code{\\link{computeElasticPrincipalTree}}
+for examples
+
+
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/plotting.R
 \name{PlotPG}
 \alias{PlotPG}
-\title{Plot data and principal graph}
+\title{Plot data and principal graph(s)}
 \usage{
-PlotPG(X, TargetPG, BootPG = NULL, PGCol = "EPG",
-  PlotProjections = "none", GroupsLab = NULL, PointViz = "points",
-  Main = "", p.alpha = 0.3, PointSize = NULL, NodeLabels = NULL,
-  LabMult = 1, Do_PCA = TRUE, DimToPlot = c(1, 2))
+PlotPG(X, TargetPG, BootPG = NULL, PGCol = "", PlotProjections = "none",
+  GroupsLab = NULL, PointViz = "points", Main = "", p.alpha = 0.3,
+  PointSize = NULL, NodeLabels = NULL, LabMult = 1, Do_PCA = TRUE,
+  DimToPlot = c(1, 2), VizMode = c("Target", "Boot"))
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -22,15 +22,18 @@ PlotPG(X, TargetPG, BootPG = NULL, PGCol = "EPG",
 It can be "none" (no projections will be plotted), "onNodes" (the projections will indicate how points are associated to nodes),
 and "onEdges" (the projections will indicate how points are projected on edges or nodes of the graph)}
 
-\item{GroupsLab}{string factor, a vector indicating the category of each data point}
+\item{GroupsLab}{factor or numeric vector. A vector indicating either a category or a numeric value associted with
+each data point}
 
-\item{PointViz}{}
+\item{PointViz}{string, the modality to show points. It can be 'points' (data will be represented a dot) or
+'density' (the data will be represented by a field)}
 
 \item{Main}{string, the title of the plot}
 
 \item{p.alpha}{numeric between 0 and 1, the alpha value of the points. Lower values will prodeuce more transparet points}
 
-\item{PointSize}{numeric vector, a vector indicating the size to be associted with each node of the graph}
+\item{PointSize}{numeric vector, a vector indicating the size to be associted with each node of the graph.
+If NA points will have size 0.}
 
 \item{NodeLabels}{string vector, a vector indicating the label to be associted with each node of the graph}
 
@@ -41,7 +44,9 @@ rotate the space? If TRUE the plots will use the "EpG PC" as dimensions, if FALS
 
 \item{DimToPlot}{a integer vector specifing the PCs (if Do_PCA=TRUE) or dimension (if Do_PCA=FALSE) to plot. All the
 combination will be considered, so, for example, if DimToPlot = 1:3, three plot will be produced.}
+
+\item{VizMode}{vector of string, describing the ElPiGraphs to visualize. Any combination of "Target" and "Boot".}
 }
 \description{
-Plot data and principal graph
+Plot data and principal graph(s)
 }

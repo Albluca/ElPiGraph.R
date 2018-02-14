@@ -2,7 +2,7 @@
 % Please edit documentation in R/core.R
 \name{MakeUniformElasticMatrix}
 \alias{MakeUniformElasticMatrix}
-\title{The R fucntion has been replaced by the faster C++ version}
+\title{Create a uniform elastic matrix from a set of edges}
 \usage{
 MakeUniformElasticMatrix(Edges, Lambda, Mu)
 }
@@ -15,4 +15,7 @@ MakeUniformElasticMatrix(Edges, Lambda, Mu)
 }
 \value{
 the elastic matrix
+}
+\description{
+Create a uniform elastic matrix from a set of edges
 }

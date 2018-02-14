@@ -5,19 +5,33 @@
 \title{Produce an initial graph with a given structure}
 \usage{
 generateInitialConfiguration(X, Nodes, Configuration = "Line",
-  DensityRadius = NULL, MaxPoints = 25000)
+  DensityRadius = NULL, MaxPoints = 10000, PCADensity = TRUE,
+  CenterDataDensity = TRUE)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
 
 \item{Nodes}{integer, number of nodes of the graph}
 
-\item{Configuration}{string, type of graph to return. It can be "Line", "Circle", or "Density"}
+\item{Configuration}{string, type of graph to return. It should be one of the following value
+\describe{
+  \item{"Line"}{Points are placed on the 1st principal component between mean-sd and mean+sd}
+  \item{"Circle"}{Points are placed on the the plane induced by the 1st and 2nd principal components.
+  In both dimensions they are placed between mean-sd and mean+sd}
+  \item{"Density"}{Two points are selected randomly in the neighborhood of one of the points with
+  the largest number of neighbour points}
+  \item{"DensityProb"}{Two points are selected randomly in the neighborhood of one of a point randomly
+  selected with a probability proportional to the number of neighbour points}
+  \item{"Random"}{Two points are returned. The first is selected at random, and the second is selected with
+  a probability inversely proportional to thr distance to the 1st point selected}
+}}
 
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when Configuration is equal to "Density"}
 
 \item{MaxPoints}{integer, the maximum number of points for which the local density will be estimated. If the number of data points is
 larger than MaxPoints, a subset of the original points will be sampled}
+
+\item{PCADensity}{boolean, should PCA be applied to the data before computing the most dense area}
 }
 \description{
 Produce an initial graph with a given structure

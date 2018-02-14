@@ -6,7 +6,7 @@
 #' @param NodePositions an k-by-m numeric matrix with the coordiante of the nodes
 #' @param TrimmingRadius Maximum distance of data points to the nodes to assign a point to a node
 #' @param nCores number of cores to use.
-#' @param SquaredX the sum by row of the squared positions rowSums(X^2)
+#' @param SquaredX the sum by row of the squared positions rowSums(X^2). If NULL it will be calculated by the fucntion.
 #'
 #' @return A list containing two components: Partition (containing the associated nodes) and 
 #' Dists (containing the squqred distance from the node)
@@ -15,30 +15,16 @@
 #'
 #' @examples
 
-PartitionData <- function(X, NodePositions, SquaredX, TrimmingRadius = Inf, nCores = 1) {
+PartitionData <- function(X, NodePositions, SquaredX = NULL, TrimmingRadius = Inf, nCores = 1) {
   
-  if(nCores == 1){
-    
-    Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
-  
-  } else {
-    
-    Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
-    
-    # Idxs <- split(1:nrow(X), as.integer(cut(CoreAss, breaks = 3)))
-    # SplitData <- lapply(Idxs, function(i){X[i,]})
-    # 
-    # cl <- parallel::makeCluster(nCores)
-    # parallel::clusterExport(cl, c('NodePositions', "SquaredX"), .GlobalEnv)
-    # Dists <- parallel::parLapply(cl = cl, X = SplitData, fun = function(Data){
-    #   distutils::Partition(X, NodePositions, SquaredX)
-    # })
-    # parallel::stopCluster(cl)
-    # 
-    # Dists <- do.call(rbind, Dists)
+  if(is.null(SquaredX)){
+    SquaredX = rowSums(X^2)
   }
+  
+  Dists <- distutils::Partition(Ar = X, Br = NodePositions, SquaredAr = SquaredX)
 
   PartVect <- Dists$Partition
+  Dist <- Dists$Dist
   
   # print("DEBUG (PartitionData):")
   # print(Dists$Partition)
@@ -52,12 +38,13 @@ PartitionData <- function(X, NodePositions, SquaredX, TrimmingRadius = Inf, nCor
       PartVect[ToFilter] <- 0
       # print(Dists$Partition)
     }
+    Dist[Dist > TrimmingRadius^2] <- TrimmingRadius^2
   }
 
   # print("DEBUG (PartitionData):")
   # print(table(PartVect))
   
-  return(list(Partition = PartVect, Dists = Dists$Dist))
+  return(list(Partition = PartVect, Dists = Dist))
 
 }
 
@@ -260,7 +247,8 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
   # diff = immse(NodePositions,NewNodePositions)/norm(NewNodePositions);
   if(Mode == 1){
     diff = rowSums((NodePositions-NewNodePositions)^2)/rowSums(NewNodePositions^2)
-    diff = max(diff)
+    diff[!is.finite(diff)] <- NA
+    diff = max(diff, na.rm = TRUE)
   }
 
   # diff = mean(diff);
@@ -295,7 +283,9 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param Mode integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 #' 2 (difference is computed using the changes in elestic energy of the configuraztions)
 #' @param SquaredX the sum (by node) of X squared. It not specified, it will be calculated by the fucntion
-#' @param FastSolve boolena. Shuold the Fastsolve of Armadillo by enabled?
+#' @param FastSolve boolean, shuold the Fastsolve of Armadillo by enabled?
+#' @param DisplayWarnings boolean, should warning about convergence be displayed? 
+#' 
 #'
 #' @return
 #' @export
@@ -310,7 +300,9 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            Mode = 1,
                                            SquaredX = NULL,
                                            verbose = FALSE,
-                                           FastSolve = FALSE) {
+                                           FastSolve = FALSE,
+                                           DisplayWarnings = FALSE,
+                                           prob = 1) {
 
   N = nrow(X)
   PointWeights = rep(1, N)
@@ -335,10 +327,11 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # print(table(PartDataStruct$Partition))
   
   if(verbose | Mode == 2){
-    OldPriGrElEn <- distutils::ElasticEnergy(X = X, NodePositions =  NodePositions,
+    OldPriGrElEn <- distutils::ElasticEnergy(X = X,
+                                             NodePositions =  NodePositions,
                                              ElasticMatrix = ElasticMatrix,
                                              Dists = PartDataStruct$Dists,
-                                             BranchingFee = 0, FinalVal)
+                                             BranchingFee = 0)
   } else {
     OldPriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
   }
@@ -355,16 +348,34 @@ PrimitiveElasticGraphEmbedment <- function(X,
       difference = NA
       
       NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
-                                                      PointWeights = PointWeights,
-                                                      NodePositions = NodePositions,
-                                                      SpringLaplacianMatrix = SpringLaplacianMatrix,
-                                                      partition = PartDataStruct$Partition,
-                                                      FastSolve = FastSolve)
+                                                                 PointWeights = PointWeights,
+                                                                 NodePositions = NodePositions,
+                                                                 SpringLaplacianMatrix = SpringLaplacianMatrix,
+                                                                 partition = PartDataStruct$Partition,
+                                                                 FastSolve = FastSolve)
       
       break()
+      
     }
     
     # Updated positions
+    
+    
+    # if(prob<1){
+    #   NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[runif(nrow(X)) < prob, ],
+    #                                                              PointWeights = PointWeights,
+    #                                                              NodePositions = NodePositions,
+    #                                                              SpringLaplacianMatrix = SpringLaplacianMatrix,
+    #                                                              partition = PartDataStruct$Partition,
+    #                                                              FastSolve = FastSolve)
+    # } else {
+      NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
+                                                                 PointWeights = PointWeights,
+                                                                 NodePositions = NodePositions,
+                                                                 SpringLaplacianMatrix = SpringLaplacianMatrix,
+                                                                 partition = PartDataStruct$Partition,
+                                                                 FastSolve = FastSolve)
+    # }
     
     NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
                                                                  PointWeights = PointWeights,
@@ -404,6 +415,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
     # Have we converged?
     
+    if(!is.finite(difference)){
+      difference = 0
+    }
+    
     if(difference < eps){
       Converged <- TRUE
       break()
@@ -419,7 +434,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
   }
   
-  if(!Converged){
+  if(DisplayWarnings & !Converged){
     warning(paste0("Maximum number of iterations (", MaxNumberOfIterations, ") has been reached. diff = ", difference))
   }
 

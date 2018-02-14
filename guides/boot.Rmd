@@ -1,0 +1,111 @@
+---
+title: "Advanced boostrapping options"
+author: '[Luca Albergante](mailto:luca.albergante@gmail.com)'
+date: "15 janvier 2018"
+output:
+  md_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    depth: 3
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+When noise is present or the data distribution to approximate is very complex, it may be helpfull to use more advanced approaches based on bootstrapped curved. This guide describes this approach.
+
+# Setup
+
+To show the effect of these features, we will start by generating a dataset from the tree example present in the package. Similar ideas and concepts apply to the construction of curves as well.
+
+```{r}
+library(ElPiGraph.R)
+library(igraph)
+
+nPoints <- nrow(tree_data)*3
+
+NewPoints <- apply(apply(tree_data, 2, range), 2, function(x){
+  runif(n = nPoints, x[1], x[2])
+})
+
+TD_Noise <- rbind(tree_data, NewPoints)
+TD_Noise_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
+```
+
+# Bootstrapping graph construction
+
+We then apply bootstrapping and trimming radius to reconstruct the tree and use a large number of repetitions. Ideally, this will allow to better recapitulate the data (as different part of the real data are likely to be *discovered* by multiple analyses).
+
+```{r}
+nRep <- 25
+
+TreeEPG <- computeElasticPrincipalTree(X = TD_Noise, NumNodes = 50,
+                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
+                                       drawPCAView = FALSE,
+                                       n.cores = 1,
+                                       nReps = nRep, ProbPoint = .8,
+                                       TrimmingRadius = .3,
+                                       ICOver = "DensityProb", DensityRadius = .3)
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_Noise_Cat,
+       DimToPlot = 1:2, VizMode = c("Target", "Boot"))
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = TreeEPG[[nRep+1]], GroupsLab = TD_Noise_Cat, 
+       DimToPlot = 1:2, VizMode = "Boot")
+```
+
+We can now use the bootstrapped trees to construct a consensus ElPiGrap via the `GenertateConsensusGraph` function. One of the interesting features of this function is that it will consruct a graph by combining the information provided by the single bootstrapped trees. Hence, the consensus graph is not restricted by the grammar rules used to construct the bootstrapped structures.
+
+```{r}
+ConsensusTR <- GenertateConsensusGraph(BootPG = TreeEPG[1:nRep],
+                                       MinTol = .15, MinEdgMult = 2, MinNodeMult = nRep/25,
+                                       NodesInflation = 1, RemoveIsolatedNodes = TRUE)
+```
+
+The consensus graph can then by embedded into the data by using any grammar without inceresing the number of nodes
+
+```{r}
+ExtendedEPG <- computeElasticPrincipalCurve(X = TD_Noise, NumNodes = nrow(ConsensusTR$NodePos),
+                                            InitNodePositions = ConsensusTR$NodePos,
+                                            InitEdges = ConsensusTR$EdgeMat,
+                                            drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
+                                            drawPCAView = FALSE,
+                                            TrimmingRadius = .25,
+                                            ICOver = "DensityProb", DensityRadius = .25)
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = ExtendedEPG[[1]], GroupsLab = TD_Noise_Cat, 
+       DimToPlot = 1:2, VizMode = "Target")
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = ExtendedEPG[[1]], GroupsLab = TD_Noise_Cat, 
+       DimToPlot = 1:2, VizMode = c("Boot", "Target"))
+
+```
+
+If needed, the consensus graph can be extended using the curve grammar. 
+
+```{r}
+ExtendedEPG <- computeElasticPrincipalCurve(X = TD_Noise, NumNodes = 70,
+                                            InitNodePositions = ConsensusTR$NodePos,
+                                            InitEdges = ConsensusTR$EdgeMat,
+                                            drawAccuracyComplexity = FALSE, drawEnergy = FALSE,
+                                            drawPCAView = FALSE,
+                                            TrimmingRadius = .25,
+                                            ICOver = "DensityProb", DensityRadius = .25)
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = ExtendedEPG[[1]], GroupsLab = TD_Noise_Cat, 
+       DimToPlot = 1:2, VizMode = "Target")
+
+PlotPG(X = TD_Noise, BootPG = TreeEPG[1:nRep], TargetPG = ExtendedEPG[[1]], GroupsLab = TD_Noise_Cat, 
+       DimToPlot = 1:2, VizMode = c("Boot", "Target"))
+
+```
+
+Note how the consesus graph is generally able to better capture the features of the data.
+
+
+

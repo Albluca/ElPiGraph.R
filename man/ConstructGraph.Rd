@@ -2,13 +2,16 @@
 % Please edit documentation in R/graphs.R
 \name{ConstructGraph}
 \alias{ConstructGraph}
-\title{Title}
+\title{Generate an igraph object from a ElPiGraph structure}
 \usage{
 ConstructGraph(PrintGraph)
 }
 \arguments{
-\item{Thr}{}
+\item{PrintGraph}{A principal graph object}
+}
+\value{
+An igraph network
 }
 \description{
-Title
+Generate an igraph object from a ElPiGraph structure
 }

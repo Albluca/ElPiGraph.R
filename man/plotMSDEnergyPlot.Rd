@@ -11,6 +11,9 @@ plotMSDEnergyPlot(ReportTable, Main = "")
 
 \item{PrintGraph}{a struct returned by computeElasticPrincipalGraph}
 }
+\value{
+a ggplot plot
+}
 \description{
 Plot the MSD VS Energy plot
 }

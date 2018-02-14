@@ -2,13 +2,39 @@
 % Please edit documentation in R/graphs.R
 \name{GetSubGraph}
 \alias{GetSubGraph}
-\title{Title}
+\title{Extract a subgraph with a given topology from a graph}
 \usage{
-GetSubGraph(Net, Structure = "auto", Nodes = NULL, Circular = TRUE)
+GetSubGraph(Net, Structure, Nodes = NULL, Circular = TRUE,
+  KeepEnds = TRUE)
 }
 \arguments{
-\item{Circular}{}
+\item{Net}{an igraph network object}
+
+\item{Structure}{a string specifying the structure to return. The following options are
+available:
+\itemize{
+ \item 'circle', all the circles of a given length (specified by Nodes) present in the data.
+ If Nodes is unspecified the algorithm will look for the largest circle avaialble.
+ \item 'branches', all the linear path connecting the branching points
+ \item 'branches&bpoints', all the linear path connecting the branching points and all of
+ the branching points
+ \item 'branching', all the subtree associted with a branching point (i.e., a tree encompassing
+the branching points and the closests branching points and end points)
+\item 'end2end', all linear paths connecting end points (or leaf)
+}}
+
+\item{Nodes}{the number of nodes (for cycle detection)}
+
+\item{Circular}{a boolean indicating whether the circle should contain the initial points at the
+beginning and at the end}
+
+\item{KeepEnds}{boolean, should the end points (overlapping between structures) be included when
+Structure = 'branches' or 'branching'}
+}
+\value{
+a list of nodes defining the structures under consideration
 }
 \description{
-Title
+Note that all subgraph are returned only once. So, for example, if A and B are two end leaves of a tree
+and 'end2end' is being used, only the path for A to B or the path from Bt o A will be returned.
 }

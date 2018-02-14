@@ -2,7 +2,7 @@
 % Please edit documentation in R/core.R
 \name{ComputeRelativeChangeOfNodePositions}
 \alias{ComputeRelativeChangeOfNodePositions}
-\title{Replaced by a C++ function}
+\title{Estimates the relative difference between two node configurations}
 \usage{
 ComputeRelativeChangeOfNodePositions(NodePositions, NewNodePositions,
   Mode = 1, BranchingFee = 0)
@@ -17,4 +17,7 @@ ComputeRelativeChangeOfNodePositions(NodePositions, NewNodePositions,
 \item{BranchingFee}{currenty not used}
 
 \item{X}{an n-by-m numeric matrix with the coordinates of the data points}
+}
+\description{
+Estimates the relative difference between two node configurations
 }
