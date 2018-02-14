@@ -1,9 +1,9 @@
--   [Descrition](#descrition)
+-   [Description](#description)
 -   [Installation](#installation)
 -   [Usage](#usage)
 
-Descrition
-==========
+Description
+===========
 
 This package provides an R implementation of the ElPiGraph algorithm. A
 self-contained description of the algorithm is available
@@ -46,12 +46,13 @@ The package can then be loaded via the command
 Usage
 =====
 
-Several guides are available to exemplify the behaviour of ElPiGraph.R:
+Several guides are available to exemplify the behavior of ElPiGraph.R:
 
 -   [Basic usage](guides/base.md)
 -   [Derivation of graph substructures](guides/struct.md)
 -   [Derivation and visualization of pseudotime](guides/pseudo.md)
 -   [Usage of the trimming radius](guides/trim.md)
--   [Advanced bootstrapping](guides/boot.md)
--   [Generation of synthetic data](guides/synth.md)
--   [Plotting](guides/plotting.md)
+-   [Advanced bootstrapping (Currently unavailable)](guides/boot.md)
+-   [Generation of synthetic data (Currently
+    unavailable)](guides/synth.md)
+-   [Plotting (Currently unavailable)](guides/plotting.md)
