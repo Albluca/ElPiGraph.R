@@ -4,12 +4,14 @@
 #' @param nPoints
 #' @param plotCurves
 #' @param nInt 
+#' @param n.cores 
+#' @param ClusType 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-InferTrimRadius <- function(X, nPoints = NULL, nInt = 100, plotCurves = FALSE){
+InferTrimRadius <- function(X, nPoints = NULL, nInt = 100, plotCurves = FALSE, n.cores = 1, ClusType = "FORK"){
 
   if(is.null(nPoints)){
     nPoints <- nrow(X)
@@ -39,21 +41,21 @@ InferTrimRadius <- function(X, nPoints = NULL, nInt = 100, plotCurves = FALSE){
 
   par(mfrow =c(3,3))
 
-  PTs <- apply(RDSMat, 2, function(v){
-
+  ComputeFunction <- function(v, DVect, Dist.m, plotCurves){
+    
     t.df <- data.frame(x = log2(512*DVect/Dist.m), y = log2(v+1))
     t.df <- t.df[v>2,]
     # print(df$y)
-
+    
     # print(sum(duplicated(t.df$y))/length(t.df$y))
     # print(quantile(t.df$x, c(.01, .25, .75)))
-
+    
     if(plotCurves){
       plot(t.df$x, t.df$y)
     }
-
+    
     piecewiseModel <- NULL
-
+    
     tryCatch({
       piecewiseModel <- segmented::segmented(lm(y~x, data=t.df),
                                              seg.Z = ~ x,
@@ -62,18 +64,40 @@ InferTrimRadius <- function(X, nPoints = NULL, nInt = 100, plotCurves = FALSE){
       print("Error in segmentation ... skipping")
       return(NULL)
     })
-
+    
     if(!is.null(piecewiseModel)){
       Points <- segmented::confint.segmented(piecewiseModel)$x[,1]
-
+      
       if(plotCurves){
         abline(v=Points)
       }
-
+      
       return(Points)
     }
-
-  })
+    
+  }
+  
+  
+  if(n.cores > 1){
+    
+    if(ClusType == "FORK"){
+      cl <- parallel::makeForkCluster(n.cores)
+    } else {
+      cl <- parallel::makePSOCKcluster(n.cores)
+    }
+    
+    PTs <- parallel::parApply(cl, RDSMat, 2, ComputeFunction, DVect=DVect, Dist.m=Dist.m, plotCurves=FALSE)
+    
+    parallel::stopCluster(cl)
+    
+  } else {
+    
+    PTs <- apply(RDSMat, 2, ComputeFunction, DVect=DVect, Dist.m=Dist.m, plotCurves=plotCurves)
+    
+  } 
+  
+  
+  
 
   par(mfrow =c(1,1))
 
