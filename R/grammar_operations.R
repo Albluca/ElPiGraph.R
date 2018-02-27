@@ -555,6 +555,10 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              eps = .01,
                                              TrimmingRadius = Inf,
                                              Mode = 1,
+                                             MinimizingEnergy = "Base",
+                                             FinalEnergy = "Base",
+                                             alpha = 1,
+                                             beta = 1,
                                              FastSolve = FALSE,
                                              AvoidSolitary = FALSE) {
 
@@ -633,7 +637,9 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     
     Embed <- parallel::parLapply(cl, CombinedInfo, function(input){
       PrimitiveElasticGraphEmbedment(X, input$NodePositions, input$ElasticMatrix, SquaredX = SquaredX, verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, Mode = Mode,
+                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps,
+                                     MinimizingEnergy = MinimizingEnergy, FinalEnergy = FinalEnergy,
+                                     alpha = alpha, beta = beta, Mode = Mode,
                                      TrimmingRadius = TrimmingRadius, FastSolve = FastSolve)
     })
     
@@ -644,7 +650,9 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   } else {
     Embed <- lapply(CombinedInfo, function(input){
       PrimitiveElasticGraphEmbedment(X, input$NodePositions, input$ElasticMatrix, SquaredX = SquaredX, verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, Mode = Mode,
+                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps,
+                                     MinimizingEnergy = MinimizingEnergy, FinalEnergy = FinalEnergy,
+                                     alpha = alpha, beta = beta, Mode = Mode,
                                      TrimmingRadius = TrimmingRadius, FastSolve = FastSolve)
     })
   }
