@@ -287,6 +287,10 @@ computeElasticPrincipalCircle <- function(X,
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
 #' @param AvoidSolitary 
+#' @param MinimizingEnergy 
+#' @param FinalEnergy 
+#' @param alpha 
+#' @param beta 
 #'
 #' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
@@ -334,6 +338,10 @@ computeElasticPrincipalTree <- function(X,
                                         Subsets = list(),
                                         ProbPoint = 1,
                                         Mode = 1,
+                                        MinimizingEnergy = "Base",
+                                        FinalEnergy = "Base",
+                                        alpha = 0,
+                                        beta = 0,
                                         FastSolve = FALSE,
                                         ICOver = NULL,
                                         DensityRadius = NULL,
@@ -438,6 +446,8 @@ computeElasticPrincipalTree <- function(X,
                                                       CenterData = CenterData, ComputeMSEP = ComputeMSEP,
                                                       verbose = verbose, ShowTimer = ShowTimer,
                                                       ReduceDimension = ReduceDimension, Mode = Mode,
+                                                      MinimizingEnergy = MinimizingEnergy,
+                                                      FinalEnergy = FinalEnergy, alpha = alpha, beta = beta,
                                                       drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                       drawPCAView = Intermediate.drawPCAView,
                                                       drawEnergy = Intermediate.drawEnergy,

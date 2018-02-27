@@ -31,6 +31,10 @@
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
 #' @param AvoidSolitary 
+#' @param MinimizingEnergy 
+#' @param FinalEnergy 
+#' @param alpha 
+#' @param beta 
 #'
 #' @return a named list with a number of elements:
 #' \describe{
@@ -53,7 +57,12 @@
 #' 
 ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix, NodesPositions,
                          verbose = FALSE, n.cores = 1, ClusType = "Sock", CompileReport = FALSE,
-                         ShowTimer = FALSE, ComputeMSEP = TRUE, Mode = 1,
+                         ShowTimer = FALSE, ComputeMSEP = TRUE,
+                         MinimizingEnergy = "Base",
+                         FinalEnergy = "Base",
+                         alpha = 0,
+                         beta = 0,
+                         Mode = 1,
                          MaxNumberOfIterations = 10, eps = .01, TrimmingRadius = Inf,
                          GrowGrammars = list(),
                          ShrinkGrammars = list(),
@@ -192,9 +201,20 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                       operationtypes = GrowGrammars[[k]],
-                                                      SquaredX = SquaredX, Mode = Mode,
-                                                      MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE, n.cores = n.cores, EnvCl = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                      SquaredX = SquaredX,
+                                                      MinimizingEnergy = MinimizingEnergy,
+                                                      FinalEnergy = FinalEnergy,
+                                                      alpha = alpha,
+                                                      beta = beta,
+                                                      Mode = Mode,
+                                                      MaxNumberOfIterations = MaxNumberOfIterations,
+                                                      eps = eps,
+                                                      TrimmingRadius = TrimmingRadius,
+                                                      verbose = FALSE,
+                                                      n.cores = n.cores,
+                                                      EnvCl = cl,
+                                                      FastSolve = FastSolve,
+                                                      AvoidSolitary = AvoidSolitary)
         
         if(!is.list(UpdatedPG)){
           
@@ -235,7 +255,12 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                       operationtypes = ShrinkGrammars[[k]],
-                                                      SquaredX = SquaredX, Mode = Mode,
+                                                      SquaredX = SquaredX,
+                                                      Mode = Mode,
+                                                      MinimizingEnergy = MinimizingEnergy,
+                                                      FinalEnergy = FinalEnergy,
+                                                      alpha = alpha,
+                                                      beta = beta,
                                                       MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
                                                       verbose = FALSE, n.cores, EnvCl = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
         
@@ -439,6 +464,10 @@ computeElasticPrincipalGraph <- function(Data,
                                          n.cores = 1,
                                          ClusType = "Sock",
                                          Mode = 1,
+                                         MinimizingEnergy = "Base",
+                                         FinalEnergy = "Base",
+                                         alpha = 0,
+                                         beta = 0,
                                          GrowGrammars = list(),
                                          ShrinkGrammars = list(),
                                          FastSolve = FALSE,
@@ -526,7 +555,9 @@ computeElasticPrincipalGraph <- function(Data,
   ElData <- ElPrincGraph(X = X, NumNodes = NumNodes, NumEdges = NumEdges, Lambda = Lambda, Mu = Mu,
                          MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
                          NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix,
-                         CompileReport = TRUE, ShowTimer = ShowTimer, Mode = Mode,
+                         CompileReport = TRUE, ShowTimer = ShowTimer,
+                         MinimizingEnergy = MinimizingEnergy,
+                         FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
                          verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
