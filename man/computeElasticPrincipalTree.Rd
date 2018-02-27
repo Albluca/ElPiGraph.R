@@ -12,6 +12,7 @@ computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
+  MinimizingEnergy = "Base", FinalEnergy = "Base", alpha = 1, beta = 1,
   FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
   AvoidSolitary = FALSE)
 }
@@ -72,6 +73,14 @@ Currently fork clustering only works in Linux}
 \item{ProbPoint}{real between 0 and 1, probability of inclusing of a single point for each computation}
 
 \item{Mode}{integer, the energy computation mode}
+
+\item{MinimizingEnergy}{}
+
+\item{FinalEnergy}{}
+
+\item{alpha}{}
+
+\item{beta}{}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 

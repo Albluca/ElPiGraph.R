@@ -5,8 +5,10 @@
 \title{Function fitting a primitive elastic graph to the data}
 \usage{
 PrimitiveElasticGraphEmbedment(X, NodePositions, ElasticMatrix,
-  MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1, SquaredX = NULL,
-  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE, prob = 1)
+  MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1,
+  MinimizingEnergy = "Base", FinalEnergy = "Base", SquaredX = NULL,
+  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE,
+  alpha = 1, beta = 1, prob = 1)
 }
 \arguments{
 \item{X}{is n-by-m matrix containing the positions of the n points in the m-dimensional space}
@@ -28,6 +30,10 @@ to be considered the graph embedded (convergence criteria)}
 \item{Mode}{integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 2 (difference is computed using the changes in elestic energy of the configuraztions)}
 
+\item{MinimizingEnergy}{}
+
+\item{FinalEnergy}{}
+
 \item{SquaredX}{the sum (by node) of X squared. It not specified, it will be calculated by the fucntion}
 
 \item{verbose}{is a boolean indicating whether diagnostig informations should be plotted}
@@ -35,6 +41,12 @@ to be considered the graph embedded (convergence criteria)}
 \item{FastSolve}{boolean, shuold the Fastsolve of Armadillo by enabled?}
 
 \item{DisplayWarnings}{boolean, should warning about convergence be displayed?}
+
+\item{alpha}{}
+
+\item{beta}{}
+
+\item{prob}{}
 }
 \description{
 Function fitting a primitive elastic graph to the data
