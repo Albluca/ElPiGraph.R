@@ -231,7 +231,6 @@ DecodeElasticMatrix <- function(ElasticMatrix) {
 #' @param NewNodePositions a k-by-m numeric matrix with the coordiantes of the nodes in the new configuration
 #' @param Mode an integer indicating the modality used to compute the difference (currently only 1 is an accepted value)
 #' @param X an n-by-m numeric matrix with the coordinates of the data points
-#' @param BranchingFee currenty not used
 #'
 #' @return
 #' @export
@@ -239,8 +238,7 @@ DecodeElasticMatrix <- function(ElasticMatrix) {
 #' @examples
 ComputeRelativeChangeOfNodePositions <- function(NodePositions,
                                                  NewNodePositions,
-                                                 Mode = 1,
-                                                 BranchingFee = 0) {
+                                                 Mode = 1) {
 
 
   # diff = norm(NodePositions-NewNodePositions)/norm(NewNodePositions);
@@ -339,8 +337,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
         distutils::ElasticEnergy(X = X,
                                  NodePositions =  NodePositions,
                                  ElasticMatrix = ElasticMatrix,
-                                 Dists = PartDataStruct$Dists,
-                                 BranchingFee = 0)
+                                 Dists = PartDataStruct$Dists)
     }
     if(MinimizingEnergy == "Penalized"){
       OldPriGrElEn <- 
@@ -348,7 +345,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                           NodePositions =  NodePositions,
                                           ElasticMatrix = ElasticMatrix,
                                           Dists = PartDataStruct$Dists,
-                                          BranchingFee = 0,
                                           alpha = alpha,
                                           beta = beta)
                                                
@@ -415,8 +411,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
         PriGrElEn <- distutils::ElasticEnergy(X = X,
                                               NodePositions = NewNodePositions,
                                               ElasticMatrix =  ElasticMatrix,
-                                              Dists = PartDataStruct$Dists,
-                                              BranchingFee = 0)
+                                              Dists = PartDataStruct$Dists)
         
       }
       if(MinimizingEnergy == "Penalized"){
@@ -425,7 +420,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                             NodePositions =  NewNodePositions,
                                             ElasticMatrix = ElasticMatrix,
                                             Dists = PartDataStruct$Dists,
-                                            BranchingFee = 0,
                                             alpha = alpha,
                                             beta = beta)
         
@@ -490,8 +484,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
         distutils::ElasticEnergy(X = X,
                                  NodePositions = NewNodePositions,
                                  ElasticMatrix =  ElasticMatrix,
-                                 Dists = PartDataStruct$Dists,
-                                 BranchingFee = 0)
+                                 Dists = PartDataStruct$Dists)
     }
     if(FinalEnergy == "Penalized"){
       PriGrElEn <- 
@@ -499,7 +492,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                           NodePositions =  NewNodePositions,
                                           ElasticMatrix = ElasticMatrix,
                                           Dists = PartDataStruct$Dists,
-                                          BranchingFee = 0,
                                           alpha = alpha,
                                           beta = beta)
     }
