@@ -118,7 +118,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         print(paste("Creating a sock cluster with", n.cores, "nodes"))
         cl <- parallel::makeCluster(n.cores)
         GlobalCluster <- FALSE
-        parallel::clusterExport(cl, varlist = c("X", "SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose"), envir=environment())
+        parallel::clusterExport(cl, varlist = c("X", "SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose",
+                                                "EmbPointProb", "alpha", "beta", "MinimizingEnergy", "FinalEnergy"), envir=environment())
       }
     } else {
       print("Using a single core")
@@ -133,7 +134,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         GlobalCluster <- TRUE
         if(ClusType != "Fork"){
           print("Exporting the additional variables to the cluster")
-          parallel::clusterExport(cl, varlist = c("SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose"), envir=environment())
+          parallel::clusterExport(cl, varlist = c("SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose",
+                                                  "EmbPointProb", "alpha", "beta", "MinimizingEnergy", "FinalEnergy"), envir=environment())
         }
         n.cores = length(CheckX)
         
