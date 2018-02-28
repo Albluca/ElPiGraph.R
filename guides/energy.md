@@ -44,7 +44,7 @@ branching points.
     ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 2|5||50  0.03004 50  49  32  5   0   0   0.02217 0.02114 0.9616  0.9633  0.007692    0.0001747   0.008737    0.4369  0
-    ## 12.019 sec elapsed
+    ## 19.013 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
            Do_PCA = FALSE, DimToPlot = 1:2)
@@ -68,8 +68,8 @@ branching points.
     ## [1] "Using a single core"
     ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 4||50    0.03375 50  49  40  4   0   0   0.02717 0.0264  0.9529  0.9542  0.005521    0.001059    0.05293 2.646   0
-    ## 13.317 sec elapsed
+    ## 3||50    0.03276 50  49  42  3   0   0   0.02615 0.02527 0.9547  0.9562  0.005797    0.0008153   0.04077 2.038   0
+    ## 19.363 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
            Do_PCA = FALSE, DimToPlot = 1:2)
@@ -98,8 +98,8 @@ beto to influence the embeddment of the graph as well.
     ## [1] "Using a single core"
     ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 5||50    0.03159 50  49  38  5   0   0   0.02478 0.02401 0.957   0.9584  0.006461    0.0003422   0.01711 0.8555  0
-    ## 14.09 sec elapsed
+    ## 5||50    0.03121 50  49  38  5   0   0   0.0244  0.02343 0.9577  0.9594  0.006618    0.0001977   0.009884    0.4942  0
+    ## 20.049 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
            Do_PCA = FALSE, DimToPlot = 1:2)
