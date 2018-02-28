@@ -30,11 +30,14 @@
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
-#' @param AvoidSolitary 
-#' @param MinimizingEnergy 
-#' @param FinalEnergy 
-#' @param alpha 
-#' @param beta 
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
+#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+#' helps speeding up the computation if a large number of points is present.
 #'
 #' @return a named list with a number of elements:
 #' \describe{
@@ -67,7 +70,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                          GrowGrammars = list(),
                          ShrinkGrammars = list(),
                          FastSolve = FALSE,
-                         AvoidSolitary = FALSE) {
+                         AvoidSolitary = FALSE,
+                         EmbPointProb = 1) {
   
   if(is.list(X)){
     warning("Data matrix must be a numeric matrix. It will be converted automatically. This can introduce inconsistencies")
@@ -214,7 +218,8 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                       n.cores = n.cores,
                                                       EnvCl = cl,
                                                       FastSolve = FastSolve,
-                                                      AvoidSolitary = AvoidSolitary)
+                                                      AvoidSolitary = AvoidSolitary,
+                                                      EmbPointProb = EmbPointProb)
         
         if(!is.list(UpdatedPG)){
           
@@ -261,8 +266,15 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                       FinalEnergy = FinalEnergy,
                                                       alpha = alpha,
                                                       beta = beta,
-                                                      MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE, n.cores, EnvCl = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                      MaxNumberOfIterations = MaxNumberOfIterations,
+                                                      eps = eps,
+                                                      TrimmingRadius = TrimmingRadius,
+                                                      verbose = FALSE,
+                                                      n.cores,
+                                                      EnvCl = cl,
+                                                      FastSolve = FastSolve,
+                                                      AvoidSolitary = AvoidSolitary,
+                                                      EmbPointProb = EmbPointProb)
         
         if(!is.list(UpdatedPG)){
           
@@ -419,7 +431,14 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
-#' @param AvoidSolitary 
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associated points be discarded?
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+#' helps speeding up the computation if a large number of points is present.
+#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy 
 #' 
 #' @return a named list with a number of elements:
 #' \describe{
@@ -471,7 +490,8 @@ computeElasticPrincipalGraph <- function(Data,
                                          GrowGrammars = list(),
                                          ShrinkGrammars = list(),
                                          FastSolve = FALSE,
-                                         AvoidSolitary = FALSE) {
+                                         AvoidSolitary = FALSE,
+                                         EmbPointProb = 1) {
   ST <- date()
   tictoc::tic()
   
@@ -560,7 +580,7 @@ computeElasticPrincipalGraph <- function(Data,
                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
-                         verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                         verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary, EmbPointProb = EmbPointProb)
   
   NodePositions <- ElData$NodePositions
   Edges <- DecodeElasticMatrix(ElData$ElasticMatrix)

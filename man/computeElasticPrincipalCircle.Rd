@@ -12,7 +12,7 @@ computeElasticPrincipalCircle(X, NumNodes, InitNodes = 3, NumEdges = Inf,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  FastSolve = FALSE, AvoidSolitary = FALSE)
+  FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -74,7 +74,11 @@ Currently fork clustering only works in Linux}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
-\item{AvoidSolitary}{}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+
+\item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+helps speeding up the computation if a large number of points is present.}
 }
 \value{
 A named list

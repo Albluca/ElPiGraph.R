@@ -30,9 +30,9 @@ to be considered the graph embedded (convergence criteria)}
 \item{Mode}{integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 2 (difference is computed using the changes in elestic energy of the configuraztions)}
 
-\item{MinimizingEnergy}{}
+\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
 
-\item{FinalEnergy}{}
+\item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 
 \item{SquaredX}{the sum (by node) of X squared. It not specified, it will be calculated by the fucntion}
 
@@ -42,11 +42,12 @@ to be considered the graph embedded (convergence criteria)}
 
 \item{DisplayWarnings}{boolean, should warning about convergence be displayed?}
 
-\item{alpha}{}
+\item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
 
-\item{beta}{}
+\item{prob}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
+using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.}
 
-\item{prob}{}
+\item{betapositive}{numeric, the value of the beta parameter of the penalized elastic energy}
 }
 \description{
 Function fitting a primitive elastic graph to the data

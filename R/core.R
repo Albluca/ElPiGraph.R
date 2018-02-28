@@ -283,11 +283,12 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param SquaredX the sum (by node) of X squared. It not specified, it will be calculated by the fucntion
 #' @param FastSolve boolean, shuold the Fastsolve of Armadillo by enabled?
 #' @param DisplayWarnings boolean, should warning about convergence be displayed? 
-#' @param MinimizingEnergy 
-#' @param FinalEnergy 
-#' @param alpha 
-#' @param beta 
-#' @param prob 
+#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param betapositive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param prob numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
+#' using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.
 #'
 #' @return
 #' @export
@@ -383,7 +384,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
       while(sum(SelPoint) < 3){
         SelPoint[ceiling(runif(min = .1, max = nrow(X)))] <- TRUE
       }
-      NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[, ],
+      NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[SelPoint, ],
                                                                  PointWeights = PointWeights,
                                                                  NodePositions = NodePositions,
                                                                  SpringLaplacianMatrix = SpringLaplacianMatrix,

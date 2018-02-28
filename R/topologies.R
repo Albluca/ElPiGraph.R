@@ -37,7 +37,10 @@
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
-#' @param AvoidSolitary 
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+#' helps speeding up the computation if a large number of points is present.
 #'
 #' @return
 #' 
@@ -85,7 +88,8 @@ computeElasticPrincipalCircle <- function(X,
                                           ProbPoint = 1,
                                           Mode = 1,
                                           FastSolve = FALSE,
-                                          AvoidSolitary = FALSE) {
+                                          AvoidSolitary = FALSE,
+                                          EmbPointProb = 1) {
   
   if(all(c("SOCKcluster", "cluster") %in% class(n.cores)) & ClusType != "Fork" & length(Subsets) > 0){
     stop("Impossible to use Subsetting with a user supplied cluster not produced by forking")
@@ -179,7 +183,7 @@ computeElasticPrincipalCircle <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary, EmbPointProb = EmbPointProb)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
@@ -203,7 +207,7 @@ computeElasticPrincipalCircle <- function(X,
                                                                          ReduceDimension = NULL, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary, EmbPointProb = EmbPointProb)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0
@@ -286,11 +290,14 @@ computeElasticPrincipalCircle <- function(X,
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary 
-#' @param MinimizingEnergy 
-#' @param FinalEnergy 
-#' @param alpha 
-#' @param beta 
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
+#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+#' helps speeding up the computation if a large number of points is present.
 #'
 #' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
@@ -345,7 +352,8 @@ computeElasticPrincipalTree <- function(X,
                                         FastSolve = FALSE,
                                         ICOver = NULL,
                                         DensityRadius = NULL,
-                                        AvoidSolitary = FALSE) {
+                                        AvoidSolitary = FALSE,
+                                        EmbPointProb = 1) {
   
   
   # Create a cluster if requested
@@ -452,7 +460,7 @@ computeElasticPrincipalTree <- function(X,
                                                       drawPCAView = Intermediate.drawPCAView,
                                                       drawEnergy = Intermediate.drawEnergy,
                                                       n.cores = cl, ClusType = ClusType,
-                                                      FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                      FastSolve = FastSolve, AvoidSolitary = AvoidSolitary, EmbPointProb = EmbPointProb)
       
       # Save extra information
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -511,7 +519,8 @@ computeElasticPrincipalTree <- function(X,
                                                             ReduceDimension = NULL, Mode = Mode,
                                                             drawAccuracyComplexity = drawAccuracyComplexity,
                                                             drawPCAView = drawPCAView, drawEnergy = drawEnergy,
-                                                            n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                            n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                                                            EmbPointProb = EmbPointProb)
       
       # Run the ElPiGraph algorithm
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -605,8 +614,11 @@ computeElasticPrincipalTree <- function(X,
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary 
-#'
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+#' helps speeding up the computation if a large number of points is present.
+#' 
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
 #' fitting the coordinates of the nodes of the reconstructed curve
@@ -658,7 +670,8 @@ computeElasticPrincipalCurve <- function(X,
                                          FastSolve = FALSE,
                                          ICOver = NULL,
                                          DensityRadius = NULL,
-                                         AvoidSolitary = FALSE) {
+                                         AvoidSolitary = FALSE,
+                                         EmbPointProb = 1) {
   
   if(n.cores > 1){
     if(ClusType == "Fork"){
@@ -730,7 +743,8 @@ computeElasticPrincipalCurve <- function(X,
                                                                          ReduceDimension = ReduceDimension, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                                                                         EmbPointProb = EmbPointProb)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- i
@@ -754,7 +768,8 @@ computeElasticPrincipalCurve <- function(X,
                                                                          ReduceDimension = NULL, Mode = Mode,
                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                          drawPCAView = Intermediate.drawPCAView, drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary)
+                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                                                                         EmbPointProb = EmbPointProb)
       
       ReturnList[[length(ReturnList)]]$SubSetID <- j
       ReturnList[[length(ReturnList)]]$ReplicaID <- 0

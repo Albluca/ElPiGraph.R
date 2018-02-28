@@ -12,9 +12,9 @@ computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  MinimizingEnergy = "Base", FinalEnergy = "Base", alpha = 1, beta = 1,
+  MinimizingEnergy = "Base", FinalEnergy = "Base", alpha = 0, beta = 0,
   FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
-  AvoidSolitary = FALSE)
+  AvoidSolitary = FALSE, EmbPointProb = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -74,13 +74,13 @@ Currently fork clustering only works in Linux}
 
 \item{Mode}{integer, the energy computation mode}
 
-\item{MinimizingEnergy}{}
+\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
 
-\item{FinalEnergy}{}
+\item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 
-\item{alpha}{}
+\item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
 
-\item{beta}{}
+\item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
@@ -89,7 +89,11 @@ principal tree.}
 
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"}
 
-\item{AvoidSolitary}{}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+
+\item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+helps speeding up the computation if a large number of points is present.}
 }
 \value{
 A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.

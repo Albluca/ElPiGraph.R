@@ -11,8 +11,9 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   ShowTimer = FALSE, ReduceDimension = NULL,
   drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
   n.cores = 1, ClusType = "Sock", Mode = 1, MinimizingEnergy = "Base",
-  FinalEnergy = "Base", alpha = 1, beta = 1, GrowGrammars = list(),
-  ShrinkGrammars = list(), FastSolve = FALSE, AvoidSolitary = FALSE)
+  FinalEnergy = "Base", alpha = 0, beta = 0, GrowGrammars = list(),
+  ShrinkGrammars = list(), FastSolve = FALSE, AvoidSolitary = FALSE,
+  EmbPointProb = 1)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -64,13 +65,25 @@ Currently fork clustering only works in Linux}
 
 \item{Mode}{integer, the energy computation mode}
 
+\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
+
+\item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
+
+\item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
+
+\item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
+
 \item{GrowGrammars}{list of strings, the grammar to be used in the growth step}
 
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
-\item{AvoidSolitary}{}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associated points be discarded?}
+
+\item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+helps speeding up the computation if a large number of points is present.}
 }
 \value{
 a named list with a number of elements:

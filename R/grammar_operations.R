@@ -543,6 +543,38 @@ ShrinkEdge <- function(NodePositions,ElasticMatrix) {
 
 # Multiple grammar application --------------------------------------------
 
+
+#' Title
+#'
+#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
+#' @param NodePositions numerical 2D matrix, the k-by-m matrix with the position of k m-dimensional points
+#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
+#' @param operationtypes string vector containing the operation to use
+#' @param SquaredX rowSums(X^2), if NULL it will be computed
+#' @param verbose boolean. Should addition information be displayed
+#' @param n.cores integer. How many cores to use. If EnvCl is not NULL, that cliuster setup will be used,
+#' otherwise a SOCK cluster willbe used
+#' @param EnvCl a cluster structure returned, e.g., by makeCluster.
+#' If a cluster structure is used, all the nodes must be able to access all the variable needed by PrimitiveElasticGraphEmbedment
+#' @param MaxNumberOfIterations is an integer number indicating the maximum number of iterations for the EM algorithm
+#' @param TrimmingRadius is a real value indicating the trimming radius, a parameter required for robust principal graphs
+#' (see https://github.com/auranic/Elastic-principal-graphs/wiki/Robust-principal-graphs)
+#' @param eps a real number indicating the minimal relative change in the nodenpositions
+#' to be considered the graph embedded (convergence criteria)
+#' @param Mode integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
+#' 2 (difference is computed using the changes in elestic energy of the configuraztions)
+#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
+#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
+#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
+#' using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.
+#'
+#' @return
+#'
+#' @examples
 ApplyOptimalGraphGrammarOpeation <- function(X,
                                              NodePositions,
                                              ElasticMatrix,
@@ -560,6 +592,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              alpha = 1,
                                              beta = 1,
                                              FastSolve = FALSE,
+                                             EmbPointProb = 1,
                                              AvoidSolitary = FALSE) {
 
   # % this function applies the most optimal graph grammar operation of operationtype
@@ -568,7 +601,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   k=1
 
   if(is.null(SquaredX)){
-    SquaredX = rowSums(SquaredX)
+    SquaredX = rowSums(X^2)
   }
   
   NodePositionArrayAll <- list()
@@ -605,8 +638,9 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
 
   Valid <- as.list(1:length(NodePositionArrayAll))
   
+  # Check that each point is associated with at least one point. Otherwise we exclude the configuration
   if(AvoidSolitary){
-    Valid <- lapply(Valid, function(i){
+    Valid <- sapply(Valid, function(i){
       Partition <- PartitionData(X = X,
                                  NodePositions = NodePositionArrayAll[[i]],
                                  SquaredX = SquaredX,
@@ -616,6 +650,11 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
       }
       return(0)
     })
+    
+    if(verbose){
+      tictoc::tic()
+      print(paste0(sum(Valid > 0), "configurations out of", length(Valid), "used"))
+    }
     
     Valid <- Valid[Valid > 0]
   }
@@ -636,11 +675,21 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     }
     
     Embed <- parallel::parLapply(cl, CombinedInfo, function(input){
-      PrimitiveElasticGraphEmbedment(X, input$NodePositions, input$ElasticMatrix, SquaredX = SquaredX, verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps,
-                                     MinimizingEnergy = MinimizingEnergy, FinalEnergy = FinalEnergy,
-                                     alpha = alpha, beta = beta, Mode = Mode,
-                                     TrimmingRadius = TrimmingRadius, FastSolve = FastSolve)
+      PrimitiveElasticGraphEmbedment(X = X,
+                                     NodePositions = input$NodePositions,
+                                     ElasticMatrix = input$ElasticMatrix,
+                                     SquaredX = SquaredX,
+                                     verbose = FALSE,
+                                     MaxNumberOfIterations = MaxNumberOfIterations,
+                                     eps = eps,
+                                     MinimizingEnergy = MinimizingEnergy,
+                                     FinalEnergy = FinalEnergy,
+                                     alpha = alpha,
+                                     beta = beta,
+                                     Mode = Mode,
+                                     TrimmingRadius = TrimmingRadius,
+                                     FastSolve = FastSolve,
+                                     prob = EmbPointProb)
     })
     
     if(is.null(EnvCl)){
@@ -649,11 +698,21 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     
   } else {
     Embed <- lapply(CombinedInfo, function(input){
-      PrimitiveElasticGraphEmbedment(X, input$NodePositions, input$ElasticMatrix, SquaredX = SquaredX, verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations, eps = eps,
-                                     MinimizingEnergy = MinimizingEnergy, FinalEnergy = FinalEnergy,
-                                     alpha = alpha, beta = beta, Mode = Mode,
-                                     TrimmingRadius = TrimmingRadius, FastSolve = FastSolve)
+      PrimitiveElasticGraphEmbedment(X = X,
+                                     NodePositions = input$NodePositions,
+                                     ElasticMatrix = input$ElasticMatrix,
+                                     SquaredX = SquaredX,
+                                     verbose = FALSE,
+                                     MaxNumberOfIterations = MaxNumberOfIterations,
+                                     eps = eps,
+                                     MinimizingEnergy = MinimizingEnergy,
+                                     FinalEnergy = FinalEnergy,
+                                     alpha = alpha,
+                                     beta = beta,
+                                     Mode = Mode,
+                                     TrimmingRadius = TrimmingRadius,
+                                     FastSolve = FastSolve,
+                                     prob = EmbPointProb)
     })
   }
   
