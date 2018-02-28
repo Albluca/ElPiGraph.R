@@ -44,7 +44,7 @@ CurveEPG <- computeElasticPrincipalCurve(X = curve_data, NumNodes = 50)
 A principal tree can be constructed via the `computeElasticPrincipalTree` function. For example to construct a principal tree with 50 nodes on the example dataset `tree_data`, it is sufficient to write
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50)
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, Lambda = .021, Mu = .1)
 ```
 
 
