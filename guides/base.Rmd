@@ -65,7 +65,9 @@ All of the functions provided to build principal graphs allow a bootstrapped con
 As an example, let us perform bootstrapping on the circle data. We will also prevent the plotting, for now.
 
 ```{r}
-CircleEPG.Boot <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 50, nReps = 50, ProbPoint = .8, drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
+set.seed(42)
+CircleEPG.Boot <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 50, nReps = 50, ProbPoint = .8,
+                                                drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
 ```
 
 `CircleEPG.Boot` will be a list with 51 elements: the 50 bootstrapped circles and the final consensus one.
