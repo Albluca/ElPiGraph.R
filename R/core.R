@@ -416,7 +416,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
         
       }
       if(MinimizingEnergy == "Penalized"){
-        OldPriGrElEn <- 
+        PriGrElEn <- 
           distutils::PenalizedElasticEnergy(X = X,
                                             NodePositions =  NewNodePositions,
                                             ElasticMatrix = ElasticMatrix,
