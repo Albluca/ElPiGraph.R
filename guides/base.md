@@ -57,7 +57,7 @@ the example dataset `line_data`, it is sufficient to write
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-1-1.png)![](base_files/figure-markdown_strict/unnamed-chunk-1-2.png)
 
-    ## 9.366 sec elapsed
+    ## 9.369 sec elapsed
     ## [[1]]
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-1-3.png)
@@ -83,7 +83,7 @@ sufficient to write
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-2-1.png)![](base_files/figure-markdown_strict/unnamed-chunk-2-2.png)
 
-    ## 30.488 sec elapsed
+    ## 31.001 sec elapsed
     ## [[1]]
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-2-3.png)
@@ -110,7 +110,7 @@ is sufficient to write
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-3-1.png)![](base_files/figure-markdown_strict/unnamed-chunk-3-2.png)
 
-    ## 1.826 sec elapsed
+    ## 1.807 sec elapsed
     ## [[1]]
 
 ![](base_files/figure-markdown_strict/unnamed-chunk-3-3.png)
@@ -148,7 +148,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03681 40  40  40  0   0   0   0.02347 0.02213 0.9784  0.9796  0.01091 0.00244 0.09759 3.904   0
-    ## 1.377 sec elapsed
+    ## 1.393 sec elapsed
     ## [1] "Constructing curve 2 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -159,7 +159,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03783 40  40  40  0   0   0   0.02623 0.02488 0.975   0.9763  0.01009 0.001519    0.06075 2.43    0
-    ## 1.417 sec elapsed
+    ## 1.675 sec elapsed
     ## [1] "Constructing curve 3 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -170,7 +170,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03796 40  40  40  0   0   0   0.02512 0.0235  0.9766  0.9781  0.0107  0.002141    0.08564 3.426   0
-    ## 1.539 sec elapsed
+    ## 1.283 sec elapsed
     ## [1] "Graphical output will be suppressed for the remaining replicas"
     ## [1] "Constructing curve 4 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
@@ -182,7 +182,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03444 40  40  40  0   0   0   0.02167 0.02037 0.9791  0.9804  0.01067 0.002104    0.08415 3.366   0
-    ## 1.254 sec elapsed
+    ## 1.306 sec elapsed
     ## [1] "Constructing curve 5 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -193,7 +193,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03827 40  40  40  0   0   0   0.02623 0.02498 0.976   0.9771  0.01062 0.001419    0.05676 2.27    0
-    ## 1.285 sec elapsed
+    ## 1.333 sec elapsed
     ## [1] "Constructing curve 6 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -204,7 +204,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.0383  40  40  40  0   0   0   0.02668 0.02533 0.9752  0.9764  0.01032 0.001298    0.05193 2.077   0
-    ## 1.314 sec elapsed
+    ## 1.599 sec elapsed
     ## [1] "Constructing curve 7 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -215,7 +215,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04172 40  40  40  0   0   0   0.02962 0.02814 0.9714  0.9728  0.01011 0.001993    0.0797  3.188   0
-    ## 1.34 sec elapsed
+    ## 1.271 sec elapsed
     ## [1] "Constructing curve 8 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -226,7 +226,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03527 40  40  40  0   0   0   0.02348 0.02223 0.9776  0.9788  0.01021 0.001579    0.06317 2.527   0
-    ## 1.503 sec elapsed
+    ## 1.304 sec elapsed
     ## [1] "Constructing curve 9 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -237,7 +237,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03911 40  40  40  0   0   0   0.02477 0.02332 0.9775  0.9788  0.01142 0.002913    0.1165  4.661   0
-    ## 1.278 sec elapsed
+    ## 1.343 sec elapsed
     ## [1] "Constructing curve 10 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -248,7 +248,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.0391  40  40  40  0   0   0   0.02653 0.02537 0.9756  0.9767  0.01062 0.001941    0.07765 3.106   0
-    ## 1.287 sec elapsed
+    ## 1.353 sec elapsed
     ## [1] "Constructing curve 11 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -259,7 +259,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.0404  40  40  40  0   0   0   0.02854 0.02731 0.9729  0.9741  0.01023 0.001625    0.06502 2.601   0
-    ## 1.324 sec elapsed
+    ## 1.582 sec elapsed
     ## [1] "Constructing curve 12 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -270,7 +270,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04414 40  40  40  0   0   0   0.0312  0.02985 0.971   0.9722  0.01062 0.002324    0.09295 3.718   0
-    ## 1.587 sec elapsed
+    ## 1.277 sec elapsed
     ## [1] "Constructing curve 13 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -281,7 +281,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04476 40  40  40  0   0   0   0.03171 0.03021 0.9713  0.9727  0.01095 0.002093    0.08374 3.349   0
-    ## 1.251 sec elapsed
+    ## 1.315 sec elapsed
     ## [1] "Constructing curve 14 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -292,7 +292,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03831 40  40  40  0   0   0   0.02639 0.02506 0.9749  0.9762  0.01036 0.001557    0.06229 2.492   0
-    ## 1.278 sec elapsed
+    ## 1.338 sec elapsed
     ## [1] "Constructing curve 15 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -303,7 +303,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03557 40  40  40  0   0   0   0.02417 0.02301 0.9772  0.9783  0.0102  0.001202    0.04808 1.923   0
-    ## 1.305 sec elapsed
+    ## 1.357 sec elapsed
     ## [1] "Constructing curve 16 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -314,7 +314,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04294 40  40  40  0   0   0   0.03028 0.02873 0.9721  0.9735  0.01053 0.00213 0.0852  3.408   0
-    ## 1.338 sec elapsed
+    ## 1.577 sec elapsed
     ## [1] "Constructing curve 17 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -325,7 +325,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03371 40  40  40  0   0   0   0.02143 0.02015 0.9801  0.9813  0.01049 0.001794    0.07174 2.87    0
-    ## 1.578 sec elapsed
+    ## 1.289 sec elapsed
     ## [1] "Constructing curve 18 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -336,7 +336,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03402 40  40  40  0   0   0   0.02173 0.02062 0.9794  0.9804  0.01038 0.001904    0.07617 3.047   0
-    ## 1.263 sec elapsed
+    ## 1.324 sec elapsed
     ## [1] "Constructing curve 19 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -347,7 +347,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03697 40  40  40  0   0   0   0.02527 0.02415 0.975   0.9761  0.01007 0.001628    0.06514 2.605   0
-    ## 1.294 sec elapsed
+    ## 1.344 sec elapsed
     ## [1] "Constructing curve 20 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -358,7 +358,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.041   40  40  40  0   0   0   0.02834 0.02711 0.9728  0.9739  0.01027 0.002388    0.09551 3.82    0
-    ## 1.323 sec elapsed
+    ## 1.368 sec elapsed
     ## [1] "Constructing curve 21 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -369,7 +369,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04118 40  40  40  0   0   0   0.02823 0.02703 0.9738  0.9749  0.01061 0.002333    0.09334 3.734   0
-    ## 1.344 sec elapsed
+    ## 1.564 sec elapsed
     ## [1] "Constructing curve 22 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -380,7 +380,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03874 40  40  40  0   0   0   0.0261  0.02452 0.976   0.9775  0.01069 0.001943    0.0777  3.108   0
-    ## 1.571 sec elapsed
+    ## 1.321 sec elapsed
     ## [1] "Constructing curve 23 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -391,7 +391,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03591 40  40  40  0   0   0   0.02385 0.02262 0.9777  0.9789  0.01034 0.001719    0.06878 2.751   0
-    ## 1.266 sec elapsed
+    ## 1.316 sec elapsed
     ## [1] "Constructing curve 24 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -402,7 +402,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04239 40  40  40  0   0   0   0.02992 0.02864 0.9724  0.9736  0.01041 0.002058    0.08231 3.292   0
-    ## 1.321 sec elapsed
+    ## 1.367 sec elapsed
     ## [1] "Constructing curve 25 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -413,7 +413,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04232 40  40  40  0   0   0   0.02937 0.02772 0.9737  0.9751  0.01087 0.002086    0.08345 3.338   0
-    ## 1.312 sec elapsed
+    ## 1.376 sec elapsed
     ## [1] "Constructing curve 26 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -424,7 +424,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04073 40  40  40  0   0   0   0.02844 0.02722 0.9727  0.9739  0.0102  0.002084    0.08337 3.335   0
-    ## 1.347 sec elapsed
+    ## 1.531 sec elapsed
     ## [1] "Constructing curve 27 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -435,7 +435,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.0394  40  40  40  0   0   0   0.02529 0.02384 0.9768  0.9781  0.01141 0.002694    0.1078  4.31    0
-    ## 1.543 sec elapsed
+    ## 1.304 sec elapsed
     ## [1] "Constructing curve 28 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -446,7 +446,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04148 40  40  40  0   0   0   0.02713 0.02596 0.9748  0.9759  0.01099 0.003361    0.1344  5.378   0
-    ## 1.296 sec elapsed
+    ## 1.347 sec elapsed
     ## [1] "Constructing curve 29 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -457,7 +457,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04078 40  40  40  0   0   0   0.02767 0.02631 0.9749  0.9762  0.01094 0.00217 0.0868  3.472   0
-    ## 1.301 sec elapsed
+    ## 1.364 sec elapsed
     ## [1] "Constructing curve 30 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -468,7 +468,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04046 40  40  40  0   0   0   0.02848 0.02692 0.9732  0.9747  0.01024 0.001734    0.06934 2.774   0
-    ## 1.333 sec elapsed
+    ## 1.634 sec elapsed
     ## [1] "Constructing curve 31 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -479,7 +479,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04098 40  40  40  0   0   0   0.02817 0.02684 0.9745  0.9757  0.0109  0.001919    0.07676 3.07    0
-    ## 1.363 sec elapsed
+    ## 1.293 sec elapsed
     ## [1] "Constructing curve 32 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -490,7 +490,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03917 40  40  40  0   0   0   0.02744 0.02613 0.9734  0.9747  0.0101  0.001632    0.06527 2.611   0
-    ## 1.54 sec elapsed
+    ## 1.319 sec elapsed
     ## [1] "Constructing curve 33 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -501,7 +501,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03909 40  40  40  0   0   0   0.02651 0.02521 0.9748  0.9761  0.01046 0.002118    0.08473 3.389   0
-    ## 1.285 sec elapsed
+    ## 1.35 sec elapsed
     ## [1] "Constructing curve 34 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -512,7 +512,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03803 40  40  40  0   0   0   0.02536 0.02401 0.9766  0.9778  0.01062 0.002048    0.08194 3.277   0
-    ## 1.315 sec elapsed
+    ## 1.371 sec elapsed
     ## [1] "Constructing curve 35 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -523,7 +523,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03585 40  40  40  0   0   0   0.02297 0.02158 0.9789  0.9802  0.01085 0.002041    0.08166 3.266   0
-    ## 1.339 sec elapsed
+    ## 1.589 sec elapsed
     ## [1] "Constructing curve 36 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -534,7 +534,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04089 40  40  40  0   0   0   0.02808 0.02665 0.9741  0.9754  0.0108  0.002001    0.08004 3.202   0
-    ## 1.607 sec elapsed
+    ## 1.3 sec elapsed
     ## [1] "Constructing curve 37 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -545,7 +545,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04209 40  40  40  0   0   0   0.02984 0.02866 0.9716  0.9727  0.01039 0.001858    0.07434 2.974   0
-    ## 1.272 sec elapsed
+    ## 1.333 sec elapsed
     ## [1] "Constructing curve 38 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -556,7 +556,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04054 40  40  40  0   0   0   0.02796 0.02668 0.9734  0.9746  0.01028 0.002297    0.0919  3.676   0
-    ## 1.315 sec elapsed
+    ## 1.348 sec elapsed
     ## [1] "Constructing curve 39 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -567,7 +567,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04192 40  40  40  0   0   0   0.02814 0.02699 0.974   0.9751  0.011   0.002781    0.1112  4.45    0
-    ## 1.348 sec elapsed
+    ## 1.387 sec elapsed
     ## [1] "Constructing curve 40 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -578,7 +578,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04539 40  40  40  0   0   0   0.03227 0.03092 0.9705  0.9717  0.01064 0.002481    0.09922 3.969   0
-    ## 1.36 sec elapsed
+    ## 1.573 sec elapsed
     ## [1] "Constructing curve 41 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -589,7 +589,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03942 40  40  40  0   0   0   0.02747 0.02613 0.9749  0.9761  0.01052 0.001424    0.05694 2.278   0
-    ## 1.568 sec elapsed
+    ## 1.305 sec elapsed
     ## [1] "Constructing curve 42 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -600,7 +600,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04049 40  40  40  0   0   0   0.0277  0.02636 0.974   0.9753  0.01045 0.002337    0.09349 3.74    0
-    ## 1.295 sec elapsed
+    ## 1.334 sec elapsed
     ## [1] "Constructing curve 43 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -611,7 +611,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04184 40  40  40  0   0   0   0.02876 0.02747 0.9728  0.974   0.01057 0.00251 0.1004  4.017   0
-    ## 1.301 sec elapsed
+    ## 1.363 sec elapsed
     ## [1] "Constructing curve 44 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -622,7 +622,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.0398  40  40  40  0   0   0   0.02691 0.02565 0.9755  0.9767  0.01078 0.002101    0.08402 3.361   0
-    ## 1.342 sec elapsed
+    ## 1.633 sec elapsed
     ## [1] "Constructing curve 45 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -633,7 +633,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.04042 40  40  40  0   0   0   0.02774 0.02642 0.9745  0.9757  0.0107  0.001977    0.07909 3.164   0
-    ## 1.372 sec elapsed
+    ## 1.29 sec elapsed
     ## [1] "Constructing curve 46 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -644,7 +644,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03712 40  40  40  0   0   0   0.02346 0.02199 0.9781  0.9795  0.01092 0.002744    0.1098  4.391   0
-    ## 1.541 sec elapsed
+    ## 1.327 sec elapsed
     ## [1] "Constructing curve 47 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -655,7 +655,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03553 40  40  40  0   0   0   0.02395 0.02259 0.9774  0.9787  0.01032 0.001261    0.05043 2.017   0
-    ## 1.283 sec elapsed
+    ## 1.363 sec elapsed
     ## [1] "Constructing curve 48 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -666,7 +666,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03905 40  40  40  0   0   0   0.02643 0.02517 0.9754  0.9765  0.01047 0.002156    0.08625 3.45    0
-    ## 1.322 sec elapsed
+    ## 1.378 sec elapsed
     ## [1] "Constructing curve 49 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -677,7 +677,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03775 40  40  40  0   0   0   0.02614 0.02482 0.9749  0.9762  0.009958    0.001651    0.06604 2.642   0
-    ## 1.359 sec elapsed
+    ## 1.594 sec elapsed
     ## [1] "Constructing curve 50 of 50 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -688,7 +688,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.03721 40  40  40  0   0   0   0.02558 0.02431 0.9762  0.9774  0.01022 0.001418    0.05673 2.269   0
-    ## 1.596 sec elapsed
+    ## 1.302 sec elapsed
     ## [1] "Constructing average tree"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
@@ -699,7 +699,7 @@ also prevent the plotting, for now.
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
     ## 0||40    0.01414 40  40  40  0   0   0   0.003575    0.002329    0.9965  0.9977  0.009816    0.000747    0.02988 1.195   0
-    ## 2.274 sec elapsed
+    ## 2.349 sec elapsed
 
 `CircleEPG.Boot` will be a list with 51 elements: the 50 bootstrapped
 circles and the final consensus one.
