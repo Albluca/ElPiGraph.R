@@ -1,19 +1,30 @@
--   [The alpha and beta parameters](#the-alpha-and-beta-parameters)
+-   [The alpha parameter](#the-alpha-parameter)
+-   [Excessinve branching due to
+    noise](#excessinve-branching-due-to-noise)
 
-The alpha and beta parameters
-=============================
+The alpha parameter
+===================
 
 Under certain circumstances, it may be necessary to tune the form of the
-elastic energy to obtain a better results. This may be particualrly true
-when the principal graph is introducing an excessive number of branches
-when the tree grammar is being used.
+elastic energy to obtain a better results. This is the case, for
+example, when an excessive number of branches is introduced by the tree
+grammar.
 
 To tune the elastic energy, it is necessary to set
-`FinalEnergy = "Penalized"` and specify values for the `alpha` and/or
-`beta` parameters. These parameters can be used to give more weight to
-the components of the energy associted with the lenght of the edges and
-the the stars, hence penalizing graphs that are longer or richer in
-branching points.
+`FinalEnergy = "Penalized"` and specify values for the `alpha`
+parameter. This parameter can be used to give more weight to the
+components of the energy associted with the lenght of the edges, hence
+penalizing graphs that are longer. Increasing alpha will penalize stars
+with a larger number of edges, and will preferentially introduce
+3-stars.
+
+Excessinve branching due to noise
+=================================
+
+To exemplify the effect of `alpha`, we will increase the level of noise
+around the &st and 2nd dimension of the tree example dataset. This will
+generate *spurious clusters of points* that are likely to be identified
+as branches.
 
     library(ElPiGraph.R)
     set.seed(42)
@@ -21,88 +32,95 @@ branching points.
     nExp <- 1
 
     NewPoints <- lapply(1:nExp, function(x){
-      tree_data + rnorm(n = length(tree_data), sd = .15)
+      tree_data[,1:2] + rnorm(n = length(tree_data[,1:2]), sd = .15)
     })
 
     NewPoints <- do.call(rbind, NewPoints)
 
-    NoisyTree <- rbind(tree_data, NewPoints)
+    NoisyTree <- rbind(tree_data[,1:2], NewPoints)
     NoisyTree_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
 
-    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                           drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                           Lambda = .01, Mu = .01,
+                                           drawAccuracyComplexity = FALSE,
+                                           drawEnergy = FALSE,
+                                           drawPCAView = FALSE,
                                            n.cores = 1)
 
     ## [1] "Creating a chain in the 1st PC with 2 nodes"
     ## [1] "Constructing tree 1 of 1 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
+    ## [1] "2 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 984 points and 3 dimensions"
+    ## [1] "Computing EPG with 60 nodes on 984 points and 2 dimensions"
     ## [1] "Using a single core"
-    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 2|5||50  0.03004 50  49  32  5   0   0   0.02217 0.02114 0.9616  0.9633  0.007692    0.0001747   0.008737    0.4369  0
-    ## 18.752 sec elapsed
+    ## 1|7||60  0.0178  60  59  41  7   0   0   0.01075 0.01005 0.981   0.9822  0.006854    0.000189    0.01134 0.6805  0
+    ## 19.149 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-           Do_PCA = FALSE, DimToPlot = 1:2)
+           Do_PCA = FALSE)
 
     ## [[1]]
 
 ![](energy_files/figure-markdown_strict/unnamed-chunk-2-1.png)
 
-    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                           drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                           Lambda = .01, Mu = .01,
+                                           drawAccuracyComplexity = FALSE,
+                                           drawEnergy = FALSE, drawPCAView = FALSE,
                                            n.cores = 1,
-                                           FinalEnergy = "Penalized", alpha = 0.02, beta = 0)
+                                           FinalEnergy = "Penalized",
+                                           alpha = 0.005)
 
     ## [1] "Creating a chain in the 1st PC with 2 nodes"
     ## [1] "Constructing tree 1 of 1 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
+    ## [1] "2 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 984 points and 3 dimensions"
+    ## [1] "Computing EPG with 60 nodes on 984 points and 2 dimensions"
     ## [1] "Using a single core"
-    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 3||50    0.03276 50  49  42  3   0   0   0.02615 0.02527 0.9547  0.9562  0.005797    0.0008153   0.04077 2.038   0
-    ## 19.154 sec elapsed
+    ## 5||60    0.01834 60  59  48  5   0   0   0.0122  0.01153 0.9784  0.9796  0.0058  0.00034 0.0204  1.224   0
+    ## 20.602 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-           Do_PCA = FALSE, DimToPlot = 1:2)
+           Do_PCA = FALSE)
 
     ## [[1]]
 
 ![](energy_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-When using elastic energy controlled graph embeddment (`Mode = 2`), it
-is necessary to set `MinimizingEnergy = "Penalized"` to allow alpha and
-beto to influence the embeddment of the graph as well.
+Note that when using elastic energy controlled graph embeddment
+(`Mode = 2`) the standard energy funtion will be used.
 
-    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                           drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+    TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                           Lambda = .01, Mu = .01,
+                                           drawAccuracyComplexity = FALSE,
+                                           drawEnergy = FALSE, drawPCAView = FALSE,
                                            n.cores = 1, Mode = 2,
-                                           MinimizingEnergy = "Penalized", FinalEnergy = "Penalized",
-                                           alpha = 0.01, beta = 0)
+                                           FinalEnergy = "Penalized",
+                                           alpha = 0.005)
 
     ## [1] "Creating a chain in the 1st PC with 2 nodes"
     ## [1] "Constructing tree 1 of 1 / Subset 1 of 1"
     ## [1] "Performing PCA on the data"
     ## [1] "Using standard PCA"
-    ## [1] "3 dimensions are being used"
+    ## [1] "2 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 984 points and 3 dimensions"
+    ## [1] "Computing EPG with 60 nodes on 984 points and 2 dimensions"
     ## [1] "Using a single core"
-    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 5||50    0.03121 50  49  38  5   0   0   0.0244  0.02343 0.9577  0.9594  0.006618    0.0001977   0.009884    0.4942  0
-    ## 20.079 sec elapsed
+    ## 4||60    0.01834 60  59  50  4   0   0   0.01222 0.0116  0.9784  0.9795  0.005891    0.0002311   0.01387 0.8319  0
+    ## 19.886 sec elapsed
 
     PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-           Do_PCA = FALSE, DimToPlot = 1:2)
+           Do_PCA = FALSE)
 
     ## [[1]]
 

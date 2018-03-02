@@ -17,11 +17,15 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# The alpha and beta parameters 
+# The alpha parameter
 
-Under certain circumstances, it may be necessary to tune the form of the elastic energy to obtain a better results. This may be particualrly true when the principal graph is introducing an excessive number of branches when the tree grammar is being used.
+Under certain circumstances, it may be necessary to tune the form of the elastic energy to obtain a better results. This is the case, for example, when an excessive number of branches is introduced by the tree grammar.
 
-To tune the elastic energy, it is necessary to set `FinalEnergy = "Penalized"` and specify values for the `alpha` and/or `beta` parameters. These parameters can be used to give more weight to the components of the energy associted with the lenght of the edges and the the stars, hence penalizing graphs that are longer or richer in branching points.
+To tune the elastic energy, it is necessary to set `FinalEnergy = "Penalized"` and specify values for the `alpha` parameter. This parameter can be used to give more weight to the components of the energy associted with the lenght of the edges, hence penalizing graphs that are longer. Increasing alpha will penalize stars with a larger number of edges, and will preferentially introduce 3-stars.
+
+# Excessinve branching due to noise
+
+To exemplify the effect of `alpha`, we will increase the level of noise around the &st and 2nd dimension of the tree example dataset. This will generate *spurious clusters of points* that are likely to be identified as branches.
 
 ```{r}
 library(ElPiGraph.R)
@@ -30,44 +34,52 @@ set.seed(42)
 nExp <- 1
 
 NewPoints <- lapply(1:nExp, function(x){
-  tree_data + rnorm(n = length(tree_data), sd = .15)
+  tree_data[,1:2] + rnorm(n = length(tree_data[,1:2]), sd = .15)
 })
 
 NewPoints <- do.call(rbind, NewPoints)
 
-NoisyTree <- rbind(tree_data, NewPoints)
+NoisyTree <- rbind(tree_data[,1:2], NewPoints)
 NoisyTree_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
 ```
 
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                       Lambda = .01, Mu = .01,
+                                       drawAccuracyComplexity = FALSE,
+                                       drawEnergy = FALSE,
+                                       drawPCAView = FALSE,
                                        n.cores = 1)
 PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-       Do_PCA = FALSE, DimToPlot = 1:2)
+       Do_PCA = FALSE)
 ```
 
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                       Lambda = .01, Mu = .01,
+                                       drawAccuracyComplexity = FALSE,
+                                       drawEnergy = FALSE, drawPCAView = FALSE,
                                        n.cores = 1,
-                                       FinalEnergy = "Penalized", alpha = 0.02, beta = 0)
+                                       FinalEnergy = "Penalized",
+                                       alpha = 0.005)
 PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-       Do_PCA = FALSE, DimToPlot = 1:2)
+       Do_PCA = FALSE)
 ```
 
 
-When using elastic energy controlled graph embeddment (`Mode = 2`), it is necessary to set `MinimizingEnergy = "Penalized"` to allow alpha and beto to influence the embeddment of the graph as well.
+Note that when using elastic energy controlled graph embeddment (`Mode = 2`) the standard energy funtion will be used.
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
-                                       drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
+TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
+                                       Lambda = .01, Mu = .01,
+                                       drawAccuracyComplexity = FALSE,
+                                       drawEnergy = FALSE, drawPCAView = FALSE,
                                        n.cores = 1, Mode = 2,
-                                       MinimizingEnergy = "Penalized", FinalEnergy = "Penalized",
-                                       alpha = 0.01, beta = 0)
+                                       FinalEnergy = "Penalized",
+                                       alpha = 0.005)
 PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
-       Do_PCA = FALSE, DimToPlot = 1:2)
+       Do_PCA = FALSE)
 ```
 
