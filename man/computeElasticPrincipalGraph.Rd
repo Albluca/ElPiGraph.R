@@ -10,10 +10,9 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   Do_PCA = TRUE, CenterData = TRUE, ComputeMSEP = TRUE, verbose = FALSE,
   ShowTimer = FALSE, ReduceDimension = NULL,
   drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
-  n.cores = 1, ClusType = "Sock", Mode = 1, MinimizingEnergy = "Base",
-  FinalEnergy = "Base", alpha = 0, beta = 0, GrowGrammars = list(),
-  ShrinkGrammars = list(), FastSolve = FALSE, AvoidSolitary = FALSE,
-  EmbPointProb = 1)
+  n.cores = 1, ClusType = "Sock", Mode = 1, FinalEnergy = "Base",
+  alpha = 0, beta = 0, GrowGrammars = list(), ShrinkGrammars = list(),
+  FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -64,8 +63,6 @@ cluster structure returned, e.g., by makeCluster. If a cluster structure is used
 Currently fork clustering only works in Linux}
 
 \item{Mode}{integer, the energy computation mode}
-
-\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
 
 \item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 

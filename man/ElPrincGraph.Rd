@@ -7,10 +7,10 @@
 ElPrincGraph(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix,
   NodesPositions, verbose = FALSE, n.cores = 1, ClusType = "Sock",
   CompileReport = FALSE, ShowTimer = FALSE, ComputeMSEP = TRUE,
-  MinimizingEnergy = "Base", FinalEnergy = "Base", alpha = 0, beta = 0,
-  Mode = 1, MaxNumberOfIterations = 10, eps = 0.01,
-  TrimmingRadius = Inf, GrowGrammars = list(), ShrinkGrammars = list(),
-  FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1)
+  FinalEnergy = "Base", alpha = 0, beta = 0, Mode = 1,
+  MaxNumberOfIterations = 10, eps = 0.01, TrimmingRadius = Inf,
+  GrowGrammars = list(), ShrinkGrammars = list(), FastSolve = FALSE,
+  AvoidSolitary = FALSE, EmbPointProb = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -43,8 +43,6 @@ contruction of the principal graph be compiled?}
 \item{ShowTimer}{boolean, should the time to construct the graph be computed and reported for each step?}
 
 \item{ComputeMSEP}{boolean, should MSEP be computed when building the report?}
-
-\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
 
 \item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 

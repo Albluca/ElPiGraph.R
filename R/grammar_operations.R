@@ -563,7 +563,6 @@ ShrinkEdge <- function(NodePositions,ElasticMatrix) {
 #' to be considered the graph embedded (convergence criteria)
 #' @param Mode integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 #' 2 (difference is computed using the changes in elestic energy of the configuraztions)
-#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
@@ -682,7 +681,6 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                      verbose = FALSE,
                                      MaxNumberOfIterations = MaxNumberOfIterations,
                                      eps = eps,
-                                     MinimizingEnergy = MinimizingEnergy,
                                      FinalEnergy = FinalEnergy,
                                      alpha = alpha,
                                      beta = beta,
@@ -705,7 +703,6 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                      verbose = FALSE,
                                      MaxNumberOfIterations = MaxNumberOfIterations,
                                      eps = eps,
-                                     MinimizingEnergy = MinimizingEnergy,
                                      FinalEnergy = FinalEnergy,
                                      alpha = alpha,
                                      beta = beta,

@@ -291,7 +291,6 @@ computeElasticPrincipalCircle <- function(X,
 #' principal tree.
 #' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
 #' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
@@ -345,7 +344,6 @@ computeElasticPrincipalTree <- function(X,
                                         Subsets = list(),
                                         ProbPoint = 1,
                                         Mode = 1,
-                                        MinimizingEnergy = "Base",
                                         FinalEnergy = "Base",
                                         alpha = 0,
                                         beta = 0,
@@ -454,7 +452,6 @@ computeElasticPrincipalTree <- function(X,
                                                       CenterData = CenterData, ComputeMSEP = ComputeMSEP,
                                                       verbose = verbose, ShowTimer = ShowTimer,
                                                       ReduceDimension = ReduceDimension, Mode = Mode,
-                                                      MinimizingEnergy = MinimizingEnergy,
                                                       FinalEnergy = FinalEnergy, alpha = alpha, beta = beta,
                                                       drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                       drawPCAView = Intermediate.drawPCAView,

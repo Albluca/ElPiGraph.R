@@ -31,7 +31,6 @@
 #' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 #' Currently fork clustering only works in Linux
 #' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
@@ -61,7 +60,6 @@
 ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix, NodesPositions,
                          verbose = FALSE, n.cores = 1, ClusType = "Sock", CompileReport = FALSE,
                          ShowTimer = FALSE, ComputeMSEP = TRUE,
-                         MinimizingEnergy = "Base",
                          FinalEnergy = "Base",
                          alpha = 0,
                          beta = 0,
@@ -119,7 +117,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         cl <- parallel::makeCluster(n.cores)
         GlobalCluster <- FALSE
         parallel::clusterExport(cl, varlist = c("X", "SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose",
-                                                "EmbPointProb", "alpha", "beta", "MinimizingEnergy", "FinalEnergy"), envir=environment())
+                                                "EmbPointProb", "alpha", "beta", "FinalEnergy"), envir=environment())
       }
     } else {
       print("Using a single core")
@@ -135,7 +133,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         if(ClusType != "Fork"){
           print("Exporting the additional variables to the cluster")
           parallel::clusterExport(cl, varlist = c("SquaredX", "MaxNumberOfIterations", "TrimmingRadius", "eps", "verbose",
-                                                  "EmbPointProb", "alpha", "beta", "MinimizingEnergy", "FinalEnergy"), envir=environment())
+                                                  "EmbPointProb", "alpha", "beta", "FinalEnergy"), envir=environment())
         }
         n.cores = length(CheckX)
         
@@ -208,7 +206,6 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                       operationtypes = GrowGrammars[[k]],
                                                       SquaredX = SquaredX,
-                                                      MinimizingEnergy = MinimizingEnergy,
                                                       FinalEnergy = FinalEnergy,
                                                       alpha = alpha,
                                                       beta = beta,
@@ -264,7 +261,6 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
                                                       operationtypes = ShrinkGrammars[[k]],
                                                       SquaredX = SquaredX,
                                                       Mode = Mode,
-                                                      MinimizingEnergy = MinimizingEnergy,
                                                       FinalEnergy = FinalEnergy,
                                                       alpha = alpha,
                                                       beta = beta,
@@ -437,7 +433,6 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
 #' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 #' helps speeding up the computation if a large number of points is present.
-#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy 
@@ -485,7 +480,6 @@ computeElasticPrincipalGraph <- function(Data,
                                          n.cores = 1,
                                          ClusType = "Sock",
                                          Mode = 1,
-                                         MinimizingEnergy = "Base",
                                          FinalEnergy = "Base",
                                          alpha = 0,
                                          beta = 0,
@@ -578,7 +572,6 @@ computeElasticPrincipalGraph <- function(Data,
                          MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
                          NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix,
                          CompileReport = TRUE, ShowTimer = ShowTimer,
-                         MinimizingEnergy = MinimizingEnergy,
                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,

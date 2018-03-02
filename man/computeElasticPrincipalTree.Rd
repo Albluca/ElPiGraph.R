@@ -12,9 +12,9 @@ computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  MinimizingEnergy = "Base", FinalEnergy = "Base", alpha = 0, beta = 0,
-  FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
-  AvoidSolitary = FALSE, EmbPointProb = 1)
+  FinalEnergy = "Base", alpha = 0, beta = 0, FastSolve = FALSE,
+  ICOver = NULL, DensityRadius = NULL, AvoidSolitary = FALSE,
+  EmbPointProb = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -73,8 +73,6 @@ Currently fork clustering only works in Linux}
 \item{ProbPoint}{real between 0 and 1, probability of inclusing of a single point for each computation}
 
 \item{Mode}{integer, the energy computation mode}
-
-\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
 
 \item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 

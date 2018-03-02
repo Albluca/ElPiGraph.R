@@ -41,8 +41,6 @@ to be considered the graph embedded (convergence criteria)}
 \item{Mode}{integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 2 (difference is computed using the changes in elestic energy of the configuraztions)}
 
-\item{MinimizingEnergy}{string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"}
-
 \item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 
 \item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}

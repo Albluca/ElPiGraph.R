@@ -283,7 +283,6 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param SquaredX the sum (by node) of X squared. It not specified, it will be calculated by the fucntion
 #' @param FastSolve boolean, shuold the Fastsolve of Armadillo by enabled?
 #' @param DisplayWarnings boolean, should warning about convergence be displayed? 
-#' @param MinimizingEnergy string indicating the elastic emergy type to minimize if Mode = 2. Currently it can be "Base" or "Penalized"
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param betapositive numeric, the value of the beta parameter of the penalized elastic energy
@@ -301,7 +300,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            TrimmingRadius,
                                            eps,
                                            Mode = 1,
-                                           MinimizingEnergy = "Base",
                                            FinalEnergy = "Base",
                                            SquaredX = NULL,
                                            verbose = FALSE,
@@ -333,23 +331,11 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # print(table(PartDataStruct$Partition))
   
   if(verbose | Mode == 2){
-    if(MinimizingEnergy == "Base"){
-      OldPriGrElEn <- 
-        distutils::ElasticEnergy(X = X,
-                                 NodePositions =  NodePositions,
-                                 ElasticMatrix = ElasticMatrix,
-                                 Dists = PartDataStruct$Dists)
-    }
-    if(MinimizingEnergy == "Penalized"){
-      OldPriGrElEn <- 
-        distutils::PenalizedElasticEnergy(X = X,
-                                          NodePositions =  NodePositions,
-                                          ElasticMatrix = ElasticMatrix,
-                                          Dists = PartDataStruct$Dists,
-                                          alpha = alpha,
-                                          beta = beta)
-                                               
-    }
+    OldPriGrElEn <- 
+      distutils::ElasticEnergy(X = X,
+                               NodePositions =  NodePositions,
+                               ElasticMatrix = ElasticMatrix,
+                               Dists = PartDataStruct$Dists)
   } else {
     OldPriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
   }
@@ -408,23 +394,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
     
     if(verbose | Mode == 2){
-      if(MinimizingEnergy == "Base"){
-        PriGrElEn <- distutils::ElasticEnergy(X = X,
-                                              NodePositions = NewNodePositions,
-                                              ElasticMatrix =  ElasticMatrix,
-                                              Dists = PartDataStruct$Dists)
-        
-      }
-      if(MinimizingEnergy == "Penalized"){
-        PriGrElEn <- 
-          distutils::PenalizedElasticEnergy(X = X,
-                                            NodePositions =  NewNodePositions,
-                                            ElasticMatrix = ElasticMatrix,
-                                            Dists = PartDataStruct$Dists,
-                                            alpha = alpha,
-                                            beta = beta)
-        
-      }
+      PriGrElEn <- distutils::ElasticEnergy(X = X,
+                                            NodePositions = NewNodePositions,
+                                            ElasticMatrix =  ElasticMatrix,
+                                            Dists = PartDataStruct$Dists)
     } else {
       PriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
     }
@@ -476,10 +449,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # 1) Didn't use use energy during the embeddment
   # 2) Didn't computed energy step by step due to verbose being false
   # or
-  # 3) MinimizingEnergy != FinalEnergy
+  # 3) FinalEnergy == "Penalized"
   
   
-  if( (MinimizingEnergy != FinalEnergy) | (!verbose & Mode != 2) ){
+  if( (FinalEnergy == "Penalized") | (!verbose & Mode != 2) ){
     if(FinalEnergy == "Base"){
       PriGrElEn <-
         distutils::ElasticEnergy(X = X,
