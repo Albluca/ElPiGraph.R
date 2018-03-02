@@ -2,7 +2,7 @@
 -   [Obtaining notable structures in
     trees](#obtaining-notable-structures-in-trees)
 -   [Obtaining notable structures in
-    circle](#obtaining-notable-structures-in-circle)
+    circles](#obtaining-notable-structures-in-circles)
 -   [Looking at the nodes composing the
     structures](#looking-at-the-nodes-composing-the-structures)
 -   [Looking at the points associted with the
@@ -36,7 +36,7 @@ on the example data included in the package.
 
     library(magrittr)
 
-    TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+    TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 60, Lambda = .03, Mu = .01,
                                            drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
 
     ## [1] "Creating a chain in the 1st PC with 2 nodes"
@@ -45,70 +45,12 @@ on the example data included in the package.
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 492 points and 3 dimensions"
+    ## [1] "Computing EPG with 60 nodes on 492 points and 3 dimensions"
     ## [1] "Using a single core"
-    ## Nodes = 2 3
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0556045436349542
-
-    ## 4
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0301832931960279
-
-    ## 5 6 7
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0108997004478186
-
-    ## 8
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0338837538875411
-
-    ## 9
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0186764499907295
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.054863847452363
-
-    ## 10
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0244949370624996
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0117614602046908
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0358113369806447
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0139648044782385
-
-    ## 11 12 13
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0183632027691593
-
-    ## 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 1|2||50  0.01568 50  49  41  2   0   0   0.004137    0.003432    0.9923  0.9936  0.01114 0.0004032   0.02016 1.008   0
-    ## 14.567 sec elapsed
+    ## 1|2||60  0.01848 60  59  51  2   0   0   0.00548 0.005053    0.9898  0.9906  0.01249 0.0005134   0.03081 1.848   0
+    ## 29.213 sec elapsed
     ## [[1]]
 
 ![](struct_files/figure-markdown_strict/unnamed-chunk-1-1.png)
@@ -127,8 +69,8 @@ on the example data included in the package.
     ## [1] "Using a single core"
     ## Nodes = 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 0||40    0.05136 40  40  40  0   0   0   0.02904 0.02755 0.9728  0.9742  0.0206  0.001721    0.06885 2.754   0
-    ## 1.411 sec elapsed
+    ## 0||40    0.04107 40  40  40  0   0   0   0.02892 0.02738 0.9729  0.9744  0.0105  0.00165 0.066   2.64    0
+    ## 1.541 sec elapsed
     ## [[1]]
 
 ![](struct_files/figure-markdown_strict/unnamed-chunk-1-2.png)
@@ -205,8 +147,8 @@ better to use `GetSubGraph` by setting `KeepEnds` to `FALSE`
 
 ![](struct_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
-Obtaining notable structures in circle
-======================================
+Obtaining notable structures in circles
+=======================================
 
 Similarly to tree, `GetSubGraph` can be used to obtain circles by
 setting `structure` to `circle`. When looking for circles it is possible
@@ -240,8 +182,8 @@ Let us consider the first subs-tree computed:
 
     Tree_SubTrees[[1]]
 
-    ##  [1]  1  5  6 10 32 38 18 17 28 30 26 25 22 36 46 12 13 16  9 11 24  2  3
-    ## [24] 19
+    ##  [1]  1  7 21 57 20 52 34 44 30  9 55  5 47 29 16 28 37 60 12  6 40 19 26
+    ## [24]  8 13  2  3  4
 
 To look how the nodes maps to the graph, we can label the nodes in the
 `PlotPG` function. This can be done using the `NodeLabels` parameter.
@@ -266,8 +208,9 @@ leaves
 
     Tree_e2e[[1]]
 
-    ## + 23/50 vertices, named, from 39f157c:
-    ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 43 48 40 8  4
+    ## + 26/60 vertices, named, from 12a263f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  57 34 9  47 28 12 19 3  15 18 27 31 35
+    ## [24] 36 45 51
 
     PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = V(Tree_Graph) %in% Tree_e2e[[1]], PointSize = NA, NodeLabels = 1:nrow(TreeEPG[[1]]$NodePositions), LabMult = 3)
 
