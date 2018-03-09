@@ -69,7 +69,7 @@ f_add_edge <- function(ElasticMatrix, Node1, Node2, lambda) {
 
 
 
-f_get_star <- function(NodePositions,ElasticMatrix,NodeCenter) {
+f_get_star <- function(NodePositions, ElasticMatrix, NodeCenter) {
   # extracts a star from the graph with the center in NodeCenter
   NodeIndices <- which(ElasticMatrix[NodeCenter,]>0)
 
@@ -91,12 +91,6 @@ f_get_star <- function(NodePositions,ElasticMatrix,NodeCenter) {
 
 
 
-
-
-
-
-
-
 # Grammar function wrapper ------------------------------------------------
 
 
@@ -104,25 +98,25 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Partiti
 
   if(type == 'addnode2node'){
     return(
-      AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition)
+      ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition)
     )
   }
 
   if(type == 'removenode'){
     return(
-      RemoveNode(NodePositions = NodePositions, ElasticMatrix =  ElasticMatrix)
+      ElPiGraph.R:::RemoveNode(NodePositions = NodePositions, ElasticMatrix =  ElasticMatrix)
     )
   }
 
   if(type == 'bisectedge'){
     return(
-      BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
+      ElPiGraph.R:::BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
       )
   }
 
   if(type == 'shrinkedge'){
     return(
-      ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
+      ElPiGraph.R:::ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
     )
   }
 
@@ -167,7 +161,8 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Partiti
 AddNode2Node <- function(X,
                          NodePositions,
                          ElasticMatrix,
-                         Partition) {
+                         Partition,
+                         AdjustVect) {
   
   NNodes <- nrow(NodePositions)
   NNp1 <- NNodes + 1
@@ -229,13 +224,22 @@ AddNode2Node <- function(X,
     NPProt[NNp1, ] = NewNodePosition
     diag(EMProt) <- MuProt
     
-    return(list(NodePositions = NPProt, ElasticMatrix = EMProt))
+    AdjustVect <- c(AdjustVect, FALSE)
+    
+    return(list(NodePositions = NPProt,
+                ElasticMatrix = EMProt,
+                AdjustVect = AdjustVect))
   }
   
   Results <- lapply(as.list(1:NNodes), GenerateMatrices)
   
-  return(list(NodePositionArray = lapply(Results, "[[", "NodePositions"),
-              ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
+  return(
+    list(
+      NodePositionArray = lapply(Results, "[[", "NodePositions"),
+      ElasticMatrices = lapply(Results, "[[", "ElasticMatrix"),
+      AdjustVect = lapply(Results, "[[", "AdjustVect")
+    )
+  )
 
 }
 
@@ -255,125 +259,11 @@ AddNode2Node <- function(X,
 
 
 
-# 
-# 
-# AddNode2Node_Old <- function(X, NodePositions, ElasticMatrix, Partition) {
-#   
-#   NNodes <- nrow(NodePositions)
-#   NumberOfGraphs <- NNodes
-#   
-#   Mus = diag(ElasticMatrix)
-#   L = ElasticMatrix - diag(Mus)
-#   Connectivities = colSums(L>0)
-#   
-#   InitEmbm <- PrimitiveElasticGraphEmbedment(X, NodePositions, SquaredX = SquaredX, ElasticMatrix,
-#                                              MaxNumberOfIterations = 0, TrimmingRadius = TrimmingRadius, eps = 1,
-#                                              FastSolve = FastSolve)
-#   
-#   
-#   DoStuff_1 <- function(i) {
-#     
-#     meanLambda = mean(L[i, L[i, ]>0])
-#     
-#     ineighbour = which(L[i,]>0)
-#     NewNodePosition = 2*NodePositions[i,] - NodePositions[ineighbour,]
-#     NewNode <- f_add_nonconnected_node(NodePositions,ElasticMatrix,NewNodePosition)
-#     
-#     NPos <- NewNode$NodePositions
-#     EMat <- NewNode$ElasticMatrix
-#     rm(NewNode)
-#     
-#     nn <- nrow(NPos)
-#     EMat <- f_add_edge(ElasticMatrix = EMat, Node1 = i, Node2 = nn, lambda = ElasticMatrix[i,ineighbour])$ElasticMatrix
-#     
-#     EMat[i,i] = ElasticMatrix[ineighbour,ineighbour]
-#     
-#     return(list(NodePosition = NPos, ElasticMatrix = EMat))
-#     
-#   }
-#   
-#   
-#   DoStuff_N1 <- function(i) {
-#     
-#     meanLambda = mean(L[i, L[i, ]>0])
-#     
-#     StarStruct <- f_get_star(NodePositions,ElasticMatrix,i)
-#     
-#     nplocal <- StarStruct$NodePositions
-#     if(is.null(dim(nplocal))){
-#       dim(nplocal) <- c(1, length(nplocal))
-#     }
-#     
-#     emlocal <- StarStruct$ElasticMatrix
-#     inds <- StarStruct$NodeIndices
-#     
-#     indlocal <- which(InitEmbm$partition==i)
-#     xlocal = X[indlocal, ]
-#     
-#     if(is.null(dim(xlocal))){
-#       dim(xlocal) <- c(1, length(xlocal))
-#     }
-#     
-#     if(length(indlocal)==0){
-#       # empty star
-#       NodeNewPosition = colMeans(nplocal)
-#     } else {
-#       minMSE = .Machine$double.xmax
-#       m = -1
-#       # mean point of the central cluster - seems to work the best
-#       NodeNewPosition = colMeans(xlocal)
-#     }
-#     
-#     AddedNode <- f_add_nonconnected_node(NodePositions,
-#                                          ElasticMatrix,
-#                                          NodeNewPosition)
-#     
-#     NPos <- AddedNode$NodePositions
-#     EMat <- AddedNode$ElasticMatrix
-#     
-#     nn = nrow(NPos)
-#     
-#     EMat = f_add_edge(EMat, i, nn, meanLambda)$ElasticMatrix
-#     
-#     return(list(NodePosition = NPos, ElasticMatrix = EMat))
-#     
-#   }
-#   
-#   Results <- as.list(NA, NNodes)
-#   
-#   Results[Connectivities == 1] <- lapply(as.list(1:NNodes)[Connectivities == 1], DoStuff_1)
-#   Results[Connectivities != 1] <- lapply(as.list(1:NNodes)[Connectivities != 1], DoStuff_N1)
-#   
-#   return(list(NodePositionArray = lapply(Results, "[[", "NodePosition"),
-#               ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
-#   
-# }
-# 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-BisectEdge <- function(NodePositions, ElasticMatrix) {
+BisectEdge <- function(NodePositions,
+                       ElasticMatrix,
+                       AdjustVect) {
 
   # % This grammar operation inserts a node inside the middle of each edge
   # % The elasticity of the edges do not change
@@ -422,15 +312,21 @@ BisectEdge <- function(NodePositions, ElasticMatrix) {
       em[nn,nn] <- max(mu1,mu2)
     }
     
-    return(list(NodePosition = AddedNode$NodePositions, ElasticMatrix = em))
+    AdjustVect <- c(AdjustVect, FALSE)
+    
+    return(list(NodePosition = AddedNode$NodePositions, ElasticMatrix = em, AdjustVect = AdjustVect))
   }
 
   Results <- lapply(as.list(1:nrow(Edges)), DoStuff)
 
-  return(list(NodePositionArray = lapply(Results, "[[", "NodePosition"),
-              ElasticMatrices = lapply(Results, "[[", "ElasticMatrix")))
-
-
+  return(
+    list(
+      NodePositionArray = lapply(Results, "[[", "NodePositions"),
+      ElasticMatrices = lapply(Results, "[[", "ElasticMatrix"),
+      AdjustVect = lapply(Results, "[[", "AdjustVect")
+    )
+  )
+  
 }
 
 
@@ -440,7 +336,9 @@ BisectEdge <- function(NodePositions, ElasticMatrix) {
 
 
 
-RemoveNode <- function(NodePositions,ElasticMatrix) {
+RemoveNode <- function(NodePositions,
+                       ElasticMatrix,
+                       AdjustVect) {
 
   # %
   # % This grammar operation removes a leaf node (connectivity==1)
@@ -453,21 +351,29 @@ RemoveNode <- function(NodePositions,ElasticMatrix) {
 
   NumberOfGraphs = sum(Connectivities==1)
   NodePositionArray = list()
-  ElasticMatrices  = list()
+  ElasticMatrices = list()
+  AdjustVectList = list()
 
   k=1
 
   for(i in 1:length(Connectivities)){
     if(Connectivities[i]==1){
+      
+      tAdjustVect <- AdjustVect
+      tAdjustVect <- tAdjustVect[-i]
+      
       RemovedNode <- f_remove_node(NodePositions,ElasticMatrix,i)
       NodePositionArray[[k]] = RemovedNode$NodePositions
       ElasticMatrices[[k]] = RemovedNode$ElasticMatrix
+      AdjustVectList[[k]] = tAdjustVect
+      
       k=k+1
     }
   }
 
   return(list(NodePositionArray = NodePositionArray,
-              ElasticMatrices = ElasticMatrices))
+              ElasticMatrices = ElasticMatrices,
+              AdjustVect = AdjustVectList))
 
 }
 
@@ -477,7 +383,9 @@ RemoveNode <- function(NodePositions,ElasticMatrix) {
 
 
 
-ShrinkEdge <- function(NodePositions,ElasticMatrix) {
+ShrinkEdge <- function(NodePositions,
+                       ElasticMatrix,
+                       AdjustVect) {
 
   # %
   # % This grammar operation removes an edge from the graph
@@ -511,25 +419,31 @@ ShrinkEdge <- function(NodePositions,ElasticMatrix) {
 
   NodePositionArray = list()
   ElasticMatrices  = list()
+  AdjustVectList = list()
 
   k=1
   for(i in 1:nrow(Edges)){
     if(Connectivities[Edges[i,1]]>1 & Connectivities[Edges[i,2]]>1){
+      
+      tAdjustVect <- AdjustVect
       em <- f_reattach_edges(ElasticMatrix,Edges[i,1],Edges[i,2])
       temp <- NodePositions[Edges[i,2],]
-      RemovedEdge <- f_remove_node(NodePositions,em$ElasticMatrix,Edges[i,2])
+      RemovedEdge <- f_remove_node(NodePositions, em$ElasticMatrix, Edges[i,2])
+      tAdjustVect <- tAdjustVect[-Edges[i,2]]
 
       np <- RemovedEdge$NodePositions
       np[Edges[i,1], ] = (np[Edges[i,1],] + temp)/2
 
       NodePositionArray[[k]] = np
       ElasticMatrices[[k]] = RemovedEdge$ElasticMatrix
+      AdjustVectList[[k]] = tAdjustVect
       k=k+1
     }
   }
 
   return(list(NodePositionArray = NodePositionArray,
-              ElasticMatrices = ElasticMatrices))
+              ElasticMatrices = ElasticMatrices,
+              AdjustVect = AdjustVectList))
 
 
 }
@@ -543,8 +457,7 @@ ShrinkEdge <- function(NodePositions,ElasticMatrix) {
 
 # Multiple grammar application --------------------------------------------
 
-
-#' Title
+#' Application of the grammar operation. This in an internal function that should not be used in by the end-user
 #'
 #' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
 #' @param NodePositions numerical 2D matrix, the k-by-m matrix with the position of k m-dimensional points
@@ -586,13 +499,12 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              eps = .01,
                                              TrimmingRadius = Inf,
                                              Mode = 1,
-                                             MinimizingEnergy = "Base",
                                              FinalEnergy = "Base",
                                              alpha = 1,
                                              beta = 1,
+                                             gamma = 1,
                                              FastSolve = FALSE,
-                                             EmbPointProb = 1,
-                                             AvoidSolitary = FALSE) {
+                                             EmbPointProb = 1) {
 
   # % this function applies the most optimal graph grammar operation of operationtype
   # % the embedment of an elastic graph described by ElasticMatrix
@@ -614,7 +526,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
       print(paste(i, 'Operation type =', operationtypes[i]))
     }
 
-    NewMatrices <- GraphGrammarOperation(X = X, NodePositions = NodePositions,
+    NewMatrices <- ElPiGraph.R:::GraphGrammarOperation(X = X, NodePositions = NodePositions,
                                          ElasticMatrix = ElasticMatrix, type = operationtypes[i],
                                          Partition = Partition)
 
@@ -684,6 +596,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                      FinalEnergy = FinalEnergy,
                                      alpha = alpha,
                                      beta = beta,
+                                     gamma = gamma,
                                      Mode = Mode,
                                      TrimmingRadius = TrimmingRadius,
                                      FastSolve = FastSolve,
@@ -727,10 +640,11 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     tictoc::toc()
   }
 
-  return(list(NodePositions = NodePositions2, ElasticMatrix = ElasticMatrix2, ElasticEnergy = minEnergy))
+  return(list(NodePositions = NodePositions2,
+              ElasticMatrix = ElasticMatrix2,
+              ElasticEnergy = minEnergy,
+              MSE = Embed[[Best]]$MSE,
+              EP = Embed[[Best]]$EP,
+              RP = Embed[[Best]]$RP))
 
 }
-
-
-
-
