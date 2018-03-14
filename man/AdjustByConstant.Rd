@@ -2,19 +2,19 @@
 % Please edit documentation in R/EMAdjustment.R
 \name{AdjustByConstant}
 \alias{AdjustByConstant}
-\title{Title}
+\title{Adjust elastic matrix by dividing the values of lambda and mu of stars}
 \usage{
 AdjustByConstant(GraphInfo, k = 2, divMu = 10, divLambda = 10)
 }
 \arguments{
-\item{GraphInfo}{}
+\item{GraphInfo}{the elpigraph structure updated}
 
-\item{k}{}
+\item{k}{the largest orger of strars to leave unadjusted. e.g., if k = 2 only branching points will be adjusted}
 
-\item{divMu}{}
+\item{divMu}{the value used to divide the mu coefficients}
 
-\item{divLambda}{}
+\item{divLambda}{the value used to divide the lambda coefficients}
 }
 \description{
-Title
+Adjust elastic matrix by dividing the values of lambda and mu of stars
 }

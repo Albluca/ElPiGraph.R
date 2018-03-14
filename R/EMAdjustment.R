@@ -1,9 +1,9 @@
-#' Title
+#' Adjust elastic matrix by dividing the values of lambda and mu of stars
 #'
-#' @param GraphInfo 
-#' @param k 
-#' @param divLambda 
-#' @param divMu 
+#' @param GraphInfo the elpigraph structure updated
+#' @param k the largest orger of strars to leave unadjusted. e.g., if k = 2 only branching points will be adjusted
+#' @param divLambda the value used to divide the lambda coefficients
+#' @param divMu the value used to divide the mu coefficients
 #'
 #' @return
 #' @export
