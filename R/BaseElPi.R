@@ -673,7 +673,7 @@ computeElasticPrincipalGraph <- function(Data,
     InitElasticMatrix = ElasticMatrix
   }
   
-  if(nrow(ElasticMatrix) != nrow(InitNodePositions) | ncol(ElasticMatrix) != nrow(InitNodePositions)){
+  if(nrow(InitElasticMatrix) != nrow(InitNodePositions) | ncol(InitElasticMatrix) != nrow(InitNodePositions)){
     stop("Elastic matrix incompatible with the node number. Impossible to proceed.")
   }
   

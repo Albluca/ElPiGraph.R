@@ -480,8 +480,14 @@ CollapseBrances <- function(X,
     max(as.integer(x))
   })
   
-  NodeMat <- rbind(TargetPG$NodePositions, t(Centroids))[unlist(igraph::V(Ret_Net)$name), ]
+  if(igraph::vcount(tNet)>0){
+    NodeMat <- rbind(TargetPG$NodePositions, t(Centroids))
+  } else {
+    NodeMat <- TargetPG$NodePositions
+  }
   rownames(NodeMat) <- NULL
+  
+  NodeMat <- NodeMat[unlist(igraph::V(Ret_Net)$name), ]
   
   return(
     list(
