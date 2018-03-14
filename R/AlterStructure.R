@@ -200,7 +200,7 @@ ExtendLeaves <- function(X,
 #' "EdgesNumber", and "EdgesLength" are currently implemented
 #' @param PlotSelected boolean, should a diagnostic plot be visualized (currently not implemented)
 #'
-#' @return The filtered ElPiGraph structure
+#' @return a list with 2 values: Nodes (a matrix containing the new nodes positions) and Edges (a matrix describing the new edge structure)
 #' 
 #' The value of ControlPar has a different interpretation depending on the valus of Mode.
 #' 

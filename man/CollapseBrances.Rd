@@ -22,7 +22,7 @@ CollapseBrances(X, TargetPG, Mode = "PointNumber", ControlPar = 5,
 \item{PlotSelected}{boolean, should a diagnostic plot be visualized (currently not implemented)}
 }
 \value{
-The filtered ElPiGraph structure
+a list with 2 values: Nodes (a matrix containing the new nodes positions) and Edges (a matrix describing the new edge structure)
 
 The value of ControlPar has a different interpretation depending on the valus of Mode.
 
