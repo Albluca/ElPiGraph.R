@@ -9,13 +9,13 @@
 #' @param NumNodes integer, the number of nodes of the principal graph
 #' @param Lambda real, the lambda parameter used the compute the elastic energy
 #' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param verbose boolean, should debugging information be reported?
 #' @param CompileReport boolean, should a step-by-step report with various information on the
 #' contruction of the principal graph be compiled?
 #' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
 #' @param ComputeMSEP boolean, should MSEP be computed when building the report?
 #' @param GrowGrammars list of strings, the grammar to be used in the growth step
 #' @param ShrinkGrammars list of strings, the grammar to be used in the shrink step
+#' @param GrammarOrder vector of strings, the order of application of the grammars. Can be any combination of "Grow" and "Shrink"
 #' @param NodesPositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
 #' in the initial step
 #' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
@@ -37,6 +37,19 @@
 #' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
 #' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 #' helps speeding up the computation if a large number of points is present.
+#' @param MaxFailedOperations integer, the maximum allowed number of consecutive failed grammar operations,
+#' i.e. appplication of the single grammar operations, that did not produce any valid configuration
+#' @param MaxSteps integer, the maximum allowed number of steps of the algorithm. Each step is composed by the application of
+#' all the specified grammar operations
+#' @param GrammarOptimization boolean, should the grammar be used to optimize the graph? If true a number MaxSteps of operations will be applied.
+#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
+#' If NULL (the default), no penalization will be used.
+#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
+#' When true for a node its elasticity parameters will not be adjusted.
+#' @param gamma 
+#' @param verbose 
+#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
+#' If NULL (the default), no penalization will be used.
 #'
 #' @return a named list with a number of elements:
 #' \describe{
@@ -57,19 +70,47 @@
 #' \code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
 #' for examples
 #' 
-ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticMatrix, NodesPositions,
-                         verbose = FALSE, n.cores = 1, ClusType = "Sock", CompileReport = FALSE,
-                         ShowTimer = FALSE, ComputeMSEP = TRUE,
+ElPrincGraph <- function(X,
+                         NumNodes = 100,
+                         NumEdges = Inf,
+                         Lambda,
+                         Mu,
+                         ElasticMatrix,
+                         NodesPositions,
+                         AdjustVect,
+                         verbose = FALSE,
+                         n.cores = 1,
+                         ClusType = "Sock",
+                         CompileReport = FALSE,
+                         ShowTimer = FALSE,
+                         ComputeMSEP = TRUE,
                          FinalEnergy = "Base",
                          alpha = 0,
                          beta = 0,
+                         gamma = 0,
                          Mode = 1,
-                         MaxNumberOfIterations = 10, eps = .01, TrimmingRadius = Inf,
+                         MaxNumberOfIterations = 10,
+                         MaxFailedOperations = Inf,
+                         MaxSteps = Inf,
+                         GrammarOptimization = FALSE,
+                         eps = .01,
+                         TrimmingRadius = Inf,
                          GrowGrammars = list(),
                          ShrinkGrammars = list(),
+                         GrammarOrder = c("Grow", "Shrink"),
                          FastSolve = FALSE,
                          AvoidSolitary = FALSE,
-                         EmbPointProb = 1) {
+                         EmbPointProb = 1,
+                         AdjustElasticMatrix = NULL,
+                         AdjustElasticMatrix.Initial = NULL,
+                         ...) {
+  
+  if(GrammarOptimization){
+    if(is.infinite(MaxSteps)){
+      warning("When setting GrammarOptimization to TRUE, MaxSteps must be finite. Using MaxSteps = 1")
+      MaxSteps = 1
+    }
+  }
   
   if(is.list(X)){
     warning("Data matrix must be a numeric matrix. It will be converted automatically. This can introduce inconsistencies")
@@ -90,12 +131,20 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
     cat('BARCODE\tENERGY\tNNODES\tNEDGES\tNRIBS\tNSTARS\tNRAYS\tNRAYS2\tMSE\tMSEP\tFVE\tFVEP\tUE\tUR\tURN\tURN2\tURSD\n')
   }
   
+  if(!is.null(AdjustElasticMatrix.Initial)){
+    tGraphInfo <- list(ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect)
+    ElasticMatrix <- AdjustElasticMatrix.Initial(tGraphInfo, ...)$ElasticMatrix
+    
+    print(paste(sum(ElasticMatrix != tGraphInfo$ElasticMatrix), "values of the elastic matrix have been updated"))
+    
+  }
+  
   InitNodePositions <- PrimitiveElasticGraphEmbedment(
     X = X, NodePositions = NodesPositions,
     MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
     ElasticMatrix = ElasticMatrix, Mode = Mode)$EmbeddedNodePositions
   
-  UpdatedPG <- list(ElasticMatrix = ElasticMatrix, NodePositions = InitNodePositions)
+  UpdatedPG <- list(ElasticMatrix = ElasticMatrix, NodePositions = InitNodePositions, AdjustVect = AdjustVect)
   
   ReportTable <- NULL
   ToSrink <- c(2, 9, 10, 11, 12, 13, 14, 15, 16, 17)
@@ -144,9 +193,9 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
     }
   }
   
-  if(nrow(UpdatedPG$NodePositions) >= NumNodes){
+  if(nrow(UpdatedPG$NodePositions) >= NumNodes & !GrammarOptimization){
     
-    FinalReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+    FinalReport <- ElPiGraph.R:::ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
                                                    ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                    PartData = PartitionData(X = X,
                                                                             NodePositions = UpdatedPG$NodePositions,
@@ -166,11 +215,10 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
   
   # print(FinalReport)
   
-  for(i in StartNodes:(NumNodes-1)){
-    
-    if(nrow(UpdatedPG$NodePositions) < i){
-      break()
-    }
+  FailedOperations <- 0
+  Steps <- 0
+  
+  while(nrow(UpdatedPG$NodePositions) < NumNodes){
     
     nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
     
@@ -180,118 +228,140 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
     }
     
     if(!verbose & ShowTimer){
-      print(paste("Nodes = ", i))
+      print(paste("Nodes = ", nrow(UpdatedPG$NodePositions)))
     }
     
     if(!verbose & !ShowTimer){
-      if(i == StartNodes){
+      if(nrow(UpdatedPG$NodePositions) == StartNodes){
         cat("Nodes = ")
       }
-      cat(i)
+      cat(nrow(UpdatedPG$NodePositions))
       cat(" ")
     }
     
-    ContinueOperation = TRUE
-    
     OldPG <- UpdatedPG
     
-    if(length(GrowGrammars)>0){
-      for(k in 1:length(GrowGrammars)){
-        if(ShowTimer){
-          print("Growing")
-          tictoc::tic()
-        }
-        
-        UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
-                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
-                                                      operationtypes = GrowGrammars[[k]],
-                                                      SquaredX = SquaredX,
-                                                      FinalEnergy = FinalEnergy,
-                                                      alpha = alpha,
-                                                      beta = beta,
-                                                      Mode = Mode,
-                                                      MaxNumberOfIterations = MaxNumberOfIterations,
-                                                      eps = eps,
-                                                      TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE,
-                                                      n.cores = n.cores,
-                                                      EnvCl = cl,
-                                                      FastSolve = FastSolve,
-                                                      AvoidSolitary = AvoidSolitary,
-                                                      EmbPointProb = EmbPointProb)
-        
-        if(!is.list(UpdatedPG)){
+    for(OpType in GrammarOrder){
+      
+      if(OpType == "Grow" & length(GrowGrammars)>0){
+        for(k in 1:length(GrowGrammars)){
+          if(ShowTimer){
+            print("Growing")
+            tictoc::tic()
+          }
           
-          ContinueOperation <- FALSE
-          UpdatedPG <- OldPG
-          break()
           
-        } else {
           
-          if(i == 3){
-            # % this is needed to erase the star elasticity coefficient which was initially assigned to both leaf nodes,
-            # % one can erase this information after the number of nodes in the graph is > 2
+          UpdatedPG <- ElPiGraph.R:::ApplyOptimalGraphGrammarOpeation(X = X,
+                                                                      NodePositions = UpdatedPG$NodePositions,
+                                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                                      AdjustVect = UpdatedPG$AdjustVect,
+                                                                      operationtypes = GrowGrammars[[k]],
+                                                                      SquaredX = SquaredX,
+                                                                      FinalEnergy = FinalEnergy,
+                                                                      alpha = alpha,
+                                                                      beta = beta,
+                                                                      gamma = gamma,
+                                                                      Mode = Mode,
+                                                                      MaxNumberOfIterations = MaxNumberOfIterations,
+                                                                      eps = eps,
+                                                                      TrimmingRadius = TrimmingRadius,
+                                                                      verbose = FALSE,
+                                                                      n.cores = n.cores,
+                                                                      EnvCl = cl,
+                                                                      FastSolve = FastSolve,
+                                                                      AvoidSolitary = AvoidSolitary,
+                                                                      EmbPointProb = EmbPointProb,
+                                                                      AdjustElasticMatrix = AdjustElasticMatrix,
+                                                                      ...)
+                                                        
+          
+          if(!is.list(UpdatedPG)){
             
-            inds = which(colSums(UpdatedPG$ElasticMatrix-diag(diag(UpdatedPG$ElasticMatrix))>0)==1)
+            FailedOperations <- FailedOperations + 1
+            UpdatedPG <- OldPG
+            break()
             
-            UpdatedPG$ElasticMatrix[inds, inds] <- 0
+          } else {
+            
+            FailedOperations <- 0
+            
+            if(nrow(UpdatedPG$NodePositions) == 3){
+              # this is needed to erase the star elasticity coefficient which was initially assigned to both leaf nodes,
+              # one can erase this information after the number of nodes in the graph is > 2
+              
+              inds = which(colSums(UpdatedPG$ElasticMatrix-diag(diag(UpdatedPG$ElasticMatrix))>0)==1)
+              
+              UpdatedPG$ElasticMatrix[inds, inds] <- 0
+            }
+            
+          }
+          
+          if(ShowTimer){
+            tictoc::toc()
           }
           
         }
-        
-        
-        
-        if(ShowTimer){
-          tictoc::toc()
-        }
-        
       }
+      
+      
+      if(OpType == "Shrink" & length(ShrinkGrammars)>0){
+        for(k in 1:length(ShrinkGrammars)){
+          
+          if(ShowTimer){
+            print("Shrinking")
+            tictoc::tic()
+          }
+          
+          UpdatedPG <- ElPiGraph.R:::ApplyOptimalGraphGrammarOpeation(X = X,
+                                                                      NodePositions = UpdatedPG$NodePositions,
+                                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
+                                                                      AdjustVect = UpdatedPG$AdjustVect,
+                                                                      operationtypes = ShrinkGrammars[[k]],
+                                                                      SquaredX = SquaredX,
+                                                                      Mode = Mode,
+                                                                      FinalEnergy = FinalEnergy,
+                                                                      alpha = alpha,
+                                                                      beta = beta,
+                                                                      gamma = gamma,
+                                                                      MaxNumberOfIterations = MaxNumberOfIterations,
+                                                                      eps = eps,
+                                                                      TrimmingRadius = TrimmingRadius,
+                                                                      verbose = FALSE,
+                                                                      n.cores = n.cores,
+                                                                      EnvCl = cl,
+                                                                      FastSolve = FastSolve,
+                                                                      AvoidSolitary = AvoidSolitary,
+                                                                      EmbPointProb = EmbPointProb,
+                                                                      AdjustElasticMatrix = AdjustElasticMatrix,
+                                                                      ...)
+                                                        
+          
+          if(!is.list(UpdatedPG)){
+            
+            FailedOperations <- FailedOperations + 1
+            UpdatedPG <- OldPG
+            break()
+            
+          } else {
+            
+            FailedOperations <- 0
+            
+          }
+          
+          
+          if(ShowTimer){
+            tictoc::toc()
+          }
+          
+        }
+      }
+      
     }
     
-    if(length(ShrinkGrammars)>0 & ContinueOperation){
-      for(k in 1:length(ShrinkGrammars)){
-        
-        if(ShowTimer){
-          print("Shrinking")
-          tictoc::tic()
-        }
-        
-        UpdatedPG <- ApplyOptimalGraphGrammarOpeation(X = X, NodePositions = UpdatedPG$NodePositions,
-                                                      ElasticMatrix = UpdatedPG$ElasticMatrix,
-                                                      operationtypes = ShrinkGrammars[[k]],
-                                                      SquaredX = SquaredX,
-                                                      Mode = Mode,
-                                                      FinalEnergy = FinalEnergy,
-                                                      alpha = alpha,
-                                                      beta = beta,
-                                                      MaxNumberOfIterations = MaxNumberOfIterations,
-                                                      eps = eps,
-                                                      TrimmingRadius = TrimmingRadius,
-                                                      verbose = FALSE,
-                                                      n.cores,
-                                                      EnvCl = cl,
-                                                      FastSolve = FastSolve,
-                                                      AvoidSolitary = AvoidSolitary,
-                                                      EmbPointProb = EmbPointProb)
-        
-        if(!is.list(UpdatedPG)){
-          
-          ContinueOperation <- FALSE
-          UpdatedPG <- OldPG
-          break()
-          
-        }
-        
-        
-        if(ShowTimer){
-          tictoc::toc()
-        }
-        
-      }
-    }
     
     if(CompileReport){
-      tReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+      tReport <- ElPiGraph.R:::ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
                                                  ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                  PartData = PartitionData(X = X,
                                                                           NodePositions = UpdatedPG$NodePositions,
@@ -312,12 +382,20 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
         cat("\n")
       }
     }
+   
+    # Count the execution steps
+    Steps <- Steps + 1
     
+    # If the number of execution steps is larger than MaxSteps stop the algorithm
+    if(Steps > MaxSteps | FailedOperations > MaxFailedOperations){
+      break()
+    }
+     
   }
   
   if(!verbose){
     if(!CompileReport){
-      tReport <- ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
+      tReport <- ElPiGraph.R:::ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
                                                  ElasticMatrix = UpdatedPG$ElasticMatrix,
                                                  PartData = PartitionData(X = X,
                                                                           NodePositions = UpdatedPG$NodePositions,
@@ -414,6 +492,7 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
 #' in the initial step
 #' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
+#' @param ElasticMatrix numerical 2D matrix, the e-by-e matrix containing the elasticity parameters of the edges
 #' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
 #' @param eps real, minimal relative change in the position of the nodes to stop embedment 
 #' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
@@ -436,6 +515,16 @@ ElPrincGraph <- function(X, NumNodes = 100, NumEdges = Inf, Lambda, Mu, ElasticM
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy 
+#' @param ... optional parameter that will be passed to the AdjustHOS function
+#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
+#' When true for a node its elasticity parameters will not be adjusted.
+#' @param gamma 
+#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
+#' If NULL (the default), no penalization will be used.
+#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
+#' If NULL (the default), no penalization will be used.
+#' @param Lambda.Initial 
+#' @param Mu.Initial 
 #' 
 #' @return a named list with a number of elements:
 #' \describe{
@@ -462,7 +551,9 @@ computeElasticPrincipalGraph <- function(Data,
                                          NumNodes,
                                          NumEdges = Inf,
                                          InitNodePositions,
+                                         AdjustVect,
                                          InitEdges,
+                                         ElasticMatrix = NULL,
                                          Lambda = 0.01,
                                          Mu = 0.1,
                                          MaxNumberOfIterations = 100,
@@ -483,11 +574,16 @@ computeElasticPrincipalGraph <- function(Data,
                                          FinalEnergy = "Base",
                                          alpha = 0,
                                          beta = 0,
+                                         gamma = 0,
                                          GrowGrammars = list(),
                                          ShrinkGrammars = list(),
                                          FastSolve = FALSE,
                                          AvoidSolitary = FALSE,
-                                         EmbPointProb = 1) {
+                                         EmbPointProb = 1,
+                                         AdjustElasticMatrix = NULL,
+                                         AdjustElasticMatrix.Initial = NULL, 
+                                         Lambda.Initial = NULL, Mu.Initial = NULL,
+                                         ...) {
   ST <- date()
   tictoc::tic()
   
@@ -562,20 +658,41 @@ computeElasticPrincipalGraph <- function(Data,
     }
   }
   
-  InitElasticMatrix = Encode2ElasticMatrix(Edges = InitEdges, Lambdas = Lambda, Mus = Mu)
+  if(is.null(Lambda.Initial)){
+    Lambda.Initial <- Lambda
+  }
+  
+  if(is.null(Mu.Initial)){
+    Mu.Initial <- Mu
+  } 
+  
+  if(is.null(ElasticMatrix)){
+    InitElasticMatrix = ElPiGraph.R:::Encode2ElasticMatrix(Edges = InitEdges, Lambdas = Lambda.Initial, Mus = Mu.Initial)
+  } else {
+    print("The elastic matrix is being used. Edge configuration will be ignored")
+    InitElasticMatrix = ElasticMatrix
+  }
+  
+  if(nrow(ElasticMatrix) != nrow(InitNodePositions) | ncol(ElasticMatrix) != nrow(InitNodePositions)){
+    stop("Elastic matrix incompatible with the node number. Impossible to proceed.")
+  }
+  
+  
   
   # Computing the graph
   
   print(paste("Computing EPG with", NumNodes, "nodes on", nrow(X), "points and", ncol(X), "dimensions"))
   
-  ElData <- ElPrincGraph(X = X, NumNodes = NumNodes, NumEdges = NumEdges, Lambda = Lambda, Mu = Mu,
+  ElData <- ElPiGraph.R:::ElPrincGraph(X = X, NumNodes = NumNodes, NumEdges = NumEdges, Lambda = Lambda, Mu = Mu,
                          MaxNumberOfIterations = MaxNumberOfIterations, eps = eps, TrimmingRadius = TrimmingRadius,
-                         NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix,
+                         NodesPositions = InitNodePositions, ElasticMatrix = InitElasticMatrix, AdjustVect = AdjustVect,
                          CompileReport = TRUE, ShowTimer = ShowTimer,
-                         FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, Mode = Mode,
+                         FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
-                         verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary, EmbPointProb = EmbPointProb)
+                         verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                         EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
+                         AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial, ...)
   
   NodePositions <- ElData$NodePositions
   Edges <- DecodeElasticMatrix(ElData$ElasticMatrix)

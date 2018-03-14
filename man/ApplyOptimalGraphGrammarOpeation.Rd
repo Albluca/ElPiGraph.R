@@ -2,14 +2,14 @@
 % Please edit documentation in R/grammar_operations.R
 \name{ApplyOptimalGraphGrammarOpeation}
 \alias{ApplyOptimalGraphGrammarOpeation}
-\title{Title}
+\title{Application of the grammar operation. This in an internal function that should not be used in by the end-user}
 \usage{
 ApplyOptimalGraphGrammarOpeation(X, NodePositions, ElasticMatrix,
-  operationtypes, SquaredX = NULL, verbose = FALSE, n.cores = 1,
-  EnvCl = NULL, MaxNumberOfIterations = 100, eps = 0.01,
-  TrimmingRadius = Inf, Mode = 1, MinimizingEnergy = "Base",
-  FinalEnergy = "Base", alpha = 1, beta = 1, FastSolve = FALSE,
-  EmbPointProb = 1, AvoidSolitary = FALSE)
+  AdjustVect = NULL, operationtypes, SquaredX = NULL, verbose = FALSE,
+  n.cores = 1, EnvCl = NULL, MaxNumberOfIterations = 100, eps = 0.01,
+  TrimmingRadius = Inf, Mode = 1, FinalEnergy = "Base", alpha = 1,
+  beta = 1, gamma = 1, FastSolve = FALSE, EmbPointProb = 1,
+  AvoidSolitary = FALSE, AdjustElasticMatrix = NULL, ...)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -17,6 +17,8 @@ ApplyOptimalGraphGrammarOpeation(X, NodePositions, ElasticMatrix,
 \item{NodePositions}{numerical 2D matrix, the k-by-m matrix with the position of k m-dimensional points}
 
 \item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
+
+\item{AdjustVect}{}
 
 \item{operationtypes}{string vector containing the operation to use}
 
@@ -47,16 +49,22 @@ to be considered the graph embedded (convergence criteria)}
 
 \item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
 
+\item{gamma}{}
+
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
 \item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
 using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.}
 
 \item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+
+\item{AdjustElasticMatrix}{}
+
+\item{...}{}
 }
 \value{
 
 }
 \description{
-Title
+Application of the grammar operation. This in an internal function that should not be used in by the end-user
 }

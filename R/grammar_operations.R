@@ -94,29 +94,29 @@ f_get_star <- function(NodePositions, ElasticMatrix, NodeCenter) {
 # Grammar function wrapper ------------------------------------------------
 
 
-GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, type, Partition) {
+GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, AdjustVect, type, Partition) {
 
   if(type == 'addnode2node'){
     return(
-      ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition)
+      ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition, AdjustVect = AdjustVect)
     )
   }
 
   if(type == 'removenode'){
     return(
-      ElPiGraph.R:::RemoveNode(NodePositions = NodePositions, ElasticMatrix =  ElasticMatrix)
+      ElPiGraph.R:::RemoveNode(NodePositions = NodePositions, ElasticMatrix =  ElasticMatrix, AdjustVect = AdjustVect)
     )
   }
 
   if(type == 'bisectedge'){
     return(
-      ElPiGraph.R:::BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
+      ElPiGraph.R:::BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect)
       )
   }
 
   if(type == 'shrinkedge'){
     return(
-      ElPiGraph.R:::ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix)
+      ElPiGraph.R:::ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect)
     )
   }
 
@@ -314,7 +314,7 @@ BisectEdge <- function(NodePositions,
     
     AdjustVect <- c(AdjustVect, FALSE)
     
-    return(list(NodePosition = AddedNode$NodePositions, ElasticMatrix = em, AdjustVect = AdjustVect))
+    return(list(NodePositions = AddedNode$NodePositions, ElasticMatrix = em, AdjustVect = AdjustVect))
   }
 
   Results <- lapply(as.list(1:nrow(Edges)), DoStuff)
@@ -479,10 +479,14 @@ ShrinkEdge <- function(NodePositions,
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
 #' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param gamma 
 #' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
 #' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
 #' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
 #' using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.
+#' @param AdjustVect 
+#' @param AdjustElasticMatrix 
+#' @param ... 
 #'
 #' @return
 #'
@@ -490,6 +494,7 @@ ShrinkEdge <- function(NodePositions,
 ApplyOptimalGraphGrammarOpeation <- function(X,
                                              NodePositions,
                                              ElasticMatrix,
+                                             AdjustVect = NULL,
                                              operationtypes,
                                              SquaredX = NULL,
                                              verbose = FALSE,
@@ -504,8 +509,15 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              beta = 1,
                                              gamma = 1,
                                              FastSolve = FALSE,
-                                             EmbPointProb = 1) {
+                                             EmbPointProb = 1,
+                                             AvoidSolitary = FALSE,
+                                             AdjustElasticMatrix = NULL,
+                                             ...) {
 
+  if(is.null(AdjustVect)){
+    AdjustVect <- rep(FALSE, nrow(NodePositions))
+  }
+  
   # % this function applies the most optimal graph grammar operation of operationtype
   # % the embedment of an elastic graph described by ElasticMatrix
 
@@ -517,8 +529,9 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   NodePositionArrayAll <- list()
   ElasticMatricesAll <- list()
+  AdjustVectAll <- list()
 
-  Partition = PartitionData(X = X, NodePositions = NodePositions, SquaredX = SquaredX, TrimmingRadius = TrimmingRadius)$Partition
+  Partition = ElPiGraph.R::PartitionData(X = X, NodePositions = NodePositions, SquaredX = SquaredX, TrimmingRadius = TrimmingRadius)$Partition
   
   for(i in 1:length(operationtypes)){
     if(verbose){
@@ -528,10 +541,11 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
 
     NewMatrices <- ElPiGraph.R:::GraphGrammarOperation(X = X, NodePositions = NodePositions,
                                          ElasticMatrix = ElasticMatrix, type = operationtypes[i],
-                                         Partition = Partition)
+                                         Partition = Partition, AdjustVect = AdjustVect)
 
     NodePositionArrayAll <- c(NodePositionArrayAll, NewMatrices$NodePositionArray)
     ElasticMatricesAll <- c(ElasticMatricesAll, NewMatrices$ElasticMatrices)
+    AdjustVectAll <- c(AdjustVectAll, NewMatrices$AdjustVect)
 
     if(verbose){
       tictoc::toc()
@@ -552,7 +566,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   # Check that each point is associated with at least one point. Otherwise we exclude the configuration
   if(AvoidSolitary){
     Valid <- sapply(Valid, function(i){
-      Partition <- PartitionData(X = X,
+      Partition <- ElPiGraph.R::PartitionData(X = X,
                                  NodePositions = NodePositionArrayAll[[i]],
                                  SquaredX = SquaredX,
                                  TrimmingRadius = TrimmingRadius)$Partition
@@ -571,8 +585,13 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   }
   
   CombinedInfo <- lapply(Valid, function(i){
-    list(NodePositions = NodePositionArrayAll[[i]], ElasticMatrix = ElasticMatricesAll[[i]])
+    list(NodePositions = NodePositionArrayAll[[i]], ElasticMatrix = ElasticMatricesAll[[i]], AdjustVect = AdjustVectAll[[i]])
   })
+  
+  # We are adjusting the elastic matrix
+  if(!is.null(AdjustElasticMatrix)){
+    CombinedInfo <- lapply(CombinedInfo, AdjustElasticMatrix, ...)
+  }
   
   # print(paste("DEBUG:", TrimmingRadius))
   
@@ -586,21 +605,21 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     }
     
     Embed <- parallel::parLapply(cl, CombinedInfo, function(input){
-      PrimitiveElasticGraphEmbedment(X = X,
-                                     NodePositions = input$NodePositions,
-                                     ElasticMatrix = input$ElasticMatrix,
-                                     SquaredX = SquaredX,
-                                     verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations,
-                                     eps = eps,
-                                     FinalEnergy = FinalEnergy,
-                                     alpha = alpha,
-                                     beta = beta,
-                                     gamma = gamma,
-                                     Mode = Mode,
-                                     TrimmingRadius = TrimmingRadius,
-                                     FastSolve = FastSolve,
-                                     prob = EmbPointProb)
+      ElPiGraph.R:::PrimitiveElasticGraphEmbedment(X = X,
+                                                   NodePositions = input$NodePositions,
+                                                   ElasticMatrix = input$ElasticMatrix,
+                                                   SquaredX = SquaredX,
+                                                   verbose = FALSE,
+                                                   MaxNumberOfIterations = MaxNumberOfIterations,
+                                                   eps = eps,
+                                                   FinalEnergy = FinalEnergy,
+                                                   alpha = alpha,
+                                                   beta = beta,
+                                                   gamma = gamma,
+                                                   Mode = Mode,
+                                                   TrimmingRadius = TrimmingRadius,
+                                                   FastSolve = FastSolve,
+                                                   prob = EmbPointProb)
     })
     
     if(is.null(EnvCl)){
@@ -609,20 +628,20 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
     
   } else {
     Embed <- lapply(CombinedInfo, function(input){
-      PrimitiveElasticGraphEmbedment(X = X,
-                                     NodePositions = input$NodePositions,
-                                     ElasticMatrix = input$ElasticMatrix,
-                                     SquaredX = SquaredX,
-                                     verbose = FALSE,
-                                     MaxNumberOfIterations = MaxNumberOfIterations,
-                                     eps = eps,
-                                     FinalEnergy = FinalEnergy,
-                                     alpha = alpha,
-                                     beta = beta,
-                                     Mode = Mode,
-                                     TrimmingRadius = TrimmingRadius,
-                                     FastSolve = FastSolve,
-                                     prob = EmbPointProb)
+      ElPiGraph.R:::PrimitiveElasticGraphEmbedment(X = X,
+                                                   NodePositions = input$NodePositions,
+                                                   ElasticMatrix = input$ElasticMatrix,
+                                                   SquaredX = SquaredX,
+                                                   verbose = FALSE,
+                                                   MaxNumberOfIterations = MaxNumberOfIterations,
+                                                   eps = eps,
+                                                   FinalEnergy = FinalEnergy,
+                                                   alpha = alpha,
+                                                   beta = beta,
+                                                   Mode = Mode,
+                                                   TrimmingRadius = TrimmingRadius,
+                                                   FastSolve = FastSolve,
+                                                   prob = EmbPointProb)
     })
   }
   
@@ -634,17 +653,23 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   minEnergy <- Embed[[Best]]$ElasticEnergy
   NodePositions2 <- Embed[[Best]]$EmbeddedNodePositions
-  ElasticMatrix2 <- ElasticMatricesAll[[Best]]
+  ElasticMatrix2 <- CombinedInfo[[Best]]$ElasticMatrix
+  AdjustVect2 <- CombinedInfo[[Best]]$AdjustVect
   
   if(verbose){
     tictoc::toc()
   }
 
-  return(list(NodePositions = NodePositions2,
-              ElasticMatrix = ElasticMatrix2,
-              ElasticEnergy = minEnergy,
-              MSE = Embed[[Best]]$MSE,
-              EP = Embed[[Best]]$EP,
-              RP = Embed[[Best]]$RP))
+  return(
+    list(
+      NodePositions = NodePositions2,
+      ElasticMatrix = ElasticMatrix2,
+      ElasticEnergy = minEnergy,
+      MSE = Embed[[Best]]$MSE,
+      EP = Embed[[Best]]$EP,
+      RP = Embed[[Best]]$RP,
+      AdjustVect = AdjustVect2
+    )
+  )
 
 }

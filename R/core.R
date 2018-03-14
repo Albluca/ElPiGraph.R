@@ -305,8 +305,9 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            verbose = FALSE,
                                            FastSolve = FALSE,
                                            DisplayWarnings = FALSE,
-                                           alpha = 1,
-                                           beta = 1,
+                                           alpha = 0,
+                                           beta = 0,
+                                           gamma = 0,
                                            prob = 1) {
 
   N = nrow(X)
@@ -333,7 +334,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
   if(verbose | Mode == 2){
     OldPriGrElEn <- 
       distutils::ElasticEnergy(X = X,
-                               NodePositions =  NodePositions,
+                               NodePositions = NodePositions,
                                ElasticMatrix = ElasticMatrix,
                                Dists = PartDataStruct$Dists)
   } else {
@@ -449,10 +450,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # 1) Didn't use use energy during the embeddment
   # 2) Didn't computed energy step by step due to verbose being false
   # or
-  # 3) FinalEnergy == "Penalized"
+  # 3) FinalEnergy != "Penalized"
   
   
-  if( (FinalEnergy == "Penalized") | (!verbose & Mode != 2) ){
+  if( (FinalEnergy != "Base") | (!verbose & Mode != 2) ){
     if(FinalEnergy == "Base"){
       PriGrElEn <-
         distutils::ElasticEnergy(X = X,
@@ -469,14 +470,32 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                           alpha = alpha,
                                           beta = beta)
     }
+    if(FinalEnergy == "PenalizedV2"){
+      PriGrElEn <- 
+        distutils::PenalizedElasticEnergy_V2(X = X,
+                                          NodePositions =  NewNodePositions,
+                                          ElasticMatrix = ElasticMatrix,
+                                          Dists = PartDataStruct$Dists,
+                                          alpha = alpha)
+    }
+    if(FinalEnergy == "Rebalanced"){
+      PriGrElEn <- 
+        distutils::RebalancedElasticEnergy(X = X,
+                                          NodePositions =  NewNodePositions,
+                                          ElasticMatrix = ElasticMatrix,
+                                          Dists = PartDataStruct$Dists,
+                                          alpha = alpha,
+                                          beta = beta,
+                                          gamma = gamma)
+    }
   }
   
   
   return(list(EmbeddedNodePositions = NewNodePositions,
               ElasticEnergy = PriGrElEn$ElasticEnergy,
               partition = PartDataStruct$Partition,
-              MSE = PriGrElEn$RP,
-              EP = PriGrElEn$RP,
+              MSE = PriGrElEn$MSE,
+              EP = PriGrElEn$EP,
               RP = PriGrElEn$RP))
 
 }

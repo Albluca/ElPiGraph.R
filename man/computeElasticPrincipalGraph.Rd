@@ -5,14 +5,17 @@
 \title{Regularize data and construct a principal elastic graph}
 \usage{
 computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
-  InitNodePositions, InitEdges, Lambda = 0.01, Mu = 0.1,
-  MaxNumberOfIterations = 100, eps = 0.01, TrimmingRadius = Inf,
-  Do_PCA = TRUE, CenterData = TRUE, ComputeMSEP = TRUE, verbose = FALSE,
-  ShowTimer = FALSE, ReduceDimension = NULL,
-  drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
-  n.cores = 1, ClusType = "Sock", Mode = 1, FinalEnergy = "Base",
-  alpha = 0, beta = 0, GrowGrammars = list(), ShrinkGrammars = list(),
-  FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1)
+  InitNodePositions, AdjustVect, InitEdges, ElasticMatrix = NULL,
+  Lambda = 0.01, Mu = 0.1, MaxNumberOfIterations = 100, eps = 0.01,
+  TrimmingRadius = Inf, Do_PCA = TRUE, CenterData = TRUE,
+  ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
+  ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
+  drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
+  Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
+  GrowGrammars = list(), ShrinkGrammars = list(), FastSolve = FALSE,
+  AvoidSolitary = FALSE, EmbPointProb = 1, AdjustElasticMatrix = NULL,
+  AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
+  Mu.Initial = NULL, ...)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -24,7 +27,12 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
 \item{InitNodePositions}{numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
 in the initial step}
 
+\item{AdjustVect}{boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
+When true for a node its elasticity parameters will not be adjusted.}
+
 \item{InitEdges}{numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes}
+
+\item{ElasticMatrix}{numerical 2D matrix, the e-by-e matrix containing the elasticity parameters of the edges}
 
 \item{Lambda}{real, the lambda parameter used the compute the elastic energy}
 
@@ -70,6 +78,8 @@ Currently fork clustering only works in Linux}
 
 \item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
 
+\item{gamma}{}
+
 \item{GrowGrammars}{list of strings, the grammar to be used in the growth step}
 
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
@@ -81,6 +91,18 @@ Currently fork clustering only works in Linux}
 \item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 helps speeding up the computation if a large number of points is present.}
+
+\item{AdjustElasticMatrix}{a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
+If NULL (the default), no penalization will be used.}
+
+\item{AdjustElasticMatrix.Initial}{a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
+If NULL (the default), no penalization will be used.}
+
+\item{Lambda.Initial}{}
+
+\item{Mu.Initial}{}
+
+\item{...}{optional parameter that will be passed to the AdjustHOS function}
 }
 \value{
 a named list with a number of elements:

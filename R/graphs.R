@@ -105,33 +105,47 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
   
   if(Structure == 'branches'){
     
-    BrPoints <- which(igraph::degree(Net)>2)
-    EndPoints <- which(igraph::degree(Net)==1)
-    
-    Allbr <- list()
-    SelEp <- union(BrPoints, EndPoints)
-    
-    for(i in BrPoints){
+    if(any(igraph::degree(Net)>2) & any(igraph::degree(Net)==1)){
       
-      SelEp <- setdiff(SelEp, i)
+      BrPoints <- which(igraph::degree(Net)>2)
+      EndPoints <- which(igraph::degree(Net)==1)
       
-      for(j in SelEp){
-        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
-        if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
-          Allbr[[length(Allbr)+1]] <- Path
+      Allbr <- list()
+      SelEp <- union(BrPoints, EndPoints)
+      
+      for(i in BrPoints){
+        
+        SelEp <- setdiff(SelEp, i)
+        
+        DistVect <- igraph::distances(graph = Net, v = i)
+        
+        for(j in SelEp){
+          if(is.finite(DistVect[j])){
+            Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+            if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
+              Allbr[[length(Allbr)+1]] <- Path
+            }
+          }
         }
       }
+      
+      if(!KeepEnds){
+        Allbr <- lapply(Allbr, function(x){
+          setdiff(x, BrPoints)
+        })
+      }
+      
+      names(Allbr) <- paste("Branch", 1:length(Allbr), sep = "_")
+      
+      return(Allbr)
+      
+    } else {
+      
+      Structure == 'end2end'
+      
     }
     
-    if(!KeepEnds){
-      Allbr <- lapply(Allbr, function(x){
-        setdiff(x, BrPoints)
-      })
-    }
     
-    names(Allbr) <- paste("Branch", 1:length(Allbr), sep = "_")
-    
-    return(Allbr)
     
   }
   
@@ -140,41 +154,47 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
   
   if(Structure == 'branches&bpoints'){
     
-    BrPoints <- which(igraph::degree(Net)>2)
-    EndPoints <- which(igraph::degree(Net)==1)
-    
-    Allbr <- list()
-    SelEp <- union(BrPoints, EndPoints)
-    
-    for(i in BrPoints){
+    if(any(igraph::degree(Net)>2) & any(igraph::degree(Net)==1)){
       
-      SelEp <- setdiff(SelEp, i)
+      BrPoints <- which(igraph::degree(Net)>2)
+      EndPoints <- which(igraph::degree(Net)==1)
       
-      for(j in SelEp){
-        Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
-        if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
-          Allbr[[length(Allbr)+1]] <- Path
+      Allbr <- list()
+      SelEp <- union(BrPoints, EndPoints)
+      
+      for(i in BrPoints){
+        
+        SelEp <- setdiff(SelEp, i)
+        
+        for(j in SelEp){
+          Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
+          if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
+            Allbr[[length(Allbr)+1]] <- Path
+          }
         }
       }
+      
+      Allbr <- lapply(Allbr, function(x){
+        setdiff(x, BrPoints)
+      })
+      
+      BaseNameVect <- paste("Branch", 1:length(Allbr), sep = "_")
+      
+      BrCount <- 0
+      
+      for(i in BrPoints){
+        BrCount <- BrCount + 1
+        Allbr[[length(Allbr)+1]] <- i
+        BaseNameVect <- c(BaseNameVect, paste("BrPoint", BrCount, sep = "_"))
+      }
+      
+      names(Allbr) <- BaseNameVect
+      
+      return(Allbr)
+      
+    } else {
+      Structure == 'end2end'
     }
-    
-    Allbr <- lapply(Allbr, function(x){
-      setdiff(x, BrPoints)
-    })
-    
-    BaseNameVect <- paste("Branch", 1:length(Allbr), sep = "_")
-    
-    BrCount <- 0
-    
-    for(i in BrPoints){
-      BrCount <- BrCount + 1
-      Allbr[[length(Allbr)+1]] <- i
-      BaseNameVect <- c(BaseNameVect, paste("BrPoint", BrCount, sep = "_"))
-    }
-    
-    names(Allbr) <- BaseNameVect
-    
-    return(Allbr)
     
   }
   
