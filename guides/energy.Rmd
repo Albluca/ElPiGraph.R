@@ -46,7 +46,7 @@ NoisyTree_Cat <- c(rep("Real", nrow(tree_data)), rep("Noise", nrow(NewPoints)))
 
 ```{r}
 TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
-                                       Lambda = .01, Mu = .01,
+                                       Lambda = .001, Mu = .01,
                                        drawAccuracyComplexity = FALSE,
                                        drawEnergy = FALSE,
                                        drawPCAView = FALSE,
@@ -57,28 +57,61 @@ PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
 
 
 ```{r}
+TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 50,
+                                       Lambda = .001, Mu = .01,
+                                       drawAccuracyComplexity = FALSE,
+                                       drawEnergy = FALSE, drawPCAView = FALSE,
+                                       n.cores = 1,
+                                       FinalEnergy = "Rebalanced",
+                                       alpha = .1, beta = 1, gamma = 0)
+PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
+       Do_PCA = FALSE)
+```
+
+
+
+
+
+
+
+
+
+```{r}
 TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
-                                       Lambda = .01, Mu = .01,
+                                       Lambda = .001, Mu = .1,
                                        drawAccuracyComplexity = FALSE,
                                        drawEnergy = FALSE, drawPCAView = FALSE,
                                        n.cores = 1,
                                        FinalEnergy = "Penalized",
-                                       alpha = 0.005)
+                                       alpha = 0.02)
 PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
        Do_PCA = FALSE)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Note that when using elastic energy controlled graph embeddment (`Mode = 2`) the standard energy funtion will be used.
 
 ```{r}
 TreeEPG <- computeElasticPrincipalTree(X = NoisyTree, NumNodes = 60,
-                                       Lambda = .01, Mu = .01,
+                                       Lambda = .001, Mu = .1,
                                        drawAccuracyComplexity = FALSE,
                                        drawEnergy = FALSE, drawPCAView = FALSE,
-                                       n.cores = 1, Mode = 2,
-                                       FinalEnergy = "Penalized",
-                                       alpha = 0.005)
+                                       n.cores = 1,
+                                       FinalEnergy = "PenalizedV2", Mode = 2,
+                                       alpha = 1.3)
 PlotPG(X = NoisyTree, TargetPG = TreeEPG[[1]], GroupsLab = NoisyTree_Cat,
        Do_PCA = FALSE)
 ```

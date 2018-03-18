@@ -5,6 +5,7 @@
 #' @param LeafIDs integer vector, the id of nodes to extend. If NULL, all the vertices will be extended.
 #' @param TrimmingRadius positive numeric, the trimming radius used to control distance 
 #' @param ControlPar positive numeric, the paramter used to control the contribution of the different data points
+#' @param DoSA bollean, should optimization (via simulated annealing) be performed when Mode = "QuantDists"?
 #' @param Mode string, the mode used to extend the graph. "QuantCentroid" and "WeigthedCentroid" are currently implemented
 #' @param PlotSelected boolean, should a diagnostic plot be visualized
 #'
@@ -18,6 +19,9 @@
 #' 
 #' If Mode = "WeigthedCentroid", for each leaf node, a weight is computed for each points by raising the distance to the ControlPar power.
 #' Hence, larger values of ControlPar result in a larger influence of points farther from the node
+#' 
+#' If Mode = "QuantDists", for each leaf node, ... will write it later
+#'
 #'
 #' @export
 #'
@@ -41,6 +45,7 @@
 ExtendLeaves <- function(X,
                          TargetPG, Mode = "WeigthedCentroid",
                          ControlPar = .9, 
+                         DoSA = FALSE,
                          LeafIDs = NULL,
                          TrimmingRadius = Inf,
                          PlotSelected = TRUE) {
@@ -133,6 +138,64 @@ ExtendLeaves <- function(X,
       
       UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1]))
       WeiVal <- c(WeiVal, Wei)
+    }
+    
+    
+    if(Mode == "QuantDists"){
+      
+      if(sum(Dists>0)>1){
+        
+        tData.Filtered = tData[Dists>0,]
+        
+        DistFun <- function(NodePosition) {
+          quantile(
+            ElPiGraph.R::project_point_onto_edge(X = tData.Filtered,
+                                                 NodePositions = rbind(
+                                                   TargetPG$NodePositions[NodesMat[i,1],],
+                                                   NodePosition),
+                                                 Edge = c(1,2))$Distance_Squared,
+            
+            ControlPar)
+        }
+        
+        
+        StartingPoint <- tData.Filtered[which.min(apply(tData.Filtered, 1, DistFun)),]
+        
+        if(DoSA){
+          
+          print("Performing simulated annealing. This may take a while")
+          
+          StartingPoint <- GenSA::GenSA(
+            par = StartingPoint , fn = DistFun,
+            lower = apply(tData.Filtered, 2, min),
+            upper = apply(tData.Filtered, 2, max)
+          )$par
+        }
+        
+        
+        Porjections <- ElPiGraph.R::project_point_onto_edge(X = tData.Filtered,
+                                                            NodePositions = rbind(
+                                                              TargetPG$NodePositions[NodesMat[i,1],],
+                                                              StartingPoint),
+                                                            Edge = c(1,2))
+        
+        SelId <- which.max(
+          distutils::PartialDistance(Porjections$X_Projected,
+                                     matrix(TargetPG$NodePositions[NodesMat[i,1],], nrow = 1))
+        )
+        
+        StartingPoint <- Porjections$X_Projected[SelId, ]
+        
+      } else {
+        
+        StartingPoint <- tData[Dists>0,]
+        
+      }
+      
+      NNPos <- rbind(NNPos, StartingPoint)
+      NEdgs <- rbind(NEdgs, c(NodesMat[i,1], NodeID))
+      
+      UsedNodes <- c(UsedNodes, which(PD$Partition == NodesMat[i,1]))
     }
     
   }

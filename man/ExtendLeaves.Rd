@@ -5,7 +5,8 @@
 \title{Extend leaves with additional nodes}
 \usage{
 ExtendLeaves(X, TargetPG, Mode = "WeigthedCentroid", ControlPar = 0.9,
-  LeafIDs = NULL, TrimmingRadius = Inf, PlotSelected = TRUE)
+  DoSA = FALSE, LeafIDs = NULL, TrimmingRadius = Inf,
+  PlotSelected = TRUE)
 }
 \arguments{
 \item{X}{numeric matrix, the data matrix}
@@ -15,6 +16,8 @@ ExtendLeaves(X, TargetPG, Mode = "WeigthedCentroid", ControlPar = 0.9,
 \item{Mode}{string, the mode used to extend the graph. "QuantCentroid" and "WeigthedCentroid" are currently implemented}
 
 \item{ControlPar}{positive numeric, the paramter used to control the contribution of the different data points}
+
+\item{DoSA}{bollean, should optimization (via simulated annealing) be performed when Mode = "QuantDists"?}
 
 \item{LeafIDs}{integer vector, the id of nodes to extend. If NULL, all the vertices will be extended.}
 
@@ -33,6 +36,8 @@ and the centroid of the points farther away than the ControlPar is returned.
 
 If Mode = "WeigthedCentroid", for each leaf node, a weight is computed for each points by raising the distance to the ControlPar power.
 Hence, larger values of ControlPar result in a larger influence of points farther from the node
+
+If Mode = "QuantDists", for each leaf node, ... will write it later
 }
 \description{
 Extend leaves with additional nodes
