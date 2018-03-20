@@ -113,10 +113,22 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, AdjustVect, t
       ElPiGraph.R:::BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect)
       )
   }
-
+  
+  if(type == 'bisectedge_3'){
+    return(
+      ElPiGraph.R:::BisectEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect, Min_K = 3)
+    )
+  }
+  
   if(type == 'shrinkedge'){
     return(
       ElPiGraph.R:::ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect)
+    )
+  }
+  
+  if(type == 'shrinkedge_3'){
+    return(
+      ElPiGraph.R:::ShrinkEdge(NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, AdjustVect = AdjustVect, Min_K = 3)
     )
   }
 
@@ -263,7 +275,8 @@ AddNode2Node <- function(X,
 
 BisectEdge <- function(NodePositions,
                        ElasticMatrix,
-                       AdjustVect) {
+                       AdjustVect,
+                       Min_K = 1) {
 
   # % This grammar operation inserts a node inside the middle of each edge
   # % The elasticity of the edges do not change
@@ -317,8 +330,17 @@ BisectEdge <- function(NodePositions,
     return(list(NodePositions = AddedNode$NodePositions, ElasticMatrix = em, AdjustVect = AdjustVect))
   }
 
-  Results <- lapply(as.list(1:nrow(Edges)), DoStuff)
-
+  if(Min_K>1){
+    Degree <- sapply(as.list(1:NNodes), function(i){sum(Edges == i)})
+    EdgDegree <- apply(Edges, 1, function(x) {
+      max(Degree[x])
+    })
+    
+    Results <- lapply(as.list(which(EdgDegree>=Min_K)), DoStuff)
+  } else {
+    Results <- lapply(as.list(1:nrow(Edges)), DoStuff)
+  }
+  
   return(
     list(
       NodePositionArray = lapply(Results, "[[", "NodePositions"),
@@ -385,7 +407,8 @@ RemoveNode <- function(NodePositions,
 
 ShrinkEdge <- function(NodePositions,
                        ElasticMatrix,
-                       AdjustVect) {
+                       AdjustVect,
+                       Min_K = 1) {
 
   # %
   # % This grammar operation removes an edge from the graph
@@ -423,7 +446,8 @@ ShrinkEdge <- function(NodePositions,
 
   k=1
   for(i in 1:nrow(Edges)){
-    if(Connectivities[Edges[i,1]]>1 & Connectivities[Edges[i,2]]>1){
+    if((Connectivities[Edges[i,1]]>1 & Connectivities[Edges[i,2]]>1)
+       & (Connectivities[Edges[i,1]]>=Min_K | Connectivities[Edges[i,1]]>=Min_K)){
       
       tAdjustVect <- AdjustVect
       em <- f_reattach_edges(ElasticMatrix,Edges[i,1],Edges[i,2])

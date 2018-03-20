@@ -218,7 +218,7 @@ ElPrincGraph <- function(X,
   FailedOperations <- 0
   Steps <- 0
   
-  while(nrow(UpdatedPG$NodePositions) < NumNodes){
+  while(nrow(UpdatedPG$NodePositions) < NumNodes | GrammarOptimization){
     
     nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
     
@@ -577,6 +577,9 @@ computeElasticPrincipalGraph <- function(Data,
                                          gamma = 0,
                                          GrowGrammars = list(),
                                          ShrinkGrammars = list(),
+                                         GrammarOptimization = FALSE,
+                                         MaxSteps = Inf,
+                                         GrammarOrder = c("Grow", "Shrink"),
                                          FastSolve = FALSE,
                                          AvoidSolitary = FALSE,
                                          EmbPointProb = 1,
@@ -689,6 +692,7 @@ computeElasticPrincipalGraph <- function(Data,
                          CompileReport = TRUE, ShowTimer = ShowTimer,
                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
+                         GrammarOptimization = GrammarOptimization, MaxSteps = MaxSteps, GrammarOrder = c("Grow", "Shrink"),
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
                          verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
                          EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,

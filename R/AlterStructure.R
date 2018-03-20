@@ -650,3 +650,167 @@ RemoveNodesbyIDs <- function(TargetPG, NodesToRemove) {
   
   return(TargetPG_New)
 }
+
+
+
+
+
+
+
+
+
+
+#' 
+#' 
+#' #' Title
+#' #'
+#' #' @param variables 
+#' #'
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' RewireBranches <- function(X,
+#'                        TargetPG,
+#'                        MaxDist = 3,
+#'                        Lambda,
+#'                        Mu,
+#'                        MaxNumberOfIterations = 10,
+#'                        eps = 0.01,
+#'                        FinalEnergy = "Base",
+#'                        alpha = 0,
+#'                        beta = 0,
+#'                        Mode = 1,
+#'                        TrimmingRadius = Inf,
+#'                        FastSolve = FALSE,
+#'                        prob = 1) {
+#'   
+#'   TargetPG1 <- TargetPG
+#'   
+#'   NodeDist <- distutils::PartialDistance(TargetPG$NodePositions, TargetPG$NodePositions)
+#'   
+#'   Net <- ConstructGraph(PrintGraph = TargetPG1)
+#'   BrPoint <- which(igraph::degree(Net)>2)
+#'   
+#'   for(i in 1:length(BrPoint)){
+#'     
+#'     Net <- ConstructGraph(PrintGraph = TargetPG1)
+#'     
+#'     NeiBr <- as.integer(names(igraph::neighborhood(graph = Net, order = 1, nodes = BrPoint[i])[[1]]))
+#'     NeiBr <- setdiff(NeiBr, BrPoint[i])
+#'     
+#'     for(j in 1:length(NeiBr)){
+#'       TargetPG1$NodePositions <- rbind(
+#'         TargetPG1$NodePositions,
+#'         colMeans(
+#'           rbind(
+#'             TargetPG$NodePositions[BrPoint[i], ],
+#'             TargetPG$NodePositions[NeiBr[j], ]
+#'           )
+#'         )
+#'       )
+#'       OldEdg <- TargetPG1$Edges$Edges[,1] %in% c(BrPoint[i], NeiBr[j]) &
+#'         TargetPG1$Edges$Edges[,2] %in% c(BrPoint[i], NeiBr[j])
+#'       TargetPG1$Edges$Edges <- TargetPG1$Edges$Edges[!OldEdg,]
+#'       TargetPG1$Edges$Edges <- rbind(TargetPG1$Edges$Edges,
+#'                                      rbind(
+#'                                        c(BrPoint[i], nrow(TargetPG1$NodePositions)),
+#'                                        c(NeiBr[j], nrow(TargetPG1$NodePositions))
+#'                                      )
+#'       )
+#' 
+#'     }
+#'     
+#'     Net <- ConstructGraph(PrintGraph = TargetPG1)
+#'     NeiBr <- as.integer(names(igraph::neighborhood(graph = Net, order = 1, nodes = BrPoint[i])[[1]]))
+#'     NeiBr <- setdiff(NeiBr, BrPoint[i])
+#'     
+#'     StarEdes <- igraph::get.edge.ids(graph = Net, vp = rbind(rep(BrPoint[i], length(NeiBr)), NeiBr), directed = FALSE)
+#'     
+#'     tNet <- igraph::delete.edges(graph = Net, edges = StarEdes)
+#'     Neigh <- igraph::neighborhood(graph = tNet, order = igraph::vcount(tNet), nodes = NeiBr)
+#'     NeighDist <- lapply(Neigh, function(NeiVect){
+#'       sapply(igraph::shortest_paths(graph = Net, from = BrPoint[i], to = as.vector(NeiVect))$vpath, length)
+#'     })
+#'     
+#'     Mats <- list()
+#'     
+#'     for(j in 1:length(Neigh)){
+#'       
+#'       tNet <- igraph::delete.edges(graph = Net, igraph::E(Net)[igraph::`%--%`(BrPoint[i], NeiBr[j])])
+#'       
+#'       VertexToTest <- Neigh[-j]
+#'       VertexToTest.Dist <- NeighDist[-j]
+#'       
+#'       VertexToTest <- lapply(1:length(VertexToTest), function(i){
+#'         (VertexToTest[[i]])[VertexToTest.Dist[[i]] <= MaxDist]
+#'       })
+#'       VertexToTest <- unlist(VertexToTest)
+#'       
+#'       for(k in 1:length(VertexToTest)){
+#'         TestNet <- igraph::add.edges(graph = tNet, edges = c(NeiBr[j], VertexToTest[k]))
+#'         Mats[[length(Mats)+1]] <- apply(igraph::get.edgelist(TestNet), 2, as.numeric)
+#'       }
+#'       
+#'     }
+#'     
+#'     SquaredX <- rowSums(X^2)
+#'     
+#'     Embed <- lapply(Mats, function(mat){
+#'       ElPiGraph.R:::PrimitiveElasticGraphEmbedment(X = X,
+#'                                                    NodePositions = TargetPG1$NodePositions,
+#'                                                    ElasticMatrix = ElPiGraph.R::Encode2ElasticMatrix(mat, Lambda, Mu),
+#'                                                    SquaredX = SquaredX,
+#'                                                    verbose = FALSE,
+#'                                                    MaxNumberOfIterations = MaxNumberOfIterations,
+#'                                                    eps = eps,
+#'                                                    FinalEnergy = FinalEnergy,
+#'                                                    alpha = alpha,
+#'                                                    beta = beta,
+#'                                                    Mode = Mode,
+#'                                                    TrimmingRadius = TrimmingRadius,
+#'                                                    FastSolve = FastSolve,
+#'                                                    prob = prob)
+#'     })
+#'     
+#'     
+#'     # SumDists <- sapply(Mats, function(EdgMat){
+#'     #   ProjStruct <- ElPiGraph.R::project_point_onto_graph(X, NodePositions = TargetPG$NodePositions, Edges = EdgMat)
+#'     #   OnEdes <- ProjStruct$ProjectionValues > 0 & ProjStruct$ProjectionValues < 1
+#'     #   DistFromEdge <- rowSums((ProjStruct$X_projected - X)^2)
+#'     #   c(sum(DistFromEdge[OnEdes]), sum(ProjStruct$EdgeLen))
+#'     # })
+#'     
+#'     # order(colSums(SumDists))
+#'     # which.min(SumDists[2,])
+#'     
+#'     
+#'     # TargetPG2 <- TargetPG1
+#'     
+#'     TargetPG1$Edges$Edges <- Mats[[which.min(sapply(Embed, "[[", "ElasticEnergy"))]]
+#'     
+#'     PlotPG(X, TargetPG1, DimToPlot = 1:3, NodeLabels = 1:nrow(TargetPG1$NodePositions), LabMult = 3)
+#'     
+#'     which(igraph::degree(ConstructGraph(TargetPG1))>2)
+#'     
+#'   }
+#'   
+#'   # 
+#'   # 
+#'   # 
+#'   # MaxByEdg <- aggregate(DistFromEdge, by=list(ProjStruct$EdgeID), max)
+#'   # ToMove <- MaxByEdg[which.max(MaxByEdg[,2]),1]
+#'   # 
+#'   # Ends <- TargetPG$Edges$Edges[ToMove,]
+#'   # 
+#'   # 
+#'   # Net <- 
+#'   # igraph::neighborhood(graph = Net, order = igraph::vcount(Net), nodes = Ends)
+#'   
+#'   return(TargetPG1)
+#'   
+#' }
+#' 
+#' 
+#' 
+#' 
