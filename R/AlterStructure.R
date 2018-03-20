@@ -181,18 +181,18 @@ ExtendLeaves <- function(X,
         }
         
         
-        Porjections <- ElPiGraph.R::project_point_onto_edge(X = tData.Filtered,
+        Projections <- ElPiGraph.R::project_point_onto_edge(X = tData.Filtered,
                                                             NodePositions = rbind(
                                                               TargetPG$NodePositions[NodesMat[i,1],],
                                                               StartingPoint),
-                                                            Edge = c(1,2))
+                                                            Edge = c(1,2), ExtProj = TRUE)
         
         SelId <- which.max(
-          distutils::PartialDistance(Porjections$X_Projected,
+          distutils::PartialDistance(Projections$X_Projected,
                                      matrix(TargetPG$NodePositions[NodesMat[i,1],], nrow = 1))
         )
         
-        StartingPoint <- Porjections$X_Projected[SelId, ]
+        StartingPoint <- Projections$X_Projected[SelId, ]
         
       } else {
         
