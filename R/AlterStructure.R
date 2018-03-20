@@ -146,8 +146,11 @@ ExtendLeaves <- function(X,
       WeiVal <- c(WeiVal, Wei)
     }
     
-    
     if(Mode == "QuantDists"){
+      
+      if(sum(Dists>0)==0){
+        next()
+      }
       
       if(sum(Dists>0)>1 & nrow(tData)>1){
         
@@ -163,7 +166,6 @@ ExtendLeaves <- function(X,
             
             ControlPar)
         }
-        
         
         StartingPoint <- tData.Filtered[which.min(apply(tData.Filtered, 1, DistFun)),]
         
