@@ -12,10 +12,11 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
   Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
-  GrowGrammars = list(), ShrinkGrammars = list(), FastSolve = FALSE,
-  AvoidSolitary = FALSE, EmbPointProb = 1, AdjustElasticMatrix = NULL,
-  AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
-  Mu.Initial = NULL, ...)
+  GrowGrammars = list(), ShrinkGrammars = list(),
+  GrammarOptimization = FALSE, MaxSteps = Inf, GrammarOrder = c("Grow",
+  "Shrink"), FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1,
+  AdjustElasticMatrix = NULL, AdjustElasticMatrix.Initial = NULL,
+  Lambda.Initial = NULL, Mu.Initial = NULL, ...)
 }
 \arguments{
 \item{Data}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}

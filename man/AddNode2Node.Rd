@@ -4,7 +4,8 @@
 \alias{AddNode2Node}
 \title{Adds a node to each graph node}
 \usage{
-AddNode2Node(X, NodePositions, ElasticMatrix, Partition, AdjustVect)
+AddNode2Node(X, NodePositions, ElasticMatrix, Partition, AdjustVect,
+  Max_K = Inf)
 }
 \arguments{
 \item{ElasticMatrix}{}

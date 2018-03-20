@@ -101,6 +101,20 @@ GraphGrammarOperation <- function(X, NodePositions, ElasticMatrix, AdjustVect, t
       ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition, AdjustVect = AdjustVect)
     )
   }
+  
+  if(type == 'addnode2node_1'){
+    return(
+      ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition,
+                                 AdjustVect = AdjustVect, Max_K = 1)
+    )
+  }
+  
+  if(type == 'addnode2node_2'){
+    return(
+      ElPiGraph.R:::AddNode2Node(X = X, NodePositions = NodePositions, ElasticMatrix = ElasticMatrix, Partition = Partition,
+                                 AdjustVect = AdjustVect, Max_K = 2)
+    )
+  }
 
   if(type == 'removenode'){
     return(
@@ -174,7 +188,8 @@ AddNode2Node <- function(X,
                          NodePositions,
                          ElasticMatrix,
                          Partition,
-                         AdjustVect) {
+                         AdjustVect,
+                         Max_K = Inf) {
   
   NNodes <- nrow(NodePositions)
   NNp1 <- NNodes + 1
@@ -243,7 +258,20 @@ AddNode2Node <- function(X,
                 AdjustVect = AdjustVect))
   }
   
-  Results <- lapply(as.list(1:NNodes), GenerateMatrices)
+  
+  if(!is.infinite(Max_K)){
+    Degree <- rowSums(ElasticMatrix>0)
+    Degree[Degree>1] <- Degree[Degree>1] - 1
+    
+    if(sum(Degree <= Max_K)>1){
+      Results <- lapply(as.list(which(Degree <= Max_K)), GenerateMatrices)
+    } else {
+      stop("AddNode2Node impossible with the current parameters!")
+    }
+    
+  } else {
+    Results <- lapply(as.list(1:NNodes), GenerateMatrices)
+  }
   
   return(
     list(

@@ -5,9 +5,9 @@
 \title{Expand the nodes around a branching point}
 \usage{
 fineTuneBR(X, NumNodes, NumEdges = Inf, InitNodes = 2, Lambda = 0.01,
-  Mu = 0.1, MaxNumberOfIterations = 10, TrimmingRadius = Inf,
-  eps = 0.01, Do_PCA = TRUE, InitNodePositions = NULL, InitEdges = NULL,
-  ElasticMatrix = NULL, AdjustVect = NULL, CenterData = TRUE,
+  Mu = 0.1, InitNodePositions, InitEdges = NULL, ElasticMatrix = NULL,
+  MaxSteps = 100, MaxNumberOfIterations = 10, TrimmingRadius = Inf,
+  eps = 0.01, Do_PCA = TRUE, AdjustVect = NULL, CenterData = TRUE,
   ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
@@ -31,6 +31,13 @@ fineTuneBR(X, NumNodes, NumEdges = Inf, InitNodes = 2, Lambda = 0.01,
 
 \item{Mu}{real, the lambda parameter used the compute the elastic energy}
 
+\item{InitNodePositions}{numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
+in the initial step}
+
+\item{InitEdges}{numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes}
+
+\item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
+
 \item{MaxNumberOfIterations}{integer, maximum number of steps to embed the nodes in the data}
 
 \item{TrimmingRadius}{real, maximal distance of point from a node to affect its embedment}
@@ -38,13 +45,6 @@ fineTuneBR(X, NumNodes, NumEdges = Inf, InitNodes = 2, Lambda = 0.01,
 \item{eps}{real, minimal relative change in the position of the nodes to stop embedment}
 
 \item{Do_PCA}{boolean, should data and initial node positions be PCA trnasformed?}
-
-\item{InitNodePositions}{numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-in the initial step}
-
-\item{InitEdges}{numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes}
-
-\item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
 
 \item{AdjustVect}{boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
 When true for a node its elasticity parameters will not be adjusted.}

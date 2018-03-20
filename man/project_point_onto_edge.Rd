@@ -4,7 +4,7 @@
 \alias{project_point_onto_edge}
 \title{Title}
 \usage{
-project_point_onto_edge(X, NodePositions, Edge)
+project_point_onto_edge(X, NodePositions, Edge, ExtProj = FALSE)
 }
 \arguments{
 \item{Edge}{}
