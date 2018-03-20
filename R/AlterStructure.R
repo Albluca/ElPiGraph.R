@@ -90,6 +90,10 @@ ExtendLeaves <- function(X,
     # generate the new node id
     NodeID <- NodeID + 1
     
+    if(sum(PD$Partition == NodesMat[i,1]) == 0){
+      next()
+    }
+    
     # get all the data associated with the leaf node
     tData <- X[PD$Partition == NodesMat[i,1], ]
     
