@@ -93,6 +93,8 @@ ExtendLeaves <- function(X,
     # get all the data associated with the leaf node
     tData <- X[PD$Partition == NodesMat[i,1], ]
     
+    dim(tData) <- c(sum(PD$Partition == NodesMat[i,1]), ncol(tData))
+    
     # and project them on the edge
     Proj <- project_point_onto_edge(X = X[PD$Partition == NodesMat[i,1], ],
                                     NodePositions = TargetPG$NodePositions,
@@ -143,7 +145,7 @@ ExtendLeaves <- function(X,
     
     if(Mode == "QuantDists"){
       
-      if(sum(Dists>0)>1){
+      if(sum(Dists>0)>1 & nrow(tData)>1){
         
         tData.Filtered = tData[Dists>0,]
         
