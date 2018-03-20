@@ -97,7 +97,7 @@ ExtendLeaves <- function(X,
     # get all the data associated with the leaf node
     tData <- X[PD$Partition == NodesMat[i,1], ]
     
-    dim(tData) <- c(sum(PD$Partition == NodesMat[i,1]), ncol(tData))
+    dim(tData) <- c(sum(PD$Partition == NodesMat[i,1]), ncol(X))
     
     # and project them on the edge
     Proj <- project_point_onto_edge(X = X[PD$Partition == NodesMat[i,1], ],
