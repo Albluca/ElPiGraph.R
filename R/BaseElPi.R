@@ -137,7 +137,6 @@ ElPrincGraph <- function(X,
     ElasticMatrix <- AdjustElasticMatrix.Initial(tGraphInfo, ...)$ElasticMatrix
     
     print(paste(sum(ElasticMatrix != tGraphInfo$ElasticMatrix), "values of the elastic matrix have been updated"))
-    
   }
   
   InitNodePositions <- PrimitiveElasticGraphEmbedment(
@@ -218,13 +217,13 @@ ElPrincGraph <- function(X,
   
   FailedOperations <- 0
   Steps <- 0
+  FirstPrint <- TRUE
   
   while((nrow(UpdatedPG$NodePositions) < NumNodes) | GrammarOptimization){
     
     nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
     
-    if(nrow(UpdatedPG$NodePositions) >= NumNodes
-       | nEdges >= NumEdges){
+    if((nrow(UpdatedPG$NodePositions) >= NumNodes | nEdges >= NumEdges) & !GrammarOptimization){
       break()
     }
     
@@ -233,8 +232,9 @@ ElPrincGraph <- function(X,
     }
     
     if(!verbose & !ShowTimer){
-      if(nrow(UpdatedPG$NodePositions) == StartNodes){
+      if(FirstPrint){
         cat("Nodes = ")
+        FirstPrint <- FALSE
       }
       cat(nrow(UpdatedPG$NodePositions))
       cat(" ")
@@ -360,7 +360,6 @@ ElPrincGraph <- function(X,
       
     }
     
-    
     if(CompileReport){
       tReport <- ElPiGraph.R:::ReportOnPrimitiveGraphEmbedment(X = X, NodePositions = UpdatedPG$NodePositions,
                                                  ElasticMatrix = UpdatedPG$ElasticMatrix,
@@ -393,6 +392,8 @@ ElPrincGraph <- function(X,
     }
      
   }
+  
+  # FinalReport <- NULL
   
   if(!verbose){
     if(!CompileReport){
@@ -435,7 +436,7 @@ ElPrincGraph <- function(X,
   
   # print(ReportTable)
   
-  if(is.null(dim(ReportTable))){
+  if(is.null(dim(ReportTable)) & !is.null(ReportTable)){
     RPNames <- names(ReportTable)
     ReportTable <- matrix(ReportTable, nrow = 1)
     colnames(ReportTable) <- RPNames
