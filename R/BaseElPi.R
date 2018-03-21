@@ -106,6 +106,7 @@ ElPrincGraph <- function(X,
                          ...) {
   
   if(GrammarOptimization){
+    print("Using grammar optimization")
     if(is.infinite(MaxSteps)){
       warning("When setting GrammarOptimization to TRUE, MaxSteps must be finite. Using MaxSteps = 1")
       MaxSteps = 1
@@ -218,7 +219,7 @@ ElPrincGraph <- function(X,
   FailedOperations <- 0
   Steps <- 0
   
-  while(nrow(UpdatedPG$NodePositions) < NumNodes | GrammarOptimization){
+  while((nrow(UpdatedPG$NodePositions) < NumNodes) | GrammarOptimization){
     
     nEdges <- sum(UpdatedPG$ElasticMatrix[lower.tri(UpdatedPG$ElasticMatrix, diag = FALSE)] > 0)
     
@@ -692,7 +693,7 @@ computeElasticPrincipalGraph <- function(Data,
                          CompileReport = TRUE, ShowTimer = ShowTimer,
                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
-                         GrammarOptimization = GrammarOptimization, MaxSteps = MaxSteps, GrammarOrder = c("Grow", "Shrink"),
+                         GrammarOptimization = GrammarOptimization, MaxSteps = MaxSteps, GrammarOrder = GrammarOrder,
                          ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
                          verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
                          EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
