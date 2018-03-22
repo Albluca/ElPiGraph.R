@@ -668,6 +668,145 @@ RemoveNodesbyIDs <- function(TargetPG, NodesToRemove) {
 
 
 
+
+
+
+
+
+
+
+#' Move branching nodes to areas with higher point density
+#'
+#' @param X numeric matrix, the data matrix
+#' @param TargetPG list, the ElPiGraph structure to extend
+#' @param TrimmingRadius positive numeric, the trimming radius used to control distance 
+#' @param SelectionMode string, the mode to use to shift the branching points. The "NodePoints" and "NodeDensity" modes are currently supported
+#' @param DensityRadius positive numeric, the radius to be used when computing point density if SelectionMode = "NodeDensity"
+#' @param MaxShift positive integer, the maxium distance (as number of edges) to consider when exploring the branching point neighborhood
+#' @param Compensate booelan, should new points be included to compensate for olter one being removed (currently not implemented)
+#' @param BrIds integer vector, the id of the branching points to consider. Id not associted with node possessing degree > 2 will be ignored
+#'
+#' @return a list with two components: NodePositions (Containing the new nodes positions) and Edges (containing the new edges)
+#'
+#' The function explore the neighborhood of branching point for nodes with higher point density. It such point is found, to graph will be
+#' modified so that the new found node will be the new branching point of the neighborhood. 
+#'
+#' @examples
+#' @export
+ShiftBranching <- function(X,
+                           TargetPG,
+                           SelectionMode = "NodePoints",
+                           DensityRadius = NA,
+                           MaxShift = 3,
+                           Compensate = "none",
+                           BrIds = NULL,
+                           TrimmingRadius = Inf) {
+  
+  Net <- ConstructGraph(PrintGraph = TargetPG)
+  BrPoints <- which(igraph::degree(Net)>2)
+  
+  if(is.null(BrIds)){
+    BrIds <- BrPoints
+  } else {
+    BrIds <- intersect(BrIds, BrIds)
+  }
+  
+  PD <- ElPiGraph.R::PartitionData(X = X, NodePositions = TargetPG$NodePositions,
+                                   TrimmingRadius = TrimmingRadius)
+  
+  
+  for (br in BrIds) {
+    
+    Neis <- igraph::neighborhood(graph = Net, order = MaxShift, nodes = br)[[1]]
+    # Neis <- setdiff(as.integer(Neis), br)
+    
+    if(SelectionMode == "NodePoints"){
+      Neival <- sapply(Neis, function(x){
+        return(sum(PD$Partition==x))
+      })
+    }
+    
+    if(SelectionMode == "NodeDensity"){
+      Dists <- distutils::PartialDistance(Ar = X, Br = TargetPG$NodePositions[Neis,])
+      
+      if(is.na(DensityRadius)){
+        stop("DensityRadius need to be specified when SelectionMode = 'NodeDensity'")
+      } else {
+        Neival <- colSums(Dists < DensityRadius)
+      }
+    }
+    
+    names(Neival) <- Neis
+    
+    NeiDist <- igraph::distances(graph = Net, v = br, to = Neis)
+    Neival <- Neival[order(NeiDist)]
+    
+    NewBR <- as.integer(Neis[min(which(Neival == max(Neival)))])
+    
+    if(NewBR != br){
+      
+      print(paste("Moving the branching point at node", br))
+      
+      ToReconnect <- as.integer(igraph::adjacent_vertices(Net, br)[[1]])
+      
+      # delete the edges forming the old branching point
+      Net <- igraph::delete.edges(graph = Net, edges = igraph::incident_edges(Net, br)[[1]])
+      
+      # get paths from the new branching point to the old nodes
+      suppressWarnings(
+        AllPath <- igraph::get.shortest.paths(graph = Net, from = NewBR, to = ToReconnect)
+      )
+      
+      # delete these extra nodes
+      for(i in 1:length(AllPath$vpath)){
+        if(length(AllPath$vpath[[i]])>0){
+          Net <- Net - igraph::path(AllPath$vpath[[i]])
+        }
+      }
+      
+      # reconnect the old nodes to the new branching points, excep for any node found in the previuos operation
+      ToReconnect <- setdiff(ToReconnect, unlist(AllPath$vpath))
+      Net <- igraph::add.edges(graph = Net, edges = as.vector(rbind(NewBR, ToReconnect)))
+    }
+
+  }
+  
+  NewNodePositions = TargetPG$NodePositions[igraph::degree(Net)>0, ]
+  
+  Net <- igraph::delete.vertices(graph = Net, v = which(igraph::degree(Net)==0))
+  
+  EdgSeq <- 1:igraph::vcount(Net) 
+  names(EdgSeq) <- igraph::V(Net)$name
+  
+  NewEdges = matrix(EdgSeq[igraph::get.edgelist(Net)], ncol = 2)
+  
+  return(
+    list(
+      NodePositions = NewNodePositions,
+      Edges = NewEdges
+    )
+  )
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' 
 #' 
 #' #' Title
