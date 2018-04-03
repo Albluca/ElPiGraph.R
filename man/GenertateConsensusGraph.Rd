@@ -4,8 +4,8 @@
 \alias{GenertateConsensusGraph}
 \title{Obtain a consens tree from bootstrapped data}
 \usage{
-GenertateConsensusGraph(BootPG, Mode = "NodeDist", MinTol = 0.3,
-  MinEdgMult = 2, MinNodeMult = 2, NodesInflation = 1,
+GenertateConsensusGraph(BootPG, Mode = "NodeDist", CollapseRadius = NULL,
+  Clusters = 100, MinEdgMult = 2, MinNodeMult = 2,
   RemoveIsolatedNodes = TRUE, OnlyLCC = FALSE, PlotResult = TRUE)
 }
 \arguments{
@@ -13,19 +13,19 @@ GenertateConsensusGraph(BootPG, Mode = "NodeDist", MinTol = 0.3,
 
 \item{Mode}{string, the mode to use}
 
-\item{MinTol}{numeric, the smallest distance for two edges to be collapsed}
-
 \item{MinEdgMult}{integer, minimal multiplicity of the edges of the consensus graph}
 
 \item{MinNodeMult}{integer, minimal multiplicity of the nodes of the consensus graph}
-
-\item{NodesInflation}{integer, the}
 
 \item{RemoveIsolatedNodes}{}
 
 \item{OnlyLCC}{}
 
 \item{PlotResult}{}
+
+\item{MinTol}{numeric, the smallest distance for two edges to be collapsed}
+
+\item{NodesInflation}{integer, the}
 }
 \description{
 Obtain a consens tree from bootstrapped data

@@ -352,6 +352,7 @@ CollapseBrances <- function(X,
       
       # Get the points on the segment
       Points <- ProjStruct$EdgeID == WorkingEdg
+      Points[is.na(Points)] <- FALSE
       
       # Is the edge in the right direction?
       if(all(ProjStruct$Edges[WorkingEdg, ] == NodeNames[(i-1):i])){
@@ -743,6 +744,8 @@ ShiftBranching <- function(X,
     
     NewBR <- as.integer(Neis[min(which(Neival == max(Neival)))])
     
+    EdgToCompensate <- NULL
+    
     if(NewBR != br){
       
       print(paste("Moving the branching point at node", br))
@@ -767,8 +770,15 @@ ShiftBranching <- function(X,
       # reconnect the old nodes to the new branching points, excep for any node found in the previuos operation
       ToReconnect <- setdiff(ToReconnect, unlist(AllPath$vpath))
       Net <- igraph::add.edges(graph = Net, edges = as.vector(rbind(NewBR, ToReconnect)))
+      
+      EdgToCompensate <- rbind(EdgToCompensate, cbind(NewBR, ToReconnect))
+      
     }
 
+  }
+  
+  if(Compensate){
+    warnings("Node compensation is not implemented yet")
   }
   
   NewNodePositions = TargetPG$NodePositions[igraph::degree(Net)>0, ]
@@ -789,6 +799,117 @@ ShiftBranching <- function(X,
   
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Filter cliques
+#'
+#' @param TargetPG 
+#' @param MaxClZize 
+#' @param DistThr 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+CollapseCliques <- function(TargetPG, MaxClZize = NULL, DistThr = NULL, Compensate = 3) {
+  
+  Net <- ConstructGraph(TargetPG)
+  
+  Nodes <- TargetPG$NodePositions
+  
+  Cliques <- igraph::cliques(Net, min = 3, max = MaxClZize)
+  
+  ClSize <- sapply(Cliques, length)
+  
+  print(paste(length(ClSize), "cliques detected"))
+  
+  Tries <- 0
+  
+  while (TRUE) {
+    
+    if(Tries > 100 | length(ClSize) == 0){
+      return(list(
+        Nodes = TargetPG$NodePositions,
+        Edges = TargetPG$Edges$Edges
+      ))
+    }
+    
+    Tries <- Tries + 1
+    
+    ClToCollapse <- sample(x = which(ClSize == max(ClSize)), size = 1)
+    NodesToCollapse <- as.integer(Cliques[[ClToCollapse]])
+    
+    NewNode <- colMeans(Nodes[NodesToCollapse, ])
+    
+    if(!is.null(DistThr)){
+      if(distutils::PartialDistance(matrix(NewNode, nrow = 1), Nodes[NodesToCollapse, ]) < DistThr){
+        break()
+      }
+    } else {
+      break()
+    }
+    
+    
+  }
+  
+  Net <- igraph::add.vertices(Net, 1, attr = list(name = paste(igraph::vcount(Net)+1)))
+  
+  ContractNet <- 1:igraph::vcount(Net)
+  ContractNet[NodesToCollapse] <- igraph::vcount(Net)
+  
+  ContrNet <- igraph::contract.vertices(Net, ContractNet)
+  igraph::V(ContrNet)$name <- sapply(igraph::V(ContrNet)$name, function(x){
+    if(length(x)>0){
+      max(as.numeric(x))
+    } else {
+      0
+    }
+  })
+  ContrNet <- igraph::delete.vertices(ContrNet, NodesToCollapse)
+  ContrNet <- igraph::simplify(ContrNet, remove.loops = TRUE, remove.multiple = TRUE)
+  # igraph::V(ContrNet)$name <- paste(1:igraph::vcount(ContrNet))
+  
+  UpdateNodes <- rbind(Nodes, NewNode)[as.integer(igraph::V(ContrNet)$name),]
+  rownames(UpdateNodes) <- NULL
+  
+  if(Compensate <= max(ClSize)){
+    Neis <- unlist((igraph::adjacent_vertices(graph = ContrNet, v = paste(igraph::vcount(Net)))[[1]])$name)
+      
+    NNodes <- t((t(Nodes[Neis, ]) + NewNode)/2)
+    
+    ContrNet <- igraph::add.vertices(ContrNet, length(Neis), attr = list(name = paste0("Ext_", Neis)))
+    ContrNet <- igraph::delete_edges(ContrNet, igraph::incident_edges(graph = ContrNet, v = paste(igraph::vcount(Net)))[[1]])
+    ContrNet <- igraph::add.edges(graph = ContrNet, edges = rbind(paste(igraph::vcount(Net)), paste0("Ext_", Neis)))
+    ContrNet <- igraph::add.edges(graph = ContrNet, edges = rbind(paste(Neis), paste0("Ext_", Neis)))
+
+    UpdateNodes <- rbind(UpdateNodes, NNodes)
+    
+  }
+  
+  return(list(
+    Nodes = UpdateNodes,
+    Edges = igraph::get.edgelist(ContrNet, names = FALSE)
+  ))
+  
+}
 
 
 

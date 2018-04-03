@@ -2,7 +2,7 @@
 % Please edit documentation in R/AlterStructure.R
 \name{ShiftBranching}
 \alias{ShiftBranching}
-\title{Title}
+\title{Move branching nodes to areas with higher point density}
 \usage{
 ShiftBranching(X, TargetPG, SelectionMode = "NodePoints",
   DensityRadius = NA, MaxShift = 3, Compensate = "none", BrIds = NULL,
@@ -32,5 +32,5 @@ The function explore the neighborhood of branching point for nodes with higher p
 modified so that the new found node will be the new branching point of the neighborhood.
 }
 \description{
-Title
+Move branching nodes to areas with higher point density
 }
