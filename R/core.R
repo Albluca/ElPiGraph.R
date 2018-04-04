@@ -283,7 +283,11 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param SquaredX the sum (by node) of X squared. It not specified, it will be calculated by the fucntion
 #' @param FastSolve boolean, shuold the Fastsolve of Armadillo by enabled?
 #' @param DisplayWarnings boolean, should warning about convergence be displayed? 
-#' 
+#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
+#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param prob numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
+#' using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.
 #'
 #' @return
 #' @export
@@ -296,10 +300,14 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                            TrimmingRadius,
                                            eps,
                                            Mode = 1,
+                                           FinalEnergy = "Base",
                                            SquaredX = NULL,
                                            verbose = FALSE,
                                            FastSolve = FALSE,
                                            DisplayWarnings = FALSE,
+                                           alpha = 0,
+                                           beta = 0,
+                                           gamma = 0,
                                            prob = 1) {
 
   N = nrow(X)
@@ -315,7 +323,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
     SquaredX <- rowSums(X^2)
   }
   
-  
   # print(paste("DEBUG (PrimitiveElasticGraphEmbedment):",TrimmingRadius))
   PartDataStruct <- PartitionData(X = X, NodePositions = NodePositions,
                                   SquaredX = SquaredX,
@@ -325,10 +332,11 @@ PrimitiveElasticGraphEmbedment <- function(X,
   # print(table(PartDataStruct$Partition))
   
   if(verbose | Mode == 2){
-    OldPriGrElEn <- distutils::ElasticEnergy(X = X,
-                                             NodePositions =  NodePositions,
-                                             ElasticMatrix = ElasticMatrix,
-                                             Dists = PartDataStruct$Dists)
+    OldPriGrElEn <- 
+      distutils::ElasticEnergy(X = X,
+                               NodePositions = NodePositions,
+                               ElasticMatrix = ElasticMatrix,
+                               Dists = PartDataStruct$Dists)
   } else {
     OldPriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
   }
@@ -358,21 +366,25 @@ PrimitiveElasticGraphEmbedment <- function(X,
     # Updated positions
     
     
-    # if(prob<1){
-    #   NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[runif(nrow(X)) < prob, ],
-    #                                                              PointWeights = PointWeights,
-    #                                                              NodePositions = NodePositions,
-    #                                                              SpringLaplacianMatrix = SpringLaplacianMatrix,
-    #                                                              partition = PartDataStruct$Partition,
-    #                                                              FastSolve = FastSolve)
-    # } else {
+    if(prob<1){
+      SelPoint <- runif(nrow(X)) < prob
+      while(sum(SelPoint) < 3){
+        SelPoint[ceiling(runif(min = .1, max = nrow(X)))] <- TRUE
+      }
+      NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X[SelPoint, ],
+                                                                 PointWeights = PointWeights,
+                                                                 NodePositions = NodePositions,
+                                                                 SpringLaplacianMatrix = SpringLaplacianMatrix,
+                                                                 partition = PartDataStruct$Partition,
+                                                                 FastSolve = FastSolve)
+    } else {
       NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
                                                                  PointWeights = PointWeights,
                                                                  NodePositions = NodePositions,
                                                                  SpringLaplacianMatrix = SpringLaplacianMatrix,
                                                                  partition = PartDataStruct$Partition,
                                                                  FastSolve = FastSolve)
-    # }
+    }
     
     NewNodePositions <- distutils::FitGraph2DataGivenPartition(X = X,
                                                                  PointWeights = PointWeights,
@@ -384,9 +396,10 @@ PrimitiveElasticGraphEmbedment <- function(X,
     
     if(verbose | Mode == 2){
       PriGrElEn <- distutils::ElasticEnergy(X = X,
-                                                       NodePositions = NewNodePositions,
-                                                       ElasticMatrix =  ElasticMatrix,
-                                                       Dists = PartDataStruct$Dists)
+                                            NodePositions = NewNodePositions,
+                                            ElasticMatrix =  ElasticMatrix,
+                                            Dists = PartDataStruct$Dists)
+
     } else {
       PriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
     }
@@ -434,25 +447,38 @@ PrimitiveElasticGraphEmbedment <- function(X,
     warning(paste0("Maximum number of iterations (", MaxNumberOfIterations, ") has been reached. diff = ", difference))
   }
 
-  if(!verbose & Mode != 2){
-    PriGrElEn <- distutils::ElasticEnergy(X = X,
-                                                     NodePositions = NewNodePositions,
-                                                     ElasticMatrix =  ElasticMatrix,
-                                                     Dists = PartDataStruct$Dists)
-    # print(paste("Iteration", i, "diff=", signif(difference, 5), "E=", signif(PriGrElEn$ElasticEnergy, 5),
-    #             "MSE=", signif(PriGrElEn$MSE, 5), "EP=", signif(PriGrElEn$EP, 5),
-    #             "RP=", signif(PriGrElEn$RP, 5)))
+  # If we
+  # 1) Didn't use use energy during the embeddment
+  # 2) Didn't computed energy step by step due to verbose being false
+  # or
+  # 3) FinalEnergy != "Penalized"
+  
+  
+  if( (FinalEnergy != "Base") | (!verbose & Mode != 2) ){
+    if(FinalEnergy == "Base"){
+      PriGrElEn <-
+        distutils::ElasticEnergy(X = X,
+                                 NodePositions = NewNodePositions,
+                                 ElasticMatrix =  ElasticMatrix,
+                                 Dists = PartDataStruct$Dists)
+    }
+    if(FinalEnergy == "Penalized"){
+      PriGrElEn <- 
+        distutils::PenalizedElasticEnergy(X = X,
+                                          NodePositions =  NewNodePositions,
+                                          ElasticMatrix = ElasticMatrix,
+                                          Dists = PartDataStruct$Dists,
+                                          alpha = alpha,
+                                          beta = beta)
+    }
   }
   
-  # PriGrElEn <- distutils::ElasticEnergy(X = X, NodePositions =  NodePositions, ElasticMatrix =  ElasticMatrix,
-  #                                                    Dists = PartDataStruct$Dists,
-  #                                                    BranchingFee = 0)
-
+  
   return(list(EmbeddedNodePositions = NewNodePositions,
               ElasticEnergy = PriGrElEn$ElasticEnergy,
               partition = PartDataStruct$Partition,
-              MSE = PriGrElEn$RP,
-              EP = PriGrElEn$RP,
+              MSE = PriGrElEn$MSE,
+              EP = PriGrElEn$EP,
               RP = PriGrElEn$RP))
 
 }

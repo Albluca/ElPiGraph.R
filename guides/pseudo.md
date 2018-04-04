@@ -3,7 +3,7 @@
     interest](#getting-the-substructure-of-interest)
 -   [Getting the supporting
     structures](#getting-the-supporting-structures)
--   [Computnig pseudotime](#computnig-pseudotime)
+-   [Computing pseudotime](#computing-pseudotime)
 -   [Exploring features over
     pseudotime](#exploring-features-over-pseudotime)
 
@@ -18,7 +18,7 @@ As a first step, we will construct a tree structure on the sample data
 
     library(ElPiGraph.R)
 
-    TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+    TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 60, Lambda = .03, Mu = .01,
                                            drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
 
     ## [1] "Creating a chain in the 1st PC with 2 nodes"
@@ -27,70 +27,12 @@ As a first step, we will construct a tree structure on the sample data
     ## [1] "Using standard PCA"
     ## [1] "3 dimensions are being used"
     ## [1] "100% of the original variance has been retained"
-    ## [1] "Computing EPG with 50 nodes on 492 points and 3 dimensions"
+    ## [1] "Computing EPG with 60 nodes on 492 points and 3 dimensions"
     ## [1] "Using a single core"
-    ## Nodes = 2 3
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0556045436349542
-
-    ## 4
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0301832931960279
-
-    ## 5 6 7
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0108997004478186
-
-    ## 8
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0338837538875411
-
-    ## 9
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0186764499907295
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.054863847452363
-
-    ## 10
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0244949370624996
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0117614602046908
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0358113369806447
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0139648044782385
-
-    ## 11 12 13
-
-    ## Warning in PrimitiveElasticGraphEmbedment(X, input$NodePositions, input
-    ## $ElasticMatrix, : Maximum number of iterations (10) has been reached. diff
-    ## = 0.0183632027691593
-
-    ## 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+    ## Nodes = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 
     ## BARCODE  ENERGY  NNODES  NEDGES  NRIBS   NSTARS  NRAYS   NRAYS2  MSE MSEP    FVE FVEP    UE  UR  URN URN2    URSD
-    ## 1|2||50  0.01568 50  49  41  2   0   0   0.004137    0.003432    0.9923  0.9936  0.01114 0.0004032   0.02016 1.008   0
-    ## 14.841 sec elapsed
+    ## 1|2||60  0.01848 60  59  51  2   0   0   0.00548 0.005053    0.9898  0.9906  0.01249 0.0005134   0.03081 1.848   0
+    ## 29.923 sec elapsed
     ## [[1]]
 
 ![](pseudo_files/figure-markdown_strict/unnamed-chunk-1-1.png)
@@ -99,11 +41,37 @@ and visualize the node labels:
 
     PlotPG(X = tree_data, TargetPG = TreeEPG[[1]],
            NodeLabels = 1:nrow(TreeEPG[[1]]$NodePositions),
-           LabMult = 3, PointSize = NA, p.alpha = .1)
+           LabMult = 2.5, PointSize = NA, p.alpha = .1)
 
     ## [[1]]
 
 ![](pseudo_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+
+To improve visualization, it is also possible to plot only leaves labels
+
+    library(igraph)
+
+    ## 
+    ## Attaching package: 'igraph'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     decompose, spectrum
+
+    ## The following object is masked from 'package:base':
+    ## 
+    ##     union
+
+    NodeLabs <- 1:nrow(TreeEPG[[1]]$NodePositions)
+    NodeLabs[degree(ConstructGraph(TreeEPG[[1]])) != 1] <- NA
+
+    PlotPG(X = tree_data, TargetPG = TreeEPG[[1]],
+           NodeLabels = NodeLabs,
+           LabMult = 5, PointSize = NA, p.alpha = .1)
+
+    ## [[1]]
+
+![](pseudo_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
 Getting the substructure of interest
 ====================================
@@ -117,14 +85,14 @@ We will begin by computing all of the paths between leaves.
     Tree_Graph <- ConstructGraph(TreeEPG[[1]])
     Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
 
-Since the paths derived are unique, the node 2 could be either at the
+Since the paths derived are unique, the node 1 could be either at the
 beginning or at the end of the path considered. therefore, we select all
-the path starting or ending in 2
+the path starting or ending in 1
 
     Root <- 2
     SelPaths <- Tree_e2e[sapply(Tree_e2e, function(x){any(x[c(1, length(x))] == Root)})]
 
-and reverse the paths ending in 2
+and reverse the paths ending in 1
 
     SelPaths <- lapply(SelPaths, function(x){
       if(x[1] == Root){
@@ -140,24 +108,28 @@ are compatible with our expectations
     SelPaths
 
     ## $Path_1
-    ## + 23/50 vertices, named, from e20d6c1:
-    ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 43 48 40 8  4 
+    ## + 26/60 vertices, named, from 045cf7f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  57 34 9  47 28 12 19 3  15 18 27 31 35
+    ## [24] 36 45 51
     ## 
     ## $Path_2
-    ## + 22/50 vertices, named, from e20d6c1:
-    ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  42 45 41 33 35 7  15
+    ## + 27/60 vertices, named, from 045cf7f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  57 34 9  47 28 12 19 3  11 17 24 25 42
+    ## [24] 43 48 49 54
     ## 
     ## $Path_3
-    ## + 19/50 vertices, named, from e20d6c1:
-    ##  [1] 2  11 16 46 25 28 38 6  1  5  32 17 26 36 13 9  24 19 20
+    ## + 28/60 vertices, named, from 045cf7f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  7  20 44 55 29 37 6  26 13 4  14 22 23
+    ## [24] 33 38 41 53 56
     ## 
     ## $Path_4
-    ## + 20/50 vertices, named, from e20d6c1:
-    ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  31 49 37 21 23
+    ## + 24/60 vertices, named, from 045cf7f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  57 34 9  47 28 12 19 3  10 32 39 46 50
+    ## [24] 58
     ## 
     ## $Path_5
-    ## + 23/50 vertices, named, from e20d6c1:
-    ##  [1] 2  11 16 46 25 28 38 6  1  10 18 30 22 12 3  27 34 39 50 47 44 14 29
+    ## + 21/60 vertices, named, from 045cf7f:
+    ##  [1] 2  8  40 60 16 5  30 52 21 1  7  20 44 55 29 37 6  26 13 4  59
 
 Getting the supporting structures
 =================================
@@ -177,7 +149,7 @@ relative to the projection of points on the edge of the graph
                                            Edges = TreeEPG[[1]]$Edges$Edges,
                                            Partition = PartStruct$Partition)
 
-Computnig pseudotime
+Computing pseudotime
 ====================
 
 We are now able to obtain the pseudotime, via the `getPseudotime`
@@ -203,7 +175,7 @@ function
 
     ## [[1]]
 
-![](pseudo_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+![](pseudo_files/figure-markdown_strict/unnamed-chunk-12-1.png)
 
 Exploring features over pseudotime
 ==================================
@@ -224,6 +196,6 @@ It is possible to visualize this information using the
                       Main = "A simple tree example",
                       Features = 2)
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+    ## `geom_smooth()` using method = 'loess'
 
-![](pseudo_files/figure-markdown_strict/unnamed-chunk-12-1.png)
+![](pseudo_files/figure-markdown_strict/unnamed-chunk-13-1.png)

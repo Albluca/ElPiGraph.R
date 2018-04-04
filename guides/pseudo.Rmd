@@ -26,8 +26,16 @@ As a first step, we will construct a tree structure on the sample data
 ```{r}
 library(ElPiGraph.R)
 
-TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 40, Lambda = .01, Mu = .1,
+                                       FinalEnergy = "Penalized", alpha = .01,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
+
+
+FilterBR <- ElPiGraph.R::CollapseBrances(X = tree_data, TargetPG = TreeEPG[[1]], Mode = "PointNumber_Extrema", ControlPar = 5)
+
+TreeEPG <- fineTuneBR(X = tree_data, NumNodes = 60, Lambda = .001, Mu = .01,
+                      InitNodePositions = FilterBR$Nodes, InitEdges = FilterBR$Edges,
+                      drawAccuracyComplexity = FALSE, drawEnergy = FALSE, Mode = 1)
 
 ```
 
@@ -36,7 +44,20 @@ and visualize the node labels:
 ```{r}
 PlotPG(X = tree_data, TargetPG = TreeEPG[[1]],
        NodeLabels = 1:nrow(TreeEPG[[1]]$NodePositions),
-       LabMult = 3, PointSize = NA, p.alpha = .1)
+       LabMult = 2.5, PointSize = NA, p.alpha = .1)
+```
+
+To improve visualization, it is also possible to plot only leaves labels 
+
+
+```{r}
+library(igraph)
+NodeLabs <- 1:nrow(TreeEPG[[1]]$NodePositions)
+NodeLabs[degree(ConstructGraph(TreeEPG[[1]])) != 1] <- NA
+
+PlotPG(X = tree_data, TargetPG = TreeEPG[[1]],
+       NodeLabels = NodeLabs,
+       LabMult = 5, PointSize = NA, p.alpha = .1)
 ```
 
 
@@ -51,14 +72,14 @@ Tree_Graph <- ConstructGraph(TreeEPG[[1]])
 Tree_e2e <- GetSubGraph(Net = Tree_Graph, Structure = 'end2end')
 ```
 
-Since the paths derived are unique, the node 1 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 1
+Since the paths derived are unique, the node 3 could be either at the beginning or at the end of the path considered. therefore, we select all the path starting or ending in 3
 
 ```{r}
-Root <- 1
+Root <- 3
 SelPaths <- Tree_e2e[sapply(Tree_e2e, function(x){any(x[c(1, length(x))] == Root)})]
 ```
 
-and reverse the paths ending in 1
+and reverse the paths ending in 3
 
 ```{r}
 SelPaths <- lapply(SelPaths, function(x){
@@ -129,5 +150,22 @@ CompareOnBranches(X = tree_data,
                   Partition = PartStruct$Partition,
                   PrjStr = ProjStruct,
                   Main = "A simple tree example",
-                  Features = 2)
+                  Features = 3)
 ```
+
+
+```{r}
+SmoothOnPaths <- MeasureSmoothness(
+  X = tree_data,
+  Paths = lapply(SelPaths[1:4], function(x){names(x)}),
+  TargetPG = TreeEPG[[1]],
+  SmoothMode = "lowess",
+  CollMode = "cv",
+  Partition = PartStruct$Partition,
+  PrjStr = ProjStruct,
+  f = .1
+)
+
+pheatmap::pheatmap(SmoothOnPaths)
+```
+

@@ -170,7 +170,7 @@ project_point_onto_graph <- function(X, NodePositions, Edges, Partition = NULL){
 #' @export
 #'
 #' @examples
-project_point_onto_edge <- function(X, NodePositions, Edge) {
+project_point_onto_edge <- function(X, NodePositions, Edge, ExtProj = FALSE) {
 
   if(is.null(dim(X))){
     dim(X) <- c(1, length(X))
@@ -192,7 +192,12 @@ project_point_onto_edge <- function(X, NodePositions, Edge) {
     X_Projected[u>1, ] <- rep(NodePositions[Edge[2],], each = sum(u>1))
   }
 
-  OnEdge <- (u>=0 & u<=1)
+  if(ExtProj){
+    OnEdge <- rep(TRUE, length(u))
+  } else {
+    OnEdge <- (u>=0 & u<=1)
+  }
+  
 
   if(any(OnEdge)){
     UExp <- rep(u[OnEdge], each=length(vec))

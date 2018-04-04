@@ -15,5 +15,9 @@ Imports:
     irlba,
     ggplot2,
     segmented,
-    ggpubr
+    ggpubr,
+    GenSA
 RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

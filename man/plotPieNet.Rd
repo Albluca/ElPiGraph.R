@@ -6,8 +6,9 @@
 \usage{
 plotPieNet(X, TargetPG, GroupsLab = NULL, Partition = NULL,
   TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
-  TreeRoot = numeric(), Main = "", ScaleFunction = sqrt,
-  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1, Arrow.size = 1)
+  TreeRoot = numeric(), distMeth = "manhattan", Main = "",
+  ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1,
+  Arrow.size = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}

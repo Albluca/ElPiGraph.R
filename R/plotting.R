@@ -154,6 +154,7 @@ plotPieNet <- function(X,
                        Graph = NULL,
                        LayOut = 'nicely',
                        TreeRoot = numeric(),
+                       distMeth = "manhattan",
                        Main="",
                        ScaleFunction = sqrt,
                        NodeSizeMult = 1,
@@ -254,6 +255,68 @@ plotPieNet <- function(X,
     RestrNodes <- igraph::layout_nicely(graph = Net)
     LayOutDONE <- TRUE
   }
+  
+  
+  if(LayOut == 'kamada-kawai'){
+    tNet <- Net
+    igraph::E(tNet)$weight <- NA
+    for(edg in igraph::E(tNet)){
+      Nodes <- igraph::ends(tNet, edg)
+      InC1 <- Partition == Nodes[1,1]
+      InC2 <- Partition == Nodes[1,2]
+      
+      if(any(InC1) & any(InC2)){
+        
+        if(sum(InC1)>1){
+          C1 <- colMeans(X[InC1,])
+        } else {
+          C1 <- X[InC1,]
+        }
+        
+        if(sum(InC2)>1){
+          C2 <- colMeans(X[InC2,])
+        } else {
+          C2 <- X[InC2,]
+        }
+        
+        igraph::E(tNet)[edg]$weight <- sum(abs(C1 - C2))
+      }
+      
+    }
+    
+    igraph::E(tNet)$weight[is.na(igraph::E(tNet)$weight)] <- min(igraph::E(tNet)$weight, na.rm = TRUE)/10
+    
+    RestrNodes <- igraph::layout_with_kk(graph = igraph::as.undirected(tNet, mode = 'collapse'),
+                                         weights = igraph::E(tNet)$weight)
+    LayOutDONE <- TRUE
+  }
+  
+  
+  
+  if(LayOut == 'mdm'){
+    
+    
+    NodeCentr <- matrix(NA, nrow = igraph::vcount(Net), ncol = ncol(X))
+    SelNodeCentr <- t(sapply(split(data.frame(X), Partition), colMeans))
+    NodeCentr[as.integer(rownames(SelNodeCentr)), ] <- SelNodeCentr
+    NodeCentr_1 <- NodeCentr
+    
+    for(i in which(rowSums(is.na(NodeCentr))>0)){
+      for(j in 1:igraph::vcount(Net)){
+        NP <- colMeans(NodeCentr[as.integer(igraph::neighborhood(Net, order = j, nodes = i)[[1]]),], na.rm = TRUE)
+        if(all(is.finite(NP))){
+          NodeCentr_1[i, ] <- NP
+          break()
+        }
+      }
+    }
+    
+    RestrNodes <- igraph::layout_with_mds(graph = igraph::as.undirected(Net, mode = 'collapse'),
+                                          dist = as.matrix(dist(NodeCentr_1, method = distMeth)))
+    LayOutDONE <- TRUE
+  }
+  
+  
   
   if(!LayOutDONE){
     print(paste("LayOut =", LayOut, "unrecognised"))

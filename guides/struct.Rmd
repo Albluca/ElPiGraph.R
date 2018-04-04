@@ -28,7 +28,7 @@ library(ElPiGraph.R)
 library(igraph)
 library(magrittr)
 
-TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50,
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 60, Lambda = .03, Mu = .01,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE)
 
 CircleEPG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40,
@@ -92,7 +92,7 @@ PlotPG(X = tree_data, TargetPG = TreeEPG[[1]], PGCol = NodesID, PointSize = NA, 
 ```
 
 
-# Obtaining notable structures in circle
+# Obtaining notable structures in circles
 
 Similarly to tree, `GetSubGraph` can be used to obtain circles by setting `structure` to `circle`. When looking for circles it is possible to specify the length of the circle via the `Nodes` parameter, if unspecified, the function will try to find the largest circle in the data (this is potentially time consuming for large structures). Furthermore, by setting `Circular` to `TRUE` we will get a path with coinciding initial and terminal node.
 

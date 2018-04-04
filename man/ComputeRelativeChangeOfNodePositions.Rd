@@ -5,7 +5,7 @@
 \title{Estimates the relative difference between two node configurations}
 \usage{
 ComputeRelativeChangeOfNodePositions(NodePositions, NewNodePositions,
-  Mode = 1, BranchingFee = 0)
+  Mode = 1)
 }
 \arguments{
 \item{NodePositions}{a k-by-m numeric matrix with the coordiantes of the nodes in the old configuration}
@@ -13,8 +13,6 @@ ComputeRelativeChangeOfNodePositions(NodePositions, NewNodePositions,
 \item{NewNodePositions}{a k-by-m numeric matrix with the coordiantes of the nodes in the new configuration}
 
 \item{Mode}{an integer indicating the modality used to compute the difference (currently only 1 is an accepted value)}
-
-\item{BranchingFee}{currenty not used}
 
 \item{X}{an n-by-m numeric matrix with the coordinates of the data points}
 }

@@ -38,13 +38,13 @@ library("ElPiGraph.R")
 ```
 
 ```{r}
-CurveEPG <- computeElasticPrincipalCurve(X = curve_data, NumNodes = 50)
+CurveEPG <- computeElasticPrincipalCurve(X = curve_data, NumNodes = 60)
 ```
 
 A principal tree can be constructed via the `computeElasticPrincipalTree` function. For example to construct a principal tree with 50 nodes on the example dataset `tree_data`, it is sufficient to write
 
 ```{r}
-TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50)
+TreeEPG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 60, Lambda = .03, Mu = .01)
 ```
 
 
@@ -52,7 +52,7 @@ Finally, a principal circle can be constructed via the `computeElasticPrincipalC
 
 
 ```{r}
-CircleEPG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 50)
+CircleEPG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40)
 ```
 
 
@@ -65,7 +65,9 @@ All of the functions provided to build principal graphs allow a bootstrapped con
 As an example, let us perform bootstrapping on the circle data. We will also prevent the plotting, for now.
 
 ```{r}
-CircleEPG.Boot <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 50, nReps = 50, ProbPoint = .8, drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
+set.seed(42)
+CircleEPG.Boot <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40, nReps = 50, ProbPoint = .6,
+                                                drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE)
 ```
 
 `CircleEPG.Boot` will be a list with 51 elements: the 50 bootstrapped circles and the final consensus one.
