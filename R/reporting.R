@@ -285,7 +285,6 @@ ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, Par
   DecodedMat <- DecodeElasticMatrix(ElasticMatrix)
 
   TotalVariance = sum(apply(X, 2, var))
-  BranchingFee = 0
 
   BARCODE = getPrimitiveGraphStructureBarCode(ElasticMatrix)
 
@@ -295,7 +294,7 @@ ReportOnPrimitiveGraphEmbedment <- function(X, NodePositions, ElasticMatrix, Par
 
   Energies <- distutils::ElasticEnergy(X = X, NodePositions = NodePositions,
                                                  ElasticMatrix = ElasticMatrix,
-                                                 Dists = PartData$Dists, BranchingFee = BranchingFee)
+                                                 Dists = PartData$Dists)
 
   NNODES = nrow(NodePositions)
   NEDGES = nrow(DecodedMat$Edges)
