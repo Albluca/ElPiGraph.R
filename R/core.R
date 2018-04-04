@@ -285,7 +285,7 @@ ComputeRelativeChangeOfNodePositions <- function(NodePositions,
 #' @param DisplayWarnings boolean, should warning about convergence be displayed? 
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param betapositive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
 #' @param prob numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
 #' using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.
 #'
@@ -469,24 +469,6 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                           Dists = PartDataStruct$Dists,
                                           alpha = alpha,
                                           beta = beta)
-    }
-    if(FinalEnergy == "PenalizedV2"){
-      PriGrElEn <- 
-        distutils::PenalizedElasticEnergy_V2(X = X,
-                                          NodePositions =  NewNodePositions,
-                                          ElasticMatrix = ElasticMatrix,
-                                          Dists = PartDataStruct$Dists,
-                                          alpha = alpha)
-    }
-    if(FinalEnergy == "Rebalanced"){
-      PriGrElEn <- 
-        distutils::RebalancedElasticEnergy(X = X,
-                                          NodePositions =  NewNodePositions,
-                                          ElasticMatrix = ElasticMatrix,
-                                          Dists = PartDataStruct$Dists,
-                                          alpha = alpha,
-                                          beta = beta,
-                                          gamma = gamma)
     }
   }
   

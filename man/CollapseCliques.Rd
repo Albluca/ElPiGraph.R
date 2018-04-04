@@ -4,7 +4,8 @@
 \alias{CollapseCliques}
 \title{Filter cliques}
 \usage{
-CollapseCliques(TargetPG, MaxClZize = NULL, DistThr = NULL)
+CollapseCliques(TargetPG, MaxClZize = NULL, DistThr = NULL,
+  Compensate = 3)
 }
 \arguments{
 \item{TargetPG}{}
