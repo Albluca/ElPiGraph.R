@@ -399,6 +399,7 @@ PrimitiveElasticGraphEmbedment <- function(X,
                                             NodePositions = NewNodePositions,
                                             ElasticMatrix =  ElasticMatrix,
                                             Dists = PartDataStruct$Dists)
+
     } else {
       PriGrElEn <- list(ElasticEnergy = NA, MSE = NA, EP = NA, RP = NA)
     }
