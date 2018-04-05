@@ -240,11 +240,11 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
       
       # Do we need to compute AdjustVect?
       if(is.null(AdjustVect)){
-        AdjustVect <- rep(FALSE, nrow(InitNodePositions))
+        AdjustVect <- rep(FALSE, nrow(InitNodePositions.List[[1]]))
       }
       
       # Prevent plotting after a few examples
-      print("Graphical output will be suppressed for the remaining replicas")
+      print("Graphical output will be suppressed")
       Intermediate.drawPCAView <- FALSE
       Intermediate.drawAccuracyComplexity <- FALSE 
       Intermediate.drawEnergy <- FALSE
