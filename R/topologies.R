@@ -175,6 +175,7 @@ computeElasticPrincipalCircle <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -383,6 +384,7 @@ computeElasticPrincipalTree <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -591,6 +593,7 @@ computeElasticPrincipalCurve <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -828,6 +831,7 @@ fineTuneBR <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -1040,6 +1044,7 @@ GrowLeaves <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -1187,7 +1192,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
     # Starting from Random Points in the data
-    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    print("Creating a line in the densest part of the data. DensityRadius needs to be specified!")
     
     if(PCADensity){
       tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
@@ -1246,7 +1251,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
     # Starting from Random Points in the data
-    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    print("Creating a line a part of the data, chosen probabilistically by its density. DensityRadius needs to be specified!")
     
     if(PCADensity){
       tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
@@ -1297,6 +1302,32 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
   }
+  
+  if(Configuration == "DensityRandom"){
+    
+    # Starting from Random Points in the data
+    print("Creating a line between a point randomy chosen and one of its neighbours. DensityRadius needs to be specified!")
+    
+    ID1 <- sample(1:nrow(X), 1)
+    
+    Dist <- distutils::PartialDistance(matrix(X[ID1,], nrow = 1), Br = X)
+    
+    Probs <- 1/Dist
+    Probs[is.infinite(Probs)] <- 0
+    
+    ID2 <- sample(1:nrow(X), 1, prob = Probs)
+    
+    NodePositions <- X[c(ID1, ID2),]
+    
+    # Creating edges
+    edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+    
+    DONE <- TRUE
+    
+  }
+  
+  
+  
   
   
   if(DONE){

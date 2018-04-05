@@ -99,6 +99,7 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                                                      n.cores = 1,
                                                      ClusType = "Sock",
                                                      nReps = 1,
+                                                     ParallelRep = FALSE,
                                                      Subsets = list(),
                                                      ProbPoint = 1,
                                                      Mode = 1,
@@ -166,19 +167,27 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
     # print(Subsets[[j]] %in% colnames(Base_X))
     # print(dim(Base_X))
     
-    for(i in 1:nReps){
+    if(ParallelRep & n.cores > 1){
       
-      # Select the poits to be used
+      print("Using parallel sampling analysis. Limited output available")
+      
       if(ProbPoint<1 & ProbPoint>0){
-        SelPoints <- runif(nrow(X)) <= ProbPoint
+        SelPoints <- lapply(as.list(1:nReps), function(i){return(runif(nrow(X)) <= ProbPoint)})
       } else {
-        SelPoints <- 1:nrow(X)
+        SelPoints <- lapply(as.list(1:nReps), function(i){return(rep(TRUE, nrow(X)))})
       }
       
       # Do we need to compute the initial conditions?
       if(is.null(InitNodePositions) | (is.null(InitEdges) & is.null(ElasticMatrix))){
         
-        print("Generating the initial configuration")
+        print("Generating the initial configurations")
+        
+        if(ClusType != "Fork"){
+          print("Exporting initial configuration parameters")
+          parallel::clusterExport(cl, varlist = c("InitNodes", "Configuration", "DensityRadius",
+                                                  "SelPoints", "Lambda", "Mu", "MaxNumberOfIterations",
+                                                  "TrimmingRadius", "eps", "Mode"), envir=environment())
+        }
         
         # We are computing the initial conditions. InitNodePositions need to be reset after each step!
         ComputeIC <- TRUE
@@ -186,67 +195,128 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
         if(SampleIC){
           
           # Construct the initial configuration
-          InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X[SelPoints, ], Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+          InitialConf.List <- 
+            parallel::parLapply(cl, as.list(1:nReps), function(i){
+              ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]], ], Nodes = InitNodes,
+                                                         Configuration = Configuration, DensityRadius = DensityRadius)
+            })
+            
           
         } else {
           
           # Construct the initial configuration
-          InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X[SelPoints, ], Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+          InitialConf.List <- 
+            parallel::parLapply(cl, as.list(1:nReps), function(i){
+              ElPiGraph.R:::generateInitialConfiguration(X, Nodes = InitNodes,
+                                                         Configuration = Configuration, DensityRadius = DensityRadius)
+            })
           
         }
         
         # Set the initial edge configuration
-        InitEdges <- InitialConf$Edges
+        InitEdges.List <- lapply(InitialConf.List, "[[", "Edges")
         
-        # Compute the initial elastic matrix
-        EM <- ElPiGraph.R:::Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+        # Compute the initial elastic matrices
+        ElasticMatrix.List <- parallel::parLapply(cl, InitEdges.List, function(Edges){
+          ElPiGraph.R:::Encode2ElasticMatrix(Edges = Edges, Lambdas = Lambda, Mus = Mu)
+        }) 
+        
+        if(ClusType != "Fork"){
+          print("Exporting initial configuration parameters")
+          parallel::clusterExport(cl, varlist = c("InitialConf.List", "ElasticMatrix.List"),
+                                  envir=environment())
+        }
         
         # Compute the initial node position
-        InitNodePositions <- ElPiGraph.R:::PrimitiveElasticGraphEmbedment(
-          X = X, NodePositions = InitialConf$NodePositions,
-          MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
-          ElasticMatrix = EM, Mode = Mode)$EmbeddedNodePositions
+        InitNodePositions.List <- parallel::parLapply(cl, as.list(1:nReps), function(i){
+          ElPiGraph.R:::PrimitiveElasticGraphEmbedment(
+            X = X, NodePositions = InitialConf.List[[i]]$NodePositions,
+            MaxNumberOfIterations = MaxNumberOfIterations,
+            TrimmingRadius = TrimmingRadius, eps = eps,
+            ElasticMatrix = ElasticMatrix.List[[i]], Mode = Mode)$EmbeddedNodePositions
+        })  
       }
+    
       
       # Do we need to compute AdjustVect?
       if(is.null(AdjustVect)){
         AdjustVect <- rep(FALSE, nrow(InitNodePositions))
       }
       
-      # Limit plotting after a few examples
-      if(length(ReturnList) == 3){
-        print("Graphical output will be suppressed for the remaining replicas")
-        Intermediate.drawPCAView <- FALSE
-        Intermediate.drawAccuracyComplexity <- FALSE 
-        Intermediate.drawEnergy <- FALSE
+      # Prevent plotting after a few examples
+      print("Graphical output will be suppressed for the remaining replicas")
+      Intermediate.drawPCAView <- FALSE
+      Intermediate.drawAccuracyComplexity <- FALSE 
+      Intermediate.drawEnergy <- FALSE
+      
+      # print(paste("Constructing tree", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+      
+      
+      if(ClusType != "Fork"){
+        print("Exporting parameters")
+        parallel::clusterExport(cl, varlist = c("InitNodePositions.List", "InitEdges.List", "ElasticMatrix.List",
+                                                "NumNodes", "NumEdges", "InitNodePositions.List", "InitEdges.List",
+                                                "ElasticMatrix.List", "AdjustVect", "GrowGrammars", "ShrinkGrammars",
+                                                "GrammarOptimization", "MaxSteps", "GrammarOrder", "MaxNumberOfIterations",
+                                                "TrimmingRadius", "eps", "Lambda", "Mu", "Do_PCA", "CenterData", "ComputeMSEP",
+                                                "ReduceDimension", "Mode", "FinalEnergy", "alpha", "beta", "gamma",
+                                                "Intermediate.drawAccuracyComplexity", "Intermediate.drawPCAView", "Intermediate.drawEnergy",
+                                                "FastSolve", "AvoidSolitary", "EmbPointProb", "AdjustElasticMatrix", "AdjustElasticMatrix.Initial",
+                                                "Lambda.Initial", "Mu.Initial"),
+                                envir=environment())
       }
       
-      print(paste("Constructing tree", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+      
+      
+      print("Analysis is running ... no output will be shown")
       
       # Run the ElPiGraph algorithm
-      ReturnList[[length(ReturnList)+1]] <- ElPiGraph.R:::computeElasticPrincipalGraph(Data = X[SelPoints, ], NumNodes = NumNodes, NumEdges = NumEdges,
-                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges, ElasticMatrix = ElasticMatrix,
-                                                                         AdjustVect = AdjustVect,
-                                                                         GrowGrammars = GrowGrammars,
-                                                                         ShrinkGrammars = ShrinkGrammars,
-                                                                         GrammarOptimization = GrammarOptimization,
-                                                                         MaxSteps = MaxSteps,
-                                                                         GrammarOrder = GrammarOrder,
-                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
-                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
-                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
-                                                                         verbose = verbose, ShowTimer = ShowTimer,
-                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
-                                                                         FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma,
-                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
-                                                                         drawPCAView = Intermediate.drawPCAView,
-                                                                         drawEnergy = Intermediate.drawEnergy,
-                                                                         n.cores = cl, ClusType = ClusType,
-                                                                         FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
-                                                                         EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
-                                                                         AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
-                                                                         Lambda.Initial = Lambda.Initial, Mu.Initial = Lambda.Initial,
-                                                                         ...)
+      ReturnList <- parallel::parLapply(cl, as.list(1:nReps), function(i, ...){
+        
+        ElPiGraph.R:::computeElasticPrincipalGraph(Data = X[SelPoints[[i]], ],
+                                                   NumNodes = NumNodes,
+                                                   NumEdges = NumEdges,
+                                                   InitNodePositions = InitNodePositions.List[[i]],
+                                                   InitEdges = InitEdges.List[[i]],
+                                                   ElasticMatrix = ElasticMatrix.List[[i]],
+                                                   AdjustVect = AdjustVect,
+                                                   GrowGrammars = GrowGrammars,
+                                                   ShrinkGrammars = ShrinkGrammars,
+                                                   GrammarOptimization = GrammarOptimization,
+                                                   MaxSteps = MaxSteps,
+                                                   GrammarOrder = GrammarOrder,
+                                                   MaxNumberOfIterations = MaxNumberOfIterations,
+                                                   TrimmingRadius = TrimmingRadius,
+                                                   eps = eps,
+                                                   Lambda = Lambda,
+                                                   Mu = Mu,
+                                                   Do_PCA = Do_PCA,
+                                                   CenterData = CenterData,
+                                                   ComputeMSEP = ComputeMSEP,
+                                                   verbose = FALSE,
+                                                   ShowTimer = FALSE,
+                                                   ReduceDimension = ReduceDimension,
+                                                   Mode = Mode,
+                                                   FinalEnergy = FinalEnergy,
+                                                   alpha = alpha,
+                                                   beta = beta,
+                                                   gamma = gamma,
+                                                   drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                   drawPCAView = Intermediate.drawPCAView,
+                                                   drawEnergy = Intermediate.drawEnergy,
+                                                   n.cores = 1,
+                                                   FastSolve = FastSolve,
+                                                   AvoidSolitary = AvoidSolitary,
+                                                   EmbPointProb = EmbPointProb,
+                                                   AdjustElasticMatrix = AdjustElasticMatrix,
+                                                   AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
+                                                   Lambda.Initial = Lambda.Initial,
+                                                   Mu.Initial = Mu.Initial,
+                                                   ...)
+        
+        
+      })
+        
       
       # Save extra information
       ReturnList[[length(ReturnList)]]$SubSetID <- j
@@ -258,7 +328,106 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
         InitNodePositions <- NULL
       }
       
+
+    } else {
+      
+      for(i in 1:nReps){
+        
+        # Select the poits to be used
+        if(ProbPoint<1 & ProbPoint>0){
+          SelPoints <- runif(nrow(X)) <= ProbPoint
+        } else {
+          SelPoints <- rep(TRUE, nrow(X))
+        }
+        
+        # Do we need to compute the initial conditions?
+        if(is.null(InitNodePositions) | (is.null(InitEdges) & is.null(ElasticMatrix))){
+          
+          print("Generating the initial configuration")
+          
+          # We are computing the initial conditions. InitNodePositions need to be reset after each step!
+          ComputeIC <- TRUE
+          
+          if(SampleIC){
+            
+            # Construct the initial configuration
+            InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X[SelPoints, ], Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+            
+          } else {
+            
+            # Construct the initial configuration
+            InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X, Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+            
+          }
+          
+          # Set the initial edge configuration
+          InitEdges <- InitialConf$Edges
+          
+          # Compute the initial elastic matrix
+          ElasticMatrix <- ElPiGraph.R:::Encode2ElasticMatrix(Edges = InitialConf$Edges, Lambdas = Lambda, Mus = Mu)
+          
+          # Compute the initial node position
+          InitNodePositions <- ElPiGraph.R:::PrimitiveElasticGraphEmbedment(
+            X = X, NodePositions = InitialConf$NodePositions,
+            MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+            ElasticMatrix = ElasticMatrix, Mode = Mode)$EmbeddedNodePositions
+        }
+        
+        # Do we need to compute AdjustVect?
+        if(is.null(AdjustVect)){
+          AdjustVect <- rep(FALSE, nrow(InitNodePositions))
+        }
+        
+        # Limit plotting after a few examples
+        if(length(ReturnList) == 3){
+          print("Graphical output will be suppressed for the remaining replicas")
+          Intermediate.drawPCAView <- FALSE
+          Intermediate.drawAccuracyComplexity <- FALSE 
+          Intermediate.drawEnergy <- FALSE
+        }
+        
+        print(paste("Constructing tree", i, "of", nReps, "/ Subset", j, "of", length(Subsets)))
+        
+        # Run the ElPiGraph algorithm
+        ReturnList[[length(ReturnList)+1]] <- ElPiGraph.R:::computeElasticPrincipalGraph(Data = X[SelPoints, ], NumNodes = NumNodes, NumEdges = NumEdges,
+                                                                                         InitNodePositions = InitNodePositions, InitEdges = InitEdges, ElasticMatrix = ElasticMatrix,
+                                                                                         AdjustVect = AdjustVect,
+                                                                                         GrowGrammars = GrowGrammars,
+                                                                                         ShrinkGrammars = ShrinkGrammars,
+                                                                                         GrammarOptimization = GrammarOptimization,
+                                                                                         MaxSteps = MaxSteps,
+                                                                                         GrammarOrder = GrammarOrder,
+                                                                                         MaxNumberOfIterations = MaxNumberOfIterations, TrimmingRadius = TrimmingRadius, eps = eps,
+                                                                                         Lambda = Lambda, Mu = Mu, Do_PCA = Do_PCA,
+                                                                                         CenterData = CenterData, ComputeMSEP = ComputeMSEP,
+                                                                                         verbose = verbose, ShowTimer = ShowTimer,
+                                                                                         ReduceDimension = ReduceDimension, Mode = Mode,
+                                                                                         FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma,
+                                                                                         drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
+                                                                                         drawPCAView = Intermediate.drawPCAView,
+                                                                                         drawEnergy = Intermediate.drawEnergy,
+                                                                                         n.cores = cl, ClusType = ClusType,
+                                                                                         FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                                                                                         EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
+                                                                                         AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
+                                                                                         Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
+                                                                                         ...)
+        
+        # Save extra information
+        ReturnList[[length(ReturnList)]]$SubSetID <- j
+        ReturnList[[length(ReturnList)]]$ReplicaID <- i
+        ReturnList[[length(ReturnList)]]$ProbPoint <- ProbPoint
+        
+        # Reset InitNodePositions for the next iteration
+        if(ComputeIC){
+          InitNodePositions <- NULL
+        }
+        
+      }
+      
     }
+    
+    
     
     # Are we using bootstrapping (nRep > 1). If yes we compute the consensus tree
     if(nReps>1){
