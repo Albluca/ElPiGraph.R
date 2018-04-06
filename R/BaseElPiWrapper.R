@@ -342,6 +342,9 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
       
       
       print("Analysis is running ... no output will be shown")
+      print("Sit back and relax, this may take a long time ...")
+      
+      tictoc::tic()
       
       # Run the ElPiGraph algorithm
       ReturnList <- parallel::parLapply(cl, as.list(1:nReps), function(i, ...){
@@ -390,11 +393,14 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
         
       })
         
+      tictoc::toc()
       
       # Save extra information
-      ReturnList[[length(ReturnList)]]$SubSetID <- j
-      ReturnList[[length(ReturnList)]]$ReplicaID <- i
-      ReturnList[[length(ReturnList)]]$ProbPoint <- ProbPoint
+      for(i in 1:length(ReturnList)){
+        ReturnList[[i]]$SubSetID <- j
+        ReturnList[[i]]$ReplicaID <- i
+        ReturnList[[i]]$ProbPoint <- ProbPoint
+      }
       
       # Reset InitNodePositions for the next iteration
       if(ComputeIC){
