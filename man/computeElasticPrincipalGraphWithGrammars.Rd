@@ -13,12 +13,13 @@ computeElasticPrincipalGraphWithGrammars(X, NumNodes, NumEdges = Inf,
   ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
-  nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
+  nReps = 1, ParallelRep = FALSE, Subsets = list(), ProbPoint = 1,
+  Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
   FastSolve = FALSE, Configuration = NULL, DensityRadius = NULL,
   AvoidSolitary = FALSE, EmbPointProb = 1, SampleIC = TRUE,
-  AdjustElasticMatrix = NULL, AdjustElasticMatrix.Initial = NULL,
-  Lambda.Initial = NULL, Mu.Initial = NULL, ...)
+  AvoidResampling = TRUE, AdjustElasticMatrix = NULL,
+  AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
+  Mu.Initial = NULL, ...)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -36,6 +37,13 @@ computeElasticPrincipalGraphWithGrammars(X, NumNodes, NumEdges = Inf,
 \item{GrowGrammars}{list of strings, the grammar to be used in the growth step}
 
 \item{ShrinkGrammars}{list of strings, the grammar to be used in the shrink step}
+
+\item{GrammarOptimization}{boolean, should grammar optimization be perfomred? If true grammar operations that do not increase the number of
+nodes will be allowed}
+
+\item{MaxSteps}{integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true}
+
+\item{GrammarOrder}{character vector, the order of application of the grammars. It can be any combination of "Grow" and "Shrink"}
 
 \item{MaxNumberOfIterations}{integer, maximum number of steps to embed the nodes in the data}
 
@@ -81,6 +89,8 @@ Currently fork clustering only works in Linux}
 
 \item{nReps}{integer, number of replica of the construction}
 
+\item{ParallelRep}{boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?}
+
 \item{Subsets}{list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.}
 
 \item{ProbPoint}{real between 0 and 1, probability of inclusing of a single point for each computation}
@@ -108,6 +118,9 @@ EmbPointProb indicates the probability of using each points. This is an *experim
 helps speeding up the computation if a large number of points is present.}
 
 \item{SampleIC}{boolean, should the initial configuration be considered on the sampled points when applicable?}
+
+\item{AvoidResampling}{booleand, should the sampling of initial conditions avoid reselecting the same points
+(or points neighbors if DensityRadius is specified)?}
 
 \item{AdjustElasticMatrix}{a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
 If NULL (the default), no penalization will be used.}

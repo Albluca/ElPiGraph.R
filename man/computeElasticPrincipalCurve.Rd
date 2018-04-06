@@ -15,7 +15,7 @@ computeElasticPrincipalCurve(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   ProbPoint = 1, Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0,
   FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
   AvoidSolitary = FALSE, EmbPointProb = 1, ParallelRep = FALSE,
-  SampleIC = TRUE, AdjustElasticMatrix = NULL,
+  AvoidResampling = FALSE, SampleIC = TRUE, AdjustElasticMatrix = NULL,
   AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
   Mu.Initial = NULL, ...)
 }
@@ -101,7 +101,10 @@ principal curve.}
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 helps speeding up the computation if a large number of points is present.}
 
-\item{ParallelRep}{}
+\item{ParallelRep}{boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?}
+
+\item{AvoidResampling}{booleand, should the sampling of initial conditions avoid reselecting the same points
+(or points neighbors if DensityRadius is specified)?}
 
 \item{SampleIC}{boolean, should the initial configuration be considered on the sampled points when applicable?}
 

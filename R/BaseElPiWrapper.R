@@ -60,6 +60,13 @@
 #' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
 #' If NULL, the value of Mu will be used.
 #' @param ... optional parameter that will be passed to the AdjustHOS function
+#' @param GrammarOptimization boolean, should grammar optimization be perfomred? If true grammar operations that do not increase the number of
+#' nodes will be allowed 
+#' @param MaxSteps integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true 
+#' @param GrammarOrder character vector, the order of application of the grammars. It can be any combination of "Grow" and "Shrink"
+#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
+#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
+#' (or points neighbors if DensityRadius is specified)?
 #' 
 #' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
@@ -113,6 +120,7 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                                                      AvoidSolitary = FALSE,
                                                      EmbPointProb = 1,
                                                      SampleIC = TRUE,
+                                                     AvoidResampling = TRUE,
                                                      AdjustElasticMatrix = NULL,
                                                      AdjustElasticMatrix.Initial = NULL,
                                                      Lambda.Initial = NULL, Mu.Initial = NULL,
@@ -194,22 +202,87 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
         
         if(SampleIC){
           
-          # Construct the initial configuration
-          InitialConf.List <- 
-            parallel::parLapply(cl, as.list(1:nReps), function(i){
-              ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]], ], Nodes = InitNodes,
-                                                         Configuration = Configuration, DensityRadius = DensityRadius)
-            })
+          if(AvoidResampling){
+            
+            Used <- rep(FALSE, nrow(X))
+            InitialConf.List <- list()
+            
+            for(i in 1:nReps){
+              InitialConf.List[[i]] <-
+                ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
+                                                           Nodes = InitNodes,
+                                                           Configuration = Configuration,
+                                                           DensityRadius = DensityRadius)
+              
+              Dist <- apply(distutils::PartialDistance(InitialConf.List[[i]]$NodePositions, Br = X), 2, min)
+              
+              if(!is.null(DensityRadius)){
+                Used <- Used | (Dist < DensityRadius)
+              } else {
+                Used <- Used | (Dist < .Machine$double.xmin)
+              }
+              
+              if(sum(Used) < nrow(X)/10){
+                print("90% of the points have been used as initial conditions. Resetting.")
+              }
+
+            }
+            
+            
+          } else {
+            # Construct the initial configuration
+            InitialConf.List <- 
+              parallel::parLapply(cl, as.list(1:nReps), function(i){
+                ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]], ], Nodes = InitNodes,
+                                                           Configuration = Configuration, DensityRadius = DensityRadius)
+              })
+            
+          }
+          
+          
             
           
         } else {
           
-          # Construct the initial configuration
-          InitialConf.List <- 
-            parallel::parLapply(cl, as.list(1:nReps), function(i){
-              ElPiGraph.R:::generateInitialConfiguration(X, Nodes = InitNodes,
-                                                         Configuration = Configuration, DensityRadius = DensityRadius)
-            })
+          if(AvoidResampling){
+            
+            Used <- rep(FALSE, nrow(X))
+            InitialConf.List <- list()
+            
+            for(i in 1:nReps){
+              InitialConf.List[[i]] <-
+                ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
+                                                           Nodes = InitNodes,
+                                                           Configuration = Configuration,
+                                                           DensityRadius = DensityRadius)
+              
+              Dist <- apply(distutils::PartialDistance(InitialConf.List[[i]]$NodePositions, Br = X), 2, min)
+              
+              if(!is.null(DensityRadius)){
+                Used <- Used | (Dist < DensityRadius)
+              } else {
+                Used <- Used | (Dist <= .Machine$double.xmin)
+              }
+              
+              if(sum(Used) < nrow(X)/10){
+                print("90% of the points have been used as initial conditions. Resetting.")
+              }
+              
+            }
+            
+            
+          } else {
+            
+            # Construct the initial configuration
+            InitialConf.List <- 
+              parallel::parLapply(cl, as.list(1:nReps), function(i){
+                ElPiGraph.R:::generateInitialConfiguration(X, Nodes = InitNodes,
+                                                           Configuration = Configuration, DensityRadius = DensityRadius)
+              })
+            
+          }
+          
+          
           
         }
         
@@ -331,6 +404,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
 
     } else {
       
+      Used <- rep(FALSE, nrow(X))
+      
       for(i in 1:nReps){
         
         # Select the poits to be used
@@ -350,13 +425,67 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
           
           if(SampleIC){
             
-            # Construct the initial configuration
-            InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X[SelPoints, ], Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+            if(AvoidResampling){
+              
+              InitialConf <- 
+                ElPiGraph.R:::generateInitialConfiguration(X[SelPoints & !Used, ],
+                                                                    Nodes = InitNodes,
+                                                                    Configuration = Configuration,
+                                                                    DensityRadius = DensityRadius)
+              
+              Dist <- apply(distutils::PartialDistance(InitialConf$NodePositions, Br = X), 2, min)
+              
+              if(!is.null(DensityRadius)){
+                Used <- Used | (Dist < DensityRadius)
+              } else {
+                Used <- Used | (Dist <= .Machine$double.xmin)
+              }
+              
+              if(sum(Used) < nrow(X)*.9){
+                print("90% of the points have been used as initial conditions. Resetting.")
+              }
+              
+            } else {
+              # Construct the initial configuration
+              InitialConf <- 
+                ElPiGraph.R:::generateInitialConfiguration(X[SelPoints, ],
+                                                           Nodes = InitNodes,
+                                                           Configuration = Configuration,
+                                                           DensityRadius = DensityRadius)
+            }
             
           } else {
             
-            # Construct the initial configuration
-            InitialConf <- ElPiGraph.R:::generateInitialConfiguration(X, Nodes = InitNodes, Configuration = Configuration, DensityRadius = DensityRadius)
+            if(AvoidResampling){
+              
+              InitialConf <- 
+                ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
+                                                           Nodes = InitNodes,
+                                                           Configuration = Configuration,
+                                                           DensityRadius = DensityRadius)
+              
+              Dist <- apply(distutils::PartialDistance(InitialConf$NodePositions, Br = X), 2, min)
+              
+              if(!is.null(DensityRadius)){
+                Used <- Used | (Dist < DensityRadius)
+              } else {
+                Used <- Used | (Dist < .Machine$double.xmin)
+              }
+              
+              if(sum(Used) > nrow(X)*.9){
+                print("90% of the points have been used as initial conditions. Resetting.")
+              }
+              
+              
+            } else {
+              
+              # Construct the initial configuration
+              InitialConf <- 
+                ElPiGraph.R:::generateInitialConfiguration(X[, ],
+                                                           Nodes = InitNodes,
+                                                           Configuration = Configuration,
+                                                           DensityRadius = DensityRadius)
+            }
             
           }
           
