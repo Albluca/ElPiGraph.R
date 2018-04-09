@@ -208,11 +208,26 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
             InitialConf.List <- list()
             
             for(i in 1:nReps){
-              InitialConf.List[[i]] <-
-                ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
-                                                           Nodes = InitNodes,
-                                                           Configuration = Configuration,
-                                                           DensityRadius = DensityRadius)
+              
+              print(paste("Rep", i, sum(Used), "out of", length(Used), "points have been used"))
+              
+              tryCatch(
+                InitialConf.List[[i]] <-
+                  ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
+                                                             Nodes = InitNodes,
+                                                             Configuration = Configuration,
+                                                             DensityRadius = DensityRadius),
+                error = function(e){
+                  print(e)
+                  print("Resetting Initial point set")
+                  Used <- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <-
+                    ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
+                                                               Nodes = InitNodes,
+                                                               Configuration = Configuration,
+                                                               DensityRadius = DensityRadius)
+                },
+                warning = {})
               
               Dist <- apply(distutils::PartialDistance(InitialConf.List[[i]]$NodePositions, Br = X), 2, min)
               
@@ -221,15 +236,13 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
               } else {
                 Used <- Used | (Dist < .Machine$double.xmin)
               }
-              
-              if(sum(Used) < nrow(X)/10){
-                print("90% of the points have been used as initial conditions. Resetting.")
-              }
+
 
             }
             
             
           } else {
+            
             # Construct the initial configuration
             InitialConf.List <- 
               parallel::parLapply(cl, as.list(1:nReps), function(i){
@@ -250,11 +263,26 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
             InitialConf.List <- list()
             
             for(i in 1:nReps){
-              InitialConf.List[[i]] <-
-                ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
-                                                           Nodes = InitNodes,
-                                                           Configuration = Configuration,
-                                                           DensityRadius = DensityRadius)
+              
+              print(paste("Rep", i, sum(Used), "out of", length(Used), "points have been used"))
+              
+              tryCatch(
+                InitialConf.List[[i]] <-
+                  ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
+                                                             Nodes = InitNodes,
+                                                             Configuration = Configuration,
+                                                             DensityRadius = DensityRadius),
+                error = function(e){
+                  print(e)
+                  print("Resetting Initial point set")
+                  Used <- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <-
+                    ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
+                                                               Nodes = InitNodes,
+                                                               Configuration = Configuration,
+                                                               DensityRadius = DensityRadius)
+                },
+                warning = {})
               
               Dist <- apply(distutils::PartialDistance(InitialConf.List[[i]]$NodePositions, Br = X), 2, min)
               
@@ -262,10 +290,6 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                 Used <- Used | (Dist < DensityRadius)
               } else {
                 Used <- Used | (Dist <= .Machine$double.xmin)
-              }
-              
-              if(sum(Used) < nrow(X)/10){
-                print("90% of the points have been used as initial conditions. Resetting.")
               }
               
             }

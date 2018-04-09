@@ -1173,8 +1173,6 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
   }
   
   
-  
-  
   if(Configuration == "Random"){
     
     # Starting from Random Points in the data
