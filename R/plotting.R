@@ -160,7 +160,8 @@ plotPieNet <- function(X,
                        NodeSizeMult = 1,
                        ColCat = NULL,
                        Leg.cex = 1,
-                       Arrow.size = 1) {
+                       Arrow.size = 1,
+                       LabSize = 1) {
 
   if(!is.factor(GroupsLab)){
     GroupsLab <- factor(GroupsLab)
@@ -323,14 +324,26 @@ plotPieNet <- function(X,
     return(NULL)
   }
   
+  
+  if(!is.null(ScaleFunction)){
+    PieSize <- NodeSizeMult*do.call(what = ScaleFunction,
+                                    list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions)))))
+  } else {
+    PieSize <- rep(NodeSizeMult, igraph::vcount(Net))
+  }
+  
+  PieSize[sapply(PieList, "[[", "None")>0] <- 0
+  
+  
   igraph::plot.igraph(Net, layout = RestrNodes[,1:2], main = Main,
                       vertex.shape="pie", vertex.pie.color = PieColList,
                       vertex.pie=PieList, vertex.pie.border = NA,
-                      vertex.size=NodeSizeMult*do.call(what = ScaleFunction,
-                                                       list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions))))),
-                      edge.color = "black", vertex.label.dist = 0.7, vertex.label.color = "black")
+                      vertex.size=PieSize,
+                      edge.color = "black", vertex.label.dist = 0.7,
+                      vertex.label.color = "black", vertex.label.cex = LabSize)  
   
-  legend(x = "bottom", legend = names(ColCat), fill = ColCat, horiz = TRUE, cex = Leg.cex)
+  legend(x = "bottom", legend = names(ColCat)[!is.na(names(ColCat))],
+         fill = ColCat[!is.na(names(ColCat))], horiz = TRUE, cex = Leg.cex)
 
 }
 
