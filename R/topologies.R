@@ -51,7 +51,9 @@
 #' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
 #' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
 #' When true for a node its elasticity parameters will not be adjusted.
-#' @param ParallelRep 
+#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
+#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
+#' (or points neighbors if DensityRadius is specified)?
 #' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable? 
 #' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
 #' If NULL (the default), no penalization will be used.
@@ -117,6 +119,7 @@ computeElasticPrincipalCircle <- function(X,
                                           EmbPointProb = 1,
                                           ParallelRep = FALSE,
                                           SampleIC = TRUE,
+                                          AvoidResampling = FALSE,
                                           AdjustElasticMatrix = NULL,
                                           AdjustElasticMatrix.Initial = NULL,
                                           Lambda.Initial = NULL, Mu.Initial = NULL,
@@ -175,6 +178,8 @@ computeElasticPrincipalCircle <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             AvoidResampling = AvoidResampling,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -260,8 +265,9 @@ computeElasticPrincipalCircle <- function(X,
 #' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
 #' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
 #' When true for a node its elasticity parameters will not be adjusted.
-#' @param gamma 
-#' @param ParallelRep 
+#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
+#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
+#' (or points neighbors if DensityRadius is specified)?
 #' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable? 
 #' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
 #' If NULL (the default), no penalization will be used.
@@ -321,13 +327,13 @@ computeElasticPrincipalTree <- function(X,
                                         FinalEnergy = "Base",
                                         alpha = 0,
                                         beta = 0,
-                                        gamma = 0,
                                         FastSolve = FALSE,
                                         ICOver = NULL,
                                         DensityRadius = NULL,
                                         AvoidSolitary = FALSE,
                                         EmbPointProb = 1,
                                         ParallelRep = FALSE,
+                                        AvoidResampling = FALSE,
                                         SampleIC = TRUE,
                                         AdjustElasticMatrix = NULL,
                                         AdjustElasticMatrix.Initial = NULL,
@@ -383,6 +389,8 @@ computeElasticPrincipalTree <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             AvoidResampling = AvoidResampling,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -475,7 +483,9 @@ computeElasticPrincipalTree <- function(X,
 #' If NULL, the value of Lambda will be used.
 #' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
 #' If NULL, the value of Mu will be used.
-#' @param ParallelRep 
+#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
+#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
+#' (or points neighbors if DensityRadius is specified)?
 #' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable? 
 #'
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
@@ -537,6 +547,7 @@ computeElasticPrincipalCurve <- function(X,
                                         AvoidSolitary = FALSE,
                                         EmbPointProb = 1,
                                         ParallelRep = FALSE,
+                                        AvoidResampling = FALSE,
                                         SampleIC = TRUE,
                                         AdjustElasticMatrix = NULL,
                                         AdjustElasticMatrix.Initial = NULL,
@@ -591,6 +602,8 @@ computeElasticPrincipalCurve <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
+                                             AvoidResampling = AvoidResampling,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -828,6 +841,7 @@ fineTuneBR <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -1040,6 +1054,7 @@ GrowLeaves <- function(X,
                                              AvoidSolitary = AvoidSolitary,
                                              EmbPointProb = EmbPointProb,
                                              SampleIC = SampleIC,
+                                             ParallelRep = ParallelRep,
                                              AdjustElasticMatrix = AdjustElasticMatrix,
                                              AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                              Lambda.Initial = Lambda.Initial, Mu.Initial = Mu.Initial,
@@ -1157,16 +1172,20 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     
   }
   
+  
   if(Configuration == "Random"){
     
     # Starting from Random Points in the data
-    print("Creating a line between two random points of the data")
+    print("Creating a line between two random points of the data. The points will have at most a distance DensityRadius if the parameter is specified")
     
     ID1 <- sample(1:nrow(X), 1)
     
     Dist <- distutils::PartialDistance(matrix(X[ID1,], nrow = 1), Br = X)
     
     Probs <- 1/Dist
+    if(!is.null(DensityRadius)){
+      Probs[Dist > DensityRadius] <- 0
+    }
     Probs[is.infinite(Probs)] <- 0
     
     ID2 <- sample(1:nrow(X), 1, prob = Probs)
@@ -1180,6 +1199,37 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     
   }
   
+  if(Configuration == "RandomSpace"){
+    
+    # Starting from Random Points in the data
+    print("Creating a line between a point randomy chosen uniformily in the space of points and one of its neighbours. The points will have at most a distance DensityRadius if the parameter is specified")
+    
+    KM <- kmeans(X, 10)
+    RandClus <- sample(1:length(KM$size))
+    
+    ID1 <- sample(which(KM$cluster == RandClus), 1)
+    
+    Dist <- distutils::PartialDistance(matrix(X[ID1,], nrow = 1), Br = X)
+    
+    Probs <- 1/Dist
+    if(!is.null(DensityRadius)){
+      Probs[Dist > DensityRadius] <- 0
+    }
+    Probs[is.infinite(Probs)] <- 0
+    
+    ID2 <- sample(1:nrow(X), 1, prob = Probs)
+    
+    NodePositions <- X[c(ID1, ID2),]
+    
+    # Creating edges
+    edges = matrix(c(1,2), nrow = 1, byrow = TRUE)
+    
+    DONE <- TRUE
+    
+  }
+  
+  
+  
   if(Configuration == "Density"){
     
     if(is.null(DensityRadius)){
@@ -1187,7 +1237,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
     # Starting from Random Points in the data
-    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    print("Creating a line in the densest part of the data. DensityRadius needs to be specified!")
     
     if(PCADensity){
       tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
@@ -1246,7 +1296,7 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
     # Starting from Random Points in the data
-    print("Creating a line in the densest part of the graph. DensityRadius needs to be specified!")
+    print("Creating a line a part of the data, chosen probabilistically by its density. DensityRadius needs to be specified!")
     
     if(PCADensity){
       tX.PCA <- prcomp(x = X, retx = TRUE, center = CenterDataDensity, scale. = FALSE)
@@ -1297,6 +1347,11 @@ generateInitialConfiguration <- function(X, Nodes, Configuration = "Line",
     }
     
   }
+  
+  
+  
+  
+  
   
   
   if(DONE){

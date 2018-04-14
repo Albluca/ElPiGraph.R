@@ -42,10 +42,10 @@ to be considered the graph embedded (convergence criteria)}
 
 \item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
 
+\item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
+
 \item{prob}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
 using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.}
-
-\item{betapositive}{numeric, the value of the beta parameter of the penalized elastic energy}
 }
 \description{
 Function fitting a primitive elastic graph to the data

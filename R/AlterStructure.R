@@ -699,7 +699,7 @@ ShiftBranching <- function(X,
                            SelectionMode = "NodePoints",
                            DensityRadius = NA,
                            MaxShift = 3,
-                           Compensate = "none",
+                           Compensate = FALSE,
                            BrIds = NULL,
                            TrimmingRadius = Inf) {
   
@@ -860,13 +860,12 @@ CollapseCliques <- function(TargetPG, MaxClZize = NULL, DistThr = NULL, Compensa
     NewNode <- colMeans(Nodes[NodesToCollapse, ])
     
     if(!is.null(DistThr)){
-      if(distutils::PartialDistance(matrix(NewNode, nrow = 1), Nodes[NodesToCollapse, ]) < DistThr){
+      if(mean(distutils::PartialDistance(matrix(NewNode, nrow = 1), Nodes[NodesToCollapse, ])) < DistThr){
         break()
       }
     } else {
       break()
     }
-    
     
   }
   
