@@ -251,8 +251,6 @@ ElPrincGraph <- function(X,
             tictoc::tic()
           }
           
-          
-          
           UpdatedPG <- ElPiGraph.R:::ApplyOptimalGraphGrammarOpeation(X = X,
                                                                       NodePositions = UpdatedPG$NodePositions,
                                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
