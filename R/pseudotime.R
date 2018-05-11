@@ -84,25 +84,50 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #' @param Main string, the main title of the plot
 #' @param Features either a string vector or a positive integer. If a string vector, it will be interpreted as
 #' the name of the features to plot (matched to the colnames of X). If positive integer, it will be interpreted
-#' as the number of the topmost vayring features of plot  
+#' as the number of the topmost interesting features according to the metric specified by Mode
+#' @param ylab string, the label of the y axis
+#' @param alpha numeric between 0 and 1, the trasparency of the points
+#' @param ScalePT boolean, should the pseudotime be normalized across the branches?
+#' @param Mode string, the feature seletion mode used to determine the most interesting genes. It can be
+#'  \itemize{
+#'  \item{'Var'}{ The genes with the largest variance across the points nodes on the path}
+#'  \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
+#'  \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
+#'  \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
+#' }
+#' @param Log boolean, should a log scale be used on the y axis
 #'
 #' @return
 #' @export
 #'
 #' @examples
 CompareOnBranches <- function(X,
-                                 Paths,
-                                 TargetPG,
-                                 Partition,
-                                 PrjStr,
-                                 Main = "",
-                                 Features = 4) {
+                              Paths,
+                              TargetPG,
+                              BootPG = NULL,
+                              Conf = .95,
+                              AllBP = FALSE,
+                              Partition,
+                              PrjStr,
+                              Main = "",
+                              ylab = "Feature value",
+                              alpha = .3,
+                              ScalePT = FALSE,
+                              Features = 4,
+                              Mode = "Var",
+                              Log = FALSE,
+                              Span = .1) {
   
   CombDF <- NULL
   
-  if(is.numeric(Features)){
+  if(is.numeric(Features) & Mode == "Var"){
     
-    GenesByVar <- apply(X, 2, var)
+    print("Feature selection by feature variance")
+    
+    SharedPath <- unique(unlist(Paths, use.names = FALSE))
+    tX <- X[Partition %in% as.integer(SharedPath), ]
+    
+    GenesByVar <- apply(tX, 2, var)
     
     if(length(GenesByVar) <= Features){
       Features = length(GenesByVar)
@@ -112,7 +137,170 @@ CompareOnBranches <- function(X,
     
   }
   
+  if(is.numeric(Features) & Mode == "MI"){
+    
+    print("Feature selection by mutual information")
+    
+    Path_MI <- sapply(Paths, function(x){
+      PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = x)
+      
+      PtVect <- PtOnPath$Pt
+      Seleced <- !is.na(PtVect)
+      
+      FactoredPT <- factor(PtVect[Seleced])
+      
+      sapply(1:ncol(X), function(j) {
+        infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+      })
+    })
+    
+    OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    
+    Features <- colnames(X)[OrdMI[1:Features]]
+    
+  }
+  
+  if(is.numeric(Features) & Mode == "MI.DB"){
+    
+    print("Feature selection by mutual information on diffeerntial branches")
+    
+    SharedPath <- unique(unlist(Paths, use.names = FALSE))
+    for(i in 1:length(Paths)){
+      SharedPath <- intersect(SharedPath, Paths[[i]])
+    }
+    
+    DiffPath <- list()
+    for(i in 1:length(Paths)){
+      DiffPath[[i]] <- (Paths[[i]])[!(Paths[[i]] %in% SharedPath)]
+    }
+    
+    Path_MI <- sapply(DiffPath, function(x){
+      PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = x)
+      
+      PtVect <- PtOnPath$Pt
+      Seleced <- !is.na(PtVect)
+      
+      FactoredPT <- factor(PtVect[Seleced])
+      
+      sapply(1:ncol(X), function(j) {
+        infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+      })
+    })
+    
+    OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    
+    Features <- colnames(X)[OrdMI[1:Features]]
+    
+  }
+  
+  if(is.numeric(Features) & Mode == "KW"){
+    
+    print("Feature selection by Kruskal-Wallis rank sum test on differential branches")
+    
+    SharedPath <- unique(unlist(Paths, use.names = FALSE))
+    for(i in 1:length(Paths)){
+      SharedPath <- intersect(SharedPath, Paths[[i]])
+    }
+    
+    DiffPath <- list()
+    for(i in 1:length(Paths)){
+      DiffPath[[i]] <- (Paths[[i]])[!(Paths[[i]] %in% SharedPath)]
+    }
+    
+    FilPart <- Partition
+    FilPart[] <- 0
+    
+    for(i in 1:length(DiffPath)){
+      FilPart[Partition %in% as.integer(DiffPath[[i]])] <- i
+    }
+    
+    tX <- X[FilPart != 0, ]
+    FilPart <- FilPart[FilPart != 0]
+    
+    PVVect <- apply(tX, 2, function(x){
+      kruskal.test(x, FilPart)$p.val
+    })
+    
+    Features <- colnames(X)[order(PVVect, decreasing = FALSE)[1:Features]]
+    
+  }
+  
   tX <- X[, colnames(X) %in% Features]
+  if(is.null(dim(tX))){
+    dim(tX) <- c(length(tX), 1)
+    rownames(tX) <- rownames(X)
+    colnames(tX) <- Features
+  }
+  
+  if(!is.null(BootPG)){
+    BrPos <- lapply(BootPG, function(x){
+      TB <- table(as.vector(x$Edges$Edges))
+      return(x$NodePositions[as.integer(names(TB[TB>2])),])
+    })
+    
+    TB <- table(as.vector(TargetPG$Edges$Edges))
+    TargetBP <- as.integer(names(TB[TB>2]))
+    
+    BPMat <- TargetPG$NodePositions[TargetBP,]
+    if(is.null(dim(BPMat))){
+      dim(BPMat) <- c(1, length(BPMat))
+    }
+    
+    NodeIdx <- lapply(BrPos, function(x){
+      if(is.null(dim(x))){
+        dim(x) <- c(1, length(x))
+      }
+      DMat <- distutils::PartialDistance(x, BPMat)
+      
+      if(ncol(DMat) != nrow(DMat)){
+        return(NA)
+      } else {
+        apply(DMat, 2, which.min)
+      }
+      
+    })
+    
+    BrPos <- BrPos[sapply(NodeIdx, function(x){all(!is.na(x))})]
+    BrPos.Ass <- NodeIdx[sapply(NodeIdx, function(x){all(!is.na(x))})]
+    BrPos.Ass <- unlist(BrPos.Ass)
+    
+    OrgBR <- 
+    
+    BrPos.Mat <- do.call(rbind, BrPos)
+    
+    tPart <- PartitionData(X = BrPos.Mat, NodePositions = TargetPG$NodePositions)
+    
+    tProj <- project_point_onto_graph(X = BrPos.Mat,
+                                           NodePositions = TargetPG$NodePositions,
+                                           Edges = TargetPG$Edges$Edges,
+                                           Partition = tPart$Partition)
+  }
+  
+  
+  if(ScalePT){
+    
+    BP <- sapply(Paths, function(x){
+      c(x[1], x[length(x)])
+    })
+    
+    BP <- unique(as.vector(BP))
+    
+    for(i in 1:length(Paths)){
+      for(j in 1:length(Paths)){
+        if(i == j){
+          next()
+        }
+        Range <- range(which(Paths[[i]] %in% Paths[[j]]))
+        BP <- union(BP, (Paths[[i]])[Range])
+      }
+    }
+    
+    BPxPath <- sapply(Paths, function(x){
+      sum(x %in% BP)
+    })
+    NormStep <- 1/(max(BPxPath)-1)
+    
+  }
   
   for(i in 1:length(Paths)){
     PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = Paths[[i]])
@@ -126,13 +314,110 @@ CompareOnBranches <- function(X,
     } else {
       TrjName <- i
     }
-     
     
-    CombDF <- rbind(
-      CombDF, data.frame(Pt = PtVect[MetlExp$X1],
-                         gene = MetlExp$X2, exp = MetlExp$value,
-                         traj = TrjName)
-    )
+    PtCI <- NULL
+    
+    if(!is.null(BootPG)){
+      PtOnPath.Boot <- getPseudotime(ProjStruct = tProj, NodeSeq = Paths[[i]])
+      # PtVect.Boot <- PtOnPath.Boot$Pt
+      
+      # OrgBR <- names(which(table(TargetPG$Edges$Edges)>2))
+      
+      # BrPos <- PtOnPath.Boot$NodePos[which(Paths[[i]] %in% OrgBR)]
+      # 
+      # BrDist <- sapply(as.list(BrPos), function(x){
+      #   abs(x - PtVect.Boot)
+      # })
+      # 
+      # Associated <- apply(BrDist, 1, function(x){
+      #   if(any(is.na(x))){
+      #     return(0)
+      #   } else {
+      #     return(which.min(x))
+      #   }
+      # })
+      
+      Split.Pt <- split(PtOnPath.Boot$Pt, BrPos.Ass)
+      
+      PtCI <- do.call(rbind,
+              lapply(Split.Pt, function(x){
+                quantile(x, c(1-Conf, Conf), na.rm = TRUE)
+              })
+      )
+      
+    }
+    
+    CIDf <- NULL
+    
+    if(ScalePT){
+      
+      RenormPoints <- PtOnPath$NodePos[which(Paths[[i]] %in% BP)]
+      
+      if(!is.null(BootPG)){
+        PtVect <- c(PtVect, as.vector(PtCI))
+      }
+      
+      RenormPt <- PtVect
+      
+      for(j in 1:(length(RenormPoints)-1)){
+        
+        ToRenorm <- RenormPt[PtVect>=RenormPoints[j] &
+                               PtVect<RenormPoints[j+1] &
+                               !is.na(PtVect)]
+        ToRenorm <- ToRenorm - RenormPoints[j]
+        ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
+
+        if(j == (length(RenormPoints)-1) ){
+          ToRenorm <- ToRenorm*(1-NormStep*(j-1)) + NormStep*(j-1)
+        } else {
+          ToRenorm <- ToRenorm*NormStep + NormStep*(j-1)
+        }
+        
+        RenormPt[PtVect>=RenormPoints[j] &
+                   PtVect<RenormPoints[j+1] &
+                   !is.na(PtVect)] <- ToRenorm
+      }
+      
+      if(!is.null(BootPG)){
+        CIRenorm <- RenormPt[
+          (length(RenormPt)-length(PtCI)+1):length(RenormPt)
+          ]
+        
+        RenormPt <- RenormPt[1:(length(RenormPt)-length(PtCI))]
+        
+        CIDf <- rbind(
+          CIDf, data.frame(Pt.low = CIRenorm[1:(length(CIRenorm)/2)],
+                           Pt.high = CIRenorm[(length(CIRenorm)/2+1):length(CIRenorm)],
+                           Bp = TargetBP)
+        )
+        
+      }
+      
+      CombDF <- rbind(
+        CombDF, data.frame(Pt = RenormPt[MetlExp$X1],
+                           gene = MetlExp$X2,
+                           exp = MetlExp$value,
+                           traj = TrjName)
+      )
+      
+    } else {
+      CombDF <- rbind(
+        CombDF, data.frame(Pt = PtVect[MetlExp$X1],
+                           gene = MetlExp$X2,
+                           exp = MetlExp$value,
+                           traj = TrjName)
+      )
+      
+      if(!is.null(BootPG)){
+        CIDf <- rbind(
+          CIDf, data.frame(Pt.low = PtCI[1:(length(CIRenorm)/2)],
+                           Pt.high = PtCI[(length(CIRenorm)/2+1):length(CIRenorm)],
+                           Bp = TargetBP
+          )
+        )
+      }
+      
+    }
     
   }
   
@@ -142,10 +427,76 @@ CompareOnBranches <- function(X,
   
   if(nrow(CombDF)>0){
     p <- ggplot2::ggplot(CombDF,
-                         ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = .3) +
-      ggplot2::geom_smooth() + ggplot2::scale_color_discrete("Branch") +
-      ggplot2::facet_wrap(~gene, scales = "free_y") +
-      ggplot2::labs(title = Main, y = "Feature value", x = "Pseudotime")
+                         ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = alpha) +
+      ggplot2::scale_color_discrete("Branch") +
+      ggplot2::facet_wrap(~gene, scales = "free_y")
+    
+    if(ScalePT){
+      p <- p + ggplot2::geom_smooth(method = "loess", span = Span) + 
+        ggplot2::geom_vline(xintercept = seq(from=0, to=1, by=NormStep), linetype = 'dotted') +
+        ggplot2::labs(title = Main, y = ylab, x = "Normalized pseudotime")
+    } else {
+      p <- p + ggplot2::geom_smooth(method = "loess", span = Span) +
+        ggplot2::labs(title = Main, y = ylab, x = "Pseudotime")
+    }
+    
+    if(Log){
+      p <- p + ggplot2::scale_y_log10()
+    }
+    
+    if(!is.null(BootPG)){
+      
+      if(!AllBP){
+        
+        TB.1 <- table(TargetPG$Edges$Edges)
+        AllBr <- names(TB.1[TB.1>2])
+        
+        ToUse <- NULL
+        
+        for(i in AllBr){
+          TT <- lapply(Paths, function(sel){
+            
+            id <- which(sel == i)
+            
+            if(length(id)==0){
+              return(NULL)
+            }
+            
+            if(id==0){
+              id_low <- id
+            } else {
+              id_low <- id-1
+            }
+            
+            if(id==length(sel)){
+              id_high <- id
+            } else {
+              id_high <- id+1
+            }
+            
+            return(
+              sel[id_low:id_high]
+            )
+          })
+          
+          if(length(unique(unlist(TT)))>3){
+            ToUse <- c(ToUse, i)
+          }
+          
+        }
+        
+        CIDf <- CIDf[CIDf$Bp %in% ToUse,]
+        
+      }
+      
+      
+      if(nrow(CIDf)>0){
+        p <- p + ggplot2::geom_rect(data = CIDf,
+                                    mapping = ggplot2::aes(xmin = Pt.low, xmax = Pt.high, ymin=-Inf, ymax=Inf), fill = "black",
+                                    inherit.aes = FALSE, alpha = .5) + ggplot2::guides(fill = "none")
+      }
+      
+    }
     
     return(p)
     
@@ -161,6 +512,85 @@ CompareOnBranches <- function(X,
 
 
 
+
+
+
+
+
+# 
+# 
+# ExplorePtUnc <- function(X,
+#                          Path,
+#                          TargetPG,
+#                          BootPG = NULL,
+#                          Partition,
+#                          Partition.Boot = list(),
+#                          PrjStr,
+#                          PrjStr.Boot = list(),
+#                          Feature,
+#                          Main = "",
+#                          ylab = "Feature value",
+#                          alpha = .3,
+#                          ScalePT = FALSE,
+#                          Log = FALSE) {
+#   
+#   CombDF <- NULL
+#   
+#   tX <- X[, colnames(X) %in% Features]
+#   MetlExp <- reshape::melt(tX)
+#   
+#   
+#   PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = Path)
+#   PtVect <- PtOnPath$Pt
+#   names(PtVect) <- rownames(tX)
+#   
+#   CombDF <- rbind(
+#     CombDF, data.frame(Pt = PtVect[MetlExp$X1],
+#                        gene = MetlExp$X2,
+#                        exp = MetlExp$value,
+#                        traj = 0)
+#   ) 
+#     
+#   for(i in 1:length(PrjStr.Boot)){
+#     
+#   }
+#   
+#     
+#     
+#   }
+#   
+#   CombDF$traj <- factor(CombDF$traj)
+#   
+#   CombDF <- CombDF[!is.na(CombDF$Pt), ]
+#   
+#   if(nrow(CombDF)>0){
+#     p <- ggplot2::ggplot(CombDF,
+#                          ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = alpha) +
+#       ggplot2::scale_color_discrete("Branch") +
+#       ggplot2::facet_wrap(~gene, scales = "free_y")
+#     
+#     if(ScalePT){
+#       p <- p + ggplot2::geom_smooth(method = "loess", span = NormStep/2) + 
+#         ggplot2::geom_vline(xintercept = seq(from=0, to=1, by=NormStep), linetype = 'dotted') +
+#         ggplot2::labs(title = Main, y = ylab, x = "Normalized pseudotime")
+#     } else {
+#       p <- p + ggplot2::geom_smooth(method = "loess", span = .25) +
+#         ggplot2::labs(title = Main, y = ylab, x = "Pseudotime")
+#     }
+#     
+#     if(Log){
+#       p <- p + ggplot2::scale_y_log10()
+#     }
+#     
+#     return(p)
+#     
+#   } else {
+#     
+#     return(NULL)
+#     
+#   }
+#   
+# }
 
 
 
