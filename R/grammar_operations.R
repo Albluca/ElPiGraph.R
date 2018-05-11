@@ -649,7 +649,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   # print(paste("DEBUG:", TrimmingRadius))
   
-  if(n.cores > 1 & length(CombinedInfo$NodePositions) > MinParOP){
+  if(n.cores > 1 & length(CombinedInfo) > MinParOP){
     
     if(is.null(EnvCl)){
       cl <- parallel::makeCluster(n.cores)
