@@ -16,6 +16,7 @@ Imports:
     ggplot2,
     segmented,
     ggpubr,
+    infotheo,
     GenSA
 RoxygenNote: 6.0.1
 Suggests: knitr,
