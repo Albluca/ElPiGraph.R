@@ -11,8 +11,8 @@ computeElasticPrincipalGraph(Data, NumNodes, NumEdges = Inf,
   ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
-  Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
-  GrowGrammars = list(), ShrinkGrammars = list(),
+  MinParOP = 20, Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0,
+  gamma = 0, GrowGrammars = list(), ShrinkGrammars = list(),
   GrammarOptimization = FALSE, MaxSteps = Inf, GrammarOrder = c("Grow",
   "Shrink"), FastSolve = FALSE, AvoidSolitary = FALSE, EmbPointProb = 1,
   AdjustElasticMatrix = NULL, AdjustElasticMatrix.Initial = NULL,
@@ -70,6 +70,8 @@ cluster structure returned, e.g., by makeCluster. If a cluster structure is used
 
 \item{ClusType}{string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 Currently fork clustering only works in Linux}
+
+\item{MinParOP}{integer, the minimum number of operations to use parallel computation}
 
 \item{Mode}{integer, the energy computation mode}
 

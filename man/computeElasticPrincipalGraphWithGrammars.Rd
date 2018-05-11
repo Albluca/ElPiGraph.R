@@ -13,11 +13,11 @@ computeElasticPrincipalGraphWithGrammars(X, NumNodes, NumEdges = Inf,
   ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
   ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
   drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
-  nReps = 1, ParallelRep = FALSE, Subsets = list(), ProbPoint = 1,
-  Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0, gamma = 0,
-  FastSolve = FALSE, Configuration = NULL, DensityRadius = NULL,
-  AvoidSolitary = FALSE, EmbPointProb = 1, SampleIC = TRUE,
-  AvoidResampling = TRUE, AdjustElasticMatrix = NULL,
+  MinParOP = MinParOP, nReps = 1, ParallelRep = FALSE, Subsets = list(),
+  ProbPoint = 1, Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0,
+  gamma = 0, FastSolve = FALSE, Configuration = NULL,
+  DensityRadius = NULL, AvoidSolitary = FALSE, EmbPointProb = 1,
+  SampleIC = TRUE, AvoidResampling = TRUE, AdjustElasticMatrix = NULL,
   AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
   Mu.Initial = NULL, ...)
 }
@@ -86,6 +86,8 @@ cluster structure returned, e.g., by makeCluster. If a cluster structure is used
 
 \item{ClusType}{string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 Currently fork clustering only works in Linux}
+
+\item{MinParOP}{integer, the minimum number of operations to use parallel computation}
 
 \item{nReps}{integer, number of replica of the construction}
 
