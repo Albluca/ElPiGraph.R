@@ -539,6 +539,7 @@ ShrinkEdge <- function(NodePositions,
 #' @param AdjustVect 
 #' @param AdjustElasticMatrix 
 #' @param ... 
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #'
 #' @return
 #'
@@ -552,6 +553,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              verbose = FALSE,
                                              n.cores = 1,
                                              EnvCl = NULL,
+                                             MinParOP = 20,
                                              MaxNumberOfIterations = 100,
                                              eps = .01,
                                              TrimmingRadius = Inf,
@@ -647,7 +649,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   # print(paste("DEBUG:", TrimmingRadius))
   
-  if(n.cores > 1){
+  if(n.cores > 1 & length(CombinedInfo$NodePositions) > MinParOP){
     
     if(is.null(EnvCl)){
       cl <- parallel::makeCluster(n.cores)
