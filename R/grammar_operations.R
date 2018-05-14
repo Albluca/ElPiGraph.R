@@ -539,6 +539,7 @@ ShrinkEdge <- function(NodePositions,
 #' @param AdjustVect 
 #' @param AdjustElasticMatrix 
 #' @param ... 
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #'
 #' @return
 #'
@@ -552,6 +553,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
                                              verbose = FALSE,
                                              n.cores = 1,
                                              EnvCl = NULL,
+                                             MinParOP = 20,
                                              MaxNumberOfIterations = 100,
                                              eps = .01,
                                              TrimmingRadius = Inf,
@@ -647,7 +649,12 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   # print(paste("DEBUG:", TrimmingRadius))
   
-  if(n.cores > 1){
+  DynamicProcess <- length(CombinedInfo) %/% MinParOP + 1
+  if(DynamicProcess > n.cores){
+    DynamicProcess <- n.cores
+  }
+  
+  if((n.cores > 1) & (DynamicProcess > 1) ){
     
     if(is.null(EnvCl)){
       cl <- parallel::makeCluster(n.cores)
@@ -656,7 +663,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
       cl <- EnvCl
     }
     
-    Embed <- parallel::parLapply(cl, CombinedInfo, function(input){
+    Embed <- parallel::parLapply(cl[1:DynamicProcess], CombinedInfo, function(input){
       ElPiGraph.R:::PrimitiveElasticGraphEmbedment(X = X,
                                                    NodePositions = input$NodePositions,
                                                    ElasticMatrix = input$ElasticMatrix,

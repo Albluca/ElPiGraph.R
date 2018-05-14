@@ -11,13 +11,13 @@ computeElasticPrincipalCircle(X, NumNodes, NumEdges = Inf, InitNodes = 3,
   AdjustVect = NULL, CenterData = TRUE, ComputeMSEP = TRUE,
   verbose = FALSE, ShowTimer = FALSE, ReduceDimension = NULL,
   drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
-  n.cores = 1, ClusType = "Sock", nReps = 1, Subsets = list(),
-  ProbPoint = 1, Mode = 1, FinalEnergy = "Base", alpha = 0, beta = 0,
-  FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
-  AvoidSolitary = FALSE, EmbPointProb = 1, ParallelRep = FALSE,
-  SampleIC = TRUE, AvoidResampling = FALSE, AdjustElasticMatrix = NULL,
-  AdjustElasticMatrix.Initial = NULL, Lambda.Initial = NULL,
-  Mu.Initial = NULL, ...)
+  n.cores = 1, MinParOP = 20, ClusType = "Sock", nReps = 1,
+  Subsets = list(), ProbPoint = 1, Mode = 1, FinalEnergy = "Base",
+  alpha = 0, beta = 0, FastSolve = FALSE, ICOver = NULL,
+  DensityRadius = NULL, AvoidSolitary = FALSE, EmbPointProb = 1,
+  ParallelRep = FALSE, SampleIC = TRUE, AvoidResampling = FALSE,
+  AdjustElasticMatrix = NULL, AdjustElasticMatrix.Initial = NULL,
+  Lambda.Initial = NULL, Mu.Initial = NULL, ...)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -70,6 +70,8 @@ dimensionality reduction. If NULL all the components will be used}
 \item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
+
+\item{MinParOP}{integer, the minimum number of operations to use parallel computation}
 
 \item{ClusType}{string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 Currently fork clustering only works in Linux}

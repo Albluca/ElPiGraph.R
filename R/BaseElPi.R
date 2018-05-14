@@ -22,6 +22,7 @@
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
 #' @param eps real, minimal relative change in the position of the nodes to stop embedment 
 #' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
@@ -81,6 +82,7 @@ ElPrincGraph <- function(X,
                          verbose = FALSE,
                          n.cores = 1,
                          ClusType = "Sock",
+                         MinParOP = 20,
                          CompileReport = FALSE,
                          ShowTimer = FALSE,
                          ComputeMSEP = TRUE,
@@ -251,8 +253,6 @@ ElPrincGraph <- function(X,
             tictoc::tic()
           }
           
-          
-          
           UpdatedPG <- ElPiGraph.R:::ApplyOptimalGraphGrammarOpeation(X = X,
                                                                       NodePositions = UpdatedPG$NodePositions,
                                                                       ElasticMatrix = UpdatedPG$ElasticMatrix,
@@ -270,6 +270,7 @@ ElPrincGraph <- function(X,
                                                                       verbose = FALSE,
                                                                       n.cores = n.cores,
                                                                       EnvCl = cl,
+                                                                      MinParOP = MinParOP,
                                                                       FastSolve = FastSolve,
                                                                       AvoidSolitary = AvoidSolitary,
                                                                       EmbPointProb = EmbPointProb,
@@ -330,6 +331,7 @@ ElPrincGraph <- function(X,
                                                                       TrimmingRadius = TrimmingRadius,
                                                                       verbose = FALSE,
                                                                       n.cores = n.cores,
+                                                                      MinParOP = MinParOP,
                                                                       EnvCl = cl,
                                                                       FastSolve = FastSolve,
                                                                       AvoidSolitary = AvoidSolitary,
@@ -503,6 +505,7 @@ ElPrincGraph <- function(X,
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param GrowGrammars list of strings, the grammar to be used in the growth step
 #' @param ShrinkGrammars list of strings, the grammar to be used in the shrink step
 #' @param NumEdges integer, the maximum nulber of edges
@@ -572,6 +575,7 @@ computeElasticPrincipalGraph <- function(Data,
                                          drawEnergy = TRUE,
                                          n.cores = 1,
                                          ClusType = "Sock",
+                                         MinParOP = 20,
                                          Mode = 1,
                                          FinalEnergy = "Base",
                                          alpha = 0,
@@ -695,7 +699,7 @@ computeElasticPrincipalGraph <- function(Data,
                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma, Mode = Mode,
                          GrowGrammars = GrowGrammars, ShrinkGrammars = ShrinkGrammars,
                          GrammarOptimization = GrammarOptimization, MaxSteps = MaxSteps, GrammarOrder = GrammarOrder,
-                         ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType,
+                         ComputeMSEP = ComputeMSEP, n.cores = n.cores, ClusType = ClusType, MinParOP = MinParOP,
                          verbose = verbose, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
                          EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
                          AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial, ...)

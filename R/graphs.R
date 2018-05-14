@@ -250,8 +250,12 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
     
     for(i in 1:(length(EndPoints)-1)){
       for(j in (i+1):length(EndPoints)){
-        Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
-        Allbr[[length(Allbr)+1]] <- Path
+        suppressWarnings(
+          Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
+        )
+        if(length(Path) > 0){
+          Allbr[[length(Allbr)+1]] <- Path
+        }
       }
     }
     

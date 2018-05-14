@@ -4,8 +4,10 @@
 \alias{CompareOnBranches}
 \title{Compare feature values over different branches}
 \usage{
-CompareOnBranches(X, Paths, TargetPG, Partition, PrjStr, Main = "",
-  Features = 4)
+CompareOnBranches(X, Paths, TargetPG, BootPG = NULL, Conf = 0.95,
+  AllBP = FALSE, Partition, PrjStr, Main = "", ylab = "Feature value",
+  alpha = 0.3, ScalePT = FALSE, Features = 4, Mode = "Var",
+  Log = FALSE, Span = 0.1)
 }
 \arguments{
 \item{X}{the data matrix, note that features must be names, i.e. column names must be non-empty}
@@ -22,9 +24,25 @@ only if all the path begin from the same node (Although, this will not be enforc
 
 \item{Main}{string, the main title of the plot}
 
+\item{ylab}{string, the label of the y axis}
+
+\item{alpha}{numeric between 0 and 1, the trasparency of the points}
+
+\item{ScalePT}{boolean, should the pseudotime be normalized across the branches?}
+
 \item{Features}{either a string vector or a positive integer. If a string vector, it will be interpreted as
 the name of the features to plot (matched to the colnames of X). If positive integer, it will be interpreted
-as the number of the topmost vayring features of plot}
+as the number of the topmost interesting features according to the metric specified by Mode}
+
+\item{Mode}{string, the feature seletion mode used to determine the most interesting genes. It can be
+ \itemize{
+ \item{'Var'}{ The genes with the largest variance across the points nodes on the path}
+ \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
+ \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
+ \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
+}}
+
+\item{Log}{boolean, should a log scale be used on the y axis}
 }
 \description{
 Compare feature values over different branches
