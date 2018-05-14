@@ -649,7 +649,12 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
   
   # print(paste("DEBUG:", TrimmingRadius))
   
-  if(n.cores > 1 & length(CombinedInfo) > MinParOP){
+  DynamicProcess <- length(CombinedInfo) %/% MinParOP + 1
+  if(DynamicProcess > n.cores){
+    DynamicProcess <- n.cores
+  }
+  
+  if((n.cores > 1) & (DynamicProcess > 1) ){
     
     if(is.null(EnvCl)){
       cl <- parallel::makeCluster(n.cores)
@@ -658,7 +663,7 @@ ApplyOptimalGraphGrammarOpeation <- function(X,
       cl <- EnvCl
     }
     
-    Embed <- parallel::parLapply(cl, CombinedInfo, function(input){
+    Embed <- parallel::parLapply(cl[1:DynamicProcess], CombinedInfo, function(input){
       ElPiGraph.R:::PrimitiveElasticGraphEmbedment(X = X,
                                                    NodePositions = input$NodePositions,
                                                    ElasticMatrix = input$ElasticMatrix,
