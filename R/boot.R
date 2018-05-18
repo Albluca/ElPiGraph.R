@@ -194,7 +194,7 @@ GenertateConsensusGraph <- function(BootPG,
       CollapseRadius <- mean(MeanDistByNet)
     }
     
-   
+    print(paste("CollapseRadius = ", CollapseRadius))
     
     # Remove nodes with limited representability
     Selected <- rowSums(AllNodeDist < CollapseRadius) > MinNodeMult
