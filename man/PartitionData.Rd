@@ -14,8 +14,7 @@ PartitionData(X, NodePositions, SquaredX = NULL, TrimmingRadius = Inf,
 
 \item{SquaredX}{the sum by row of the squared positions rowSums(X^2). If NULL it will be calculated by the fucntion.}
 
-\item{TrimmingRadius}{If a number, the maximum distance of data points to the nodes to assign a point to a node.
-If a string, the definition of the adaptive systems to use}
+\item{TrimmingRadius}{Maximum distance of data points to the nodes to assign a point to a node}
 
 \item{nCores}{number of cores to use.}
 }

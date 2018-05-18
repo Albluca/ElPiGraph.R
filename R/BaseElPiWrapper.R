@@ -222,8 +222,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                 error = function(e){
                   print(e)
                   print("Resetting Initial point set")
-                  Used <- rep(FALSE, nrow(X))
-                  InitialConf.List[[i]] <-
+                  Used <<- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <<-
                     ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
                                                                Nodes = InitNodes,
                                                                Configuration = Configuration,
@@ -277,8 +277,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                 error = function(e){
                   print(e)
                   print("Resetting Initial point set")
-                  Used <- rep(FALSE, nrow(X))
-                  InitialConf.List[[i]] <-
+                  Used <<- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <<-
                     ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
                                                                Nodes = InitNodes,
                                                                Configuration = Configuration,
