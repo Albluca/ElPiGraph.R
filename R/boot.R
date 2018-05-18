@@ -174,7 +174,7 @@ GenertateConsensusGraph <- function(BootPG,
     
     if(PlotResult){
       EffDists <- as.vector(AllNodeDist[upper.tri(AllNodeDist)])
-      hist(EffDists, main = "Intranode distance", xlab = "Distance")
+      plot(density(EffDists, from = 0), main = "Intranode distance", xlab = "Distance")
       # abline(v = MinTol, lwd = 3)
     }
     
@@ -192,12 +192,17 @@ GenertateConsensusGraph <- function(BootPG,
       
       MeanDistByNet <- sqrt(MeanDistByNet)
       CollapseRadius <- mean(MeanDistByNet)
+      
+      if(PlotResult){
+        abline(v = CollapseRadius, col = 'red', lty = 2)
+      }
+      
     }
     
    
     
     # Remove nodes with limited representability
-    Selected <- rowSums(AllNodeDist < CollapseRadius) > MinNodeMult
+    Selected <- rowSums(AllNodeDist < CollapseRadius) >= MinNodeMult
     
     cat("Constructing Network\n")
     tictoc::tic()
