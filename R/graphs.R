@@ -89,7 +89,9 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
 
     SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
     
-    SubIsoProjList <- SubIsoProjList[!duplicated(sapply(SubIsoProjList, function(x){x[1]}))]
+    SubIsoProjList <- SubIsoProjList[!duplicated(
+      data.frame(t(sapply(SubIsoProjList, function(x){sort(x)})))
+      )]
 
     names(SubIsoProjList) <- paste("Circle", 1:length(SubIsoProjList), sep = "_")
     
