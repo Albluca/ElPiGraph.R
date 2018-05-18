@@ -201,7 +201,7 @@ GenertateConsensusGraph <- function(BootPG,
     
     cat("Constructing Network\n")
     tictoc::tic()
-    BigNet <- igraph::graph_from_adjacency_matrix(1*(AllNodeDist[Selected,Selected] < CollapseRadius))
+    BigNet <- igraph::graph_from_adjacency_matrix(1*(AllNodeDist[Selected,Selected] < CollapseRadius), mode = "undirected", diag = FALSE)
     tictoc::toc()
     
     KM <- kmeans(AllNodePos_Mat[Selected,], centers = Clusters, iter.max = 1000, nstart = 100)
@@ -212,21 +212,22 @@ GenertateConsensusGraph <- function(BootPG,
     
     # AllEdges
     
-    ClusPos <- lapply(1:max(KM$cluster), function(i){
-      if(sum(KM$cluster == i)>2){
-        colMeans((AllNodePos_Mat[Selected,])[KM$cluster == i,])
-      } else {
-        (AllNodePos_Mat[Selected,])[KM$cluster == i,]
-      }
-    })
+    # ClusPos <- lapply(1:nrow(KM$centers), function(i){
+    #   if(sum(KM$cluster == i)>2){
+    #     colMeans((AllNodePos_Mat[Selected,])[KM$cluster == i,])
+    #   } else {
+    #     (AllNodePos_Mat[Selected,])[KM$cluster == i,]
+    #   }
+    # })
     
-    ConMat <- matrix(0, max(KM$cluster), max(KM$cluster))
+    ClusPos <- KM$centers
+    
+    ConMat <- matrix(0, nrow(KM$centers), nrow(KM$centers))
     
     tictoc::tic()
     cat("Working on nodes ")
-    for(i in 2:max(KM$cluster)){
-      cat(i)
-      cat(" ")
+    for(i in 2:nrow(KM$centers)){
+      cat(i, " ")
       for(j in 1:(i-1)){
         Nei1 <- igraph::neighborhood(graph = BigNet, order = 1, nodes = names(which(KM$cluster == i)))
         ConMat[i, j] <- sum(names(which(KM$cluster == j)) %in% unique(names(unlist(Nei1))))
@@ -235,10 +236,15 @@ GenertateConsensusGraph <- function(BootPG,
     ConMat <- ConMat + t(ConMat)
     tictoc::toc()
     
-    NewNet <- igraph::graph_from_adjacency_matrix(ConMat > MinEdgMult)
+    ConMat[ConMat < MinEdgMult] <- 0
+    
+    NewNet <- igraph::graph_from_adjacency_matrix(ConMat , mode = "undirected", diag = FALSE)
+    igraph::V(NewNet)$Pos <- 1:nrow(ClusPos)
+    
+    # plot(NewNet, vertex.label = NA, vertex.size = 1)
     
     CombNet <- list(
-      Nodes = do.call(rbind, ClusPos),
+      Nodes = ClusPos[igraph::V(NewNet)$Pos,],
       Edges = igraph::get.edgelist(NewNet)
     )
     
@@ -463,11 +469,9 @@ GenertateConsensusGraph <- function(BootPG,
 
       AllClus <- igraph::clusters(NewNet)
       
-      igraph::V(NewNet)$oldID <- 1:igraph::vcount(NewNet)
       GR1 <- igraph::delete.vertices(NewNet, which(AllClus$membership != which.max(AllClus$csize)))
-      ToKeep <- as.integer(igraph::V(GR1)$oldID)
 
-      CombNet$Nodes <- CombNet$Nodes[ToKeep, ]
+      CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos), ]
       CombNet$Edges <- igraph::get.edgelist(GR1)
 
       NewNet <- GR1
@@ -475,12 +479,10 @@ GenertateConsensusGraph <- function(BootPG,
 
     if(RemoveIsolatedNodes & !OnlyLCC){
 
-      igraph::V(NewNet)$oldID <- 1:igraph::vcount(NewNet)
       if(any(igraph::degree(NewNet) == 0)){
         GR1 <- igraph::delete.vertices(NewNet, which(igraph::degree(NewNet) == 0))
-        ToKeep <- as.integer(igraph::V(GR1)$oldID)
         
-        CombNet$Nodes <- CombNet$Nodes[ToKeep, ]
+        CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos),]
         CombNet$Edges <- igraph::get.edgelist(GR1)
         
         NewNet <- GR1
@@ -496,18 +498,18 @@ GenertateConsensusGraph <- function(BootPG,
     
     if(PlotResult){
       
-      if(ncol(CombNet$Nodes)>2){
+      if(ncol(CombNet$Nodes)>5){
         RotPoints <- irlba::prcomp_irlba(CombNet$Nodes, 2, retx = TRUE)
       } else {
         RotPoints <- prcomp(CombNet$Nodes, retx = TRUE)
       }
       
-      plot(RotPoints$x, col = "red")
+      plot(RotPoints$x[,1:2], col = "red")
       for(i in 1:nrow(CombNet$Edges)){
-        arrows(x0 = RotPoints$x[unlist(CombNet$Edges[i, 1]), 1],
-               y0 = RotPoints$x[unlist(CombNet$Edges[i, 1]), 2],
-               x1 = RotPoints$x[unlist(CombNet$Edges[i, 2]), 1],
-               y1 = RotPoints$x[unlist(CombNet$Edges[i, 2]), 2],
+        arrows(x0 = RotPoints$x[CombNet$Edges[i, 1], 1],
+               y0 = RotPoints$x[CombNet$Edges[i, 1], 2],
+               x1 = RotPoints$x[CombNet$Edges[i, 2], 1],
+               y1 = RotPoints$x[CombNet$Edges[i, 2], 2],
                length = 0)
       }
     }
