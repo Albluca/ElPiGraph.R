@@ -220,7 +220,7 @@ plotPieNet <- function(X,
   
   if(!is.null(Nodes)){
     Net <- igraph::induced.subgraph(Net, Nodes)
-    PieList <- PieList[as.integer(names(igraph::V(tNet)))]
+    PieList <- PieList[as.integer(names(igraph::V(Net)))]
     # NodePos <- TargetPG$NodePositions[as.integer(names(igraph::V(tNet))), ]
   } else {
     # NodePos <- TargetPG$NodePositions
@@ -232,8 +232,8 @@ plotPieNet <- function(X,
                                       list(table(factor(x = Partition, levels = 1:nrow(TargetPG$NodePositions)))))
     } else {
       PieSize <- NodeSizeMult*do.call(what = ScaleFunction,
-                                      list(table(factor(x = Partition[Partition %in% as.integer(names(igraph::V(tNet)))],
-                                                        levels = as.integer(names(igraph::V(tNet)))
+                                      list(table(factor(x = Partition[Partition %in% as.integer(names(igraph::V(Net)))],
+                                                        levels = as.integer(names(igraph::V(Net)))
                                                         ))))
     }
       
@@ -709,7 +709,7 @@ PlotPG <- function(X,
         df4 <- data.frame(PCA = TargetPG$NodePositions[,Idx1], PCB = TargetPG$NodePositions[,Idx2], Lab = NodeLabels)
       }
       
-      p <- p + ggplot2::geom_text(mapping = ggplot2::aes(x=PCA, y=PCB, label = Lab),
+      p <- p + ggplot2::geom_text(mapping = ggplot2::aes(x = PCA, y = PCB, label = Lab),
                                   data = df4, hjust = 0,
                                   inherit.aes = FALSE, na.rm = TRUE,
                                   check_overlap = TRUE, color = "black", size = LabMult)
