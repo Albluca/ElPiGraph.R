@@ -253,16 +253,17 @@ GenertateConsensusGraph <- function(BootPG,
     tictoc::toc()
     
     ConMat[ConMat < MinEdgMult] <- 0
-    ConMat[ConMat > 0] <- 1
+    # ConMat[ConMat > 0] <- 1
     
-    NewNet <- igraph::graph_from_adjacency_matrix(ConMat, mode = "undirected", diag = FALSE)
+    NewNet <- igraph::graph_from_adjacency_matrix(ConMat, mode = "undirected", weighted = "mult", diag = FALSE)
     igraph::V(NewNet)$Pos <- 1:nrow(ClusPos)
     
     # plot(NewNet, vertex.label = NA, vertex.size = 1)
     
     CombNet <- list(
       Nodes = ClusPos[igraph::V(NewNet)$Pos,],
-      Edges = igraph::get.edgelist(NewNet)
+      Edges = igraph::get.edgelist(NewNet),
+      Graph = NewNet
     )
     
     # 
@@ -490,6 +491,7 @@ GenertateConsensusGraph <- function(BootPG,
 
       CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos), ]
       CombNet$Edges <- igraph::get.edgelist(GR1)
+      CombNet$Graph <- GR1
 
       NewNet <- GR1
     }
@@ -501,6 +503,7 @@ GenertateConsensusGraph <- function(BootPG,
         
         CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos),]
         CombNet$Edges <- igraph::get.edgelist(GR1)
+        CombNet$Graph <- GR1
         
         NewNet <- GR1
       }
@@ -572,6 +575,7 @@ GenertateConsensusGraph <- function(BootPG,
       
       CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos),]
       CombNet$Edges <- igraph::get.edgelist(GR1)
+      CombNet$Graph <- GR1
       
       NewNet <- GR1
       
@@ -599,7 +603,7 @@ GenertateConsensusGraph <- function(BootPG,
     }
     
     # Return nodes and edges
-    return(list(NodePos = CombNet$Nodes, EdgeMat = CombNet$Edges))
+    return(list(NodePos = CombNet$Nodes, EdgeMat = CombNet$Edges, Graph = CombNet$Graph, EdgMult = igraph::E(CombNet$Graph)$mult))
     
   }
   
