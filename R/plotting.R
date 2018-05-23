@@ -161,6 +161,7 @@ plotPieNet <- function(X,
                        TrimmingRadius = Inf,
                        Graph = NULL,
                        LayOut = 'nicely',
+                       LayoutIter = 500,
                        TreeRoot = numeric(),
                        distMeth = "manhattan",
                        Main="",
@@ -169,6 +170,7 @@ plotPieNet <- function(X,
                        ColCat = NULL,
                        Leg.cex = 1,
                        Arrow.size = 1,
+                       NodeLabels = NULL,
                        LabSize = 1) {
 
   if(!is.factor(GroupsLab)){
@@ -212,6 +214,13 @@ plotPieNet <- function(X,
   } else {
     Net <- Graph
   }
+  
+  if(is.null(NodeLabels)){
+    igraph::V(Net)$lab <- 1:igraph::vcount(Net)
+  } else {
+    igraph::V(Net)$label <- NodeLabels
+  }
+  
   
   PieList <- apply(GroupPartTab, 1, list)
   PieList <- lapply(PieList, function(x){x[[1]]})
@@ -321,7 +330,7 @@ plotPieNet <- function(X,
     igraph::E(tNet)$weight[is.na(igraph::E(tNet)$weight)] <- min(igraph::E(tNet)$weight, na.rm = TRUE)/10
     
     RestrNodes <- igraph::layout_with_kk(graph = igraph::as.undirected(tNet, mode = 'collapse'),
-                                         weights = igraph::E(tNet)$weight)
+                                         weights = igraph::E(tNet)$weight, maxiter = LayoutIter)
     LayOutDONE <- TRUE
   }
   
@@ -384,7 +393,7 @@ plotPieNet <- function(X,
     
     igraph::E(tNet)$weight[is.na(igraph::E(tNet)$weight)] <- 10/min(igraph::E(tNet)$weight, na.rm = TRUE)
     
-    RestrNodes <- igraph::layout_with_fr(graph = tNet)
+    RestrNodes <- igraph::layout_with_fr(graph = tNet, niter = LayoutIter)
     LayOutDONE <- TRUE
   }
   
