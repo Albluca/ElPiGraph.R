@@ -94,8 +94,19 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #'  \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
 #'  \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
 #'  \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
+#'  \item{'Cor.DB'}{ The genes whose product of Spearman correlation (w.r.t. the pseudotime ordering) is the largest}
 #' }
 #' @param Log boolean, should a log scale be used on the y axis
+#' @param BootPG 
+#' @param GroupsLab character of factor, category information for the cells present in the matrix.
+#' @param TrajCol boolean, should the points be colored by trajectory? If FALSE GroupsLab will be used.
+#' @param Conf 
+#' @param AllBP 
+#' @param facet_rows integer, the number of rows per panel
+#' @param facet_cols integer, the number of cols per panel
+#' @param Span the span parameter of the loess fitter
+#' @param PlotOrg boolean, should the original gene expression be reported. If false oly the smooth will be plotted.
+#' @param ModePar additional parameters for the feature selection mode used
 #'
 #' @return
 #' @export
@@ -105,6 +116,9 @@ CompareOnBranches <- function(X,
                               Paths,
                               TargetPG,
                               BootPG = NULL,
+                              GroupsLab = NULL,
+                              PlotOrg = TRUE,
+                              TrajCol = FALSE,
                               Conf = .95,
                               AllBP = FALSE,
                               Partition,
@@ -114,9 +128,16 @@ CompareOnBranches <- function(X,
                               alpha = .3,
                               ScalePT = FALSE,
                               Features = 4,
+                              facet_rows = 3,
+                              facet_cols = 3,
                               Mode = "Var",
+                              ModePar = NULL,
                               Log = FALSE,
                               Span = .1) {
+  
+  if(is.null(GroupsLab)){
+    GroupsLab = factor(rep("N/A", nrow(X)))
+  }
   
   CombDF <- NULL
   
@@ -154,7 +175,20 @@ CompareOnBranches <- function(X,
       })
     })
     
-    OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    if(is.null(ModePar)){
+      ModePar = "max"
+    }
+    
+    if(all(ModePar != c("min", "max"))){
+      ModePar = "max"
+    }
+    
+    if(ModePar == "max"){
+      OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    }
+    if(ModePar == "min"){
+      OrdMI <- order(apply(Path_MI, 1, min), decreasing = TRUE)
+    }
     
     Features <- colnames(X)[OrdMI[1:Features]]
     
@@ -162,7 +196,7 @@ CompareOnBranches <- function(X,
   
   if(is.numeric(Features) & Mode == "MI.DB"){
     
-    print("Feature selection by mutual information on diffeerntial branches")
+    print("Feature selection by mutual information on differential branches")
     
     SharedPath <- unique(unlist(Paths, use.names = FALSE))
     for(i in 1:length(Paths)){
@@ -187,7 +221,20 @@ CompareOnBranches <- function(X,
       })
     })
     
-    OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    if(is.null(ModePar)){
+      ModePar = "max"
+    }
+    
+    if(all(ModePar != c("min", "max"))){
+      ModePar = "max"
+    }
+    
+    if(ModePar == "max"){
+      OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+    }
+    if(ModePar == "min"){
+      OrdMI <- order(apply(Path_MI, 1, min), decreasing = TRUE)
+    }
     
     Features <- colnames(X)[OrdMI[1:Features]]
     
@@ -211,7 +258,15 @@ CompareOnBranches <- function(X,
     FilPart[] <- 0
     
     for(i in 1:length(DiffPath)){
-      FilPart[Partition %in% as.integer(DiffPath[[i]])] <- i
+      if(is.null(ModePar)){
+        FilPart[Partition %in% as.integer(DiffPath[[i]])] <- i
+      } else {
+        SelNodes <- c(
+          max(1, length(DiffPath[[i]]) - ModePar),
+          length(DiffPath[[i]])
+        )
+        FilPart[Partition %in% as.integer(DiffPath[[i]])[SelNodes]] <- i
+      }
     }
     
     tX <- X[FilPart != 0, ]
@@ -224,6 +279,41 @@ CompareOnBranches <- function(X,
     Features <- colnames(X)[order(PVVect, decreasing = FALSE)[1:Features]]
     
   }
+  
+  if(is.numeric(Features) & Mode == "Cor.DB"){
+    
+    print("Feature selection by diverging correlation on differential branches")
+    
+    SharedPath <- unique(unlist(Paths, use.names = FALSE))
+    for(i in 1:length(Paths)){
+      SharedPath <- intersect(SharedPath, Paths[[i]])
+    }
+    
+    DiffPath <- list()
+    for(i in 1:length(Paths)){
+      DiffPath[[i]] <- (Paths[[i]])[!(Paths[[i]] %in% SharedPath)]
+    }
+    
+    Path_MI <- sapply(DiffPath, function(x){
+      PtOnPath <- getPseudotime(ProjStruct = PrjStr, NodeSeq = x)
+      
+      PtVect <- PtOnPath$Pt
+      Seleced <- !is.na(PtVect)
+
+      suppressWarnings(
+        sapply(1:ncol(X), function(j) {
+          cor(X[Seleced,j], PtVect[Seleced], method = "spe")
+        })
+      )
+      
+    })
+    
+    OrdMI <- order(apply(Path_MI, 1, function(x){sign(prod(x, na.rm = TRUE))*mean(abs(x), na.rm = TRUE)}), decreasing = FALSE, na.last = TRUE)
+    
+    Features <- colnames(X)[OrdMI[1:Features]]
+    
+  }
+  
   
   tX <- X[, colnames(X) %in% Features]
   if(is.null(dim(tX))){
@@ -264,7 +354,7 @@ CompareOnBranches <- function(X,
     BrPos.Ass <- NodeIdx[sapply(NodeIdx, function(x){all(!is.na(x))})]
     BrPos.Ass <- unlist(BrPos.Ass)
     
-    OrgBR <- 
+    # OrgBR <- 
     
     BrPos.Mat <- do.call(rbind, BrPos)
     
@@ -397,7 +487,8 @@ CompareOnBranches <- function(X,
         CombDF, data.frame(Pt = RenormPt[MetlExp$X1],
                            gene = MetlExp$X2,
                            exp = MetlExp$value,
-                           traj = TrjName)
+                           traj = TrjName,
+                           pop = GroupsLab)
       )
       
     } else {
@@ -405,7 +496,8 @@ CompareOnBranches <- function(X,
         CombDF, data.frame(Pt = PtVect[MetlExp$X1],
                            gene = MetlExp$X2,
                            exp = MetlExp$value,
-                           traj = TrjName)
+                           traj = TrjName,
+                           pop = GroupsLab)
       )
       
       if(!is.null(BootPG)){
@@ -426,17 +518,26 @@ CompareOnBranches <- function(X,
   CombDF <- CombDF[!is.na(CombDF$Pt), ]
   
   if(nrow(CombDF)>0){
-    p <- ggplot2::ggplot(CombDF,
-                         ggplot2::aes(x=Pt, y=exp, color = traj)) + ggplot2::geom_point(alpha = alpha) +
-      ggplot2::scale_color_discrete("Branch") +
-      ggplot2::facet_wrap(~gene, scales = "free_y")
+    if(TrajCol){
+      p <- ggplot2::ggplot(CombDF,
+                           ggplot2::aes(x=Pt, y=exp, color = traj)) +
+        ggplot2::scale_color_discrete("Branch")
+    } else {
+      p <- ggplot2::ggplot(CombDF,
+                           ggplot2::aes(x=Pt, y=exp, color = pop))
+    }
+    
+    if(PlotOrg){
+      p <- p + ggplot2::geom_point(alpha = alpha)
+    }
+      
     
     if(ScalePT){
-      p <- p + ggplot2::geom_smooth(method = "loess", span = Span) + 
+      p <- p + ggplot2::geom_smooth(ggplot2::aes(color = traj), method = "loess", span = Span) + 
         ggplot2::geom_vline(xintercept = seq(from=0, to=1, by=NormStep), linetype = 'dotted') +
         ggplot2::labs(title = Main, y = ylab, x = "Normalized pseudotime")
     } else {
-      p <- p + ggplot2::geom_smooth(method = "loess", span = Span) +
+      p <- p + ggplot2::geom_smooth(ggplot2::aes(color = traj), method = "loess", span = Span) +
         ggplot2::labs(title = Main, y = ylab, x = "Pseudotime")
     }
     
@@ -496,6 +597,19 @@ CompareOnBranches <- function(X,
                                     inherit.aes = FALSE, alpha = .5) + ggplot2::guides(fill = "none")
       }
       
+    }
+    
+    Pages <- ceiling(length(Features) / (facet_rows*facet_cols))
+    
+    # print(length(Features))
+    print(paste(Pages, "pages will be plotted"))
+    
+    if(Pages > 1){
+      p <- lapply(as.list(1:Pages), function(i){
+        p + ggforce::facet_wrap_paginate(~gene, nrow = facet_rows, ncol = facet_cols, scales = "free_y", page = i)
+      })
+    } else {
+      p <- p + ggplot2::facet_wrap(~gene, scales = "free_y")
     }
     
     return(p)
