@@ -321,6 +321,8 @@ CollapseBrances <- function(X,
   # get the number of points on the different branches
   AllBrInfo <- lapply(Branches, function(BrNodes){
     
+    # print(BrNodes)
+    
     PotentialPoints <- rep(FALSE, length(ProjStruct$EdgeID))
     
     NodeNames <- as.integer(names(BrNodes))
@@ -481,7 +483,7 @@ CollapseBrances <- function(X,
         
       } else {
         
-        # It's a "bridge". We cannot simply remove nodes. Need to introduce a new one by "fusing" thwo stars
+        # It's a "bridge". We cannot simply remove nodes. Need to introduce a new one by "fusing" two stars
         
         print(paste("Removing the bridge branch with nodes:", paste(NodeNames, collapse = " ")))
         
