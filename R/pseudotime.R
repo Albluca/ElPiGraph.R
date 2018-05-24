@@ -139,6 +139,11 @@ CompareOnBranches <- function(X,
     GroupsLab = factor(rep("N/A", nrow(X)))
   }
   
+  if(is.null(names(GroupsLab))){
+    names(GroupsLab) = rownames(X)
+  }
+  
+  
   CombDF <- NULL
   
   if(is.numeric(Features) & Mode == "Var"){
@@ -369,18 +374,24 @@ CompareOnBranches <- function(X,
   
   if(ScalePT){
     
+    # Get the end point for each branch
     BP <- sapply(Paths, function(x){
       c(x[1], x[length(x)])
     })
     
+    # Get the unique end points
     BP <- unique(as.vector(BP))
     
+    # for each pair of paths
     for(i in 1:length(Paths)){
       for(j in 1:length(Paths)){
         if(i == j){
           next()
         }
         Range <- range(which(Paths[[i]] %in% Paths[[j]]))
+        if(Range[1] == Range[2]){
+          Range <- Range[1]
+        }
         BP <- union(BP, (Paths[[i]])[Range])
       }
     }
@@ -388,6 +399,7 @@ CompareOnBranches <- function(X,
     BPxPath <- sapply(Paths, function(x){
       sum(x %in% BP)
     })
+    
     NormStep <- 1/(max(BPxPath)-1)
     
   }
@@ -398,6 +410,8 @@ CompareOnBranches <- function(X,
     PtVect <- PtOnPath$Pt
     names(PtVect) <- rownames(tX)
     MetlExp <- reshape::melt(tX)
+    
+    MetlExp$X1 <- as.character(MetlExp$X1)
     
     if(!is.null(names(Paths)[i])){
       TrjName <- names(Paths)[i]
@@ -443,29 +457,41 @@ CompareOnBranches <- function(X,
       
       RenormPoints <- PtOnPath$NodePos[which(Paths[[i]] %in% BP)]
       
+      if(RenormPoints[1] == 0){
+        RenormPoints <- RenormPoints[-1]
+      }
+      
       if(!is.null(BootPG)){
         PtVect <- c(PtVect, as.vector(PtCI))
       }
       
       RenormPt <- PtVect
       
-      for(j in 1:(length(RenormPoints)-1)){
-        
-        ToRenorm <- RenormPt[PtVect>=RenormPoints[j] &
-                               PtVect<RenormPoints[j+1] &
-                               !is.na(PtVect)]
-        ToRenorm <- ToRenorm - RenormPoints[j]
-        ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
-
-        if(j == (length(RenormPoints)-1) ){
-          ToRenorm <- ToRenorm*(1-NormStep*(j-1)) + NormStep*(j-1)
-        } else {
-          ToRenorm <- ToRenorm*NormStep + NormStep*(j-1)
+      if(length(RenormPoints) > 1){
+        for(j in 1:(length(RenormPoints)-1)){
+          
+          ToRenorm <- RenormPt[PtVect>=RenormPoints[j] &
+                                 PtVect<RenormPoints[j+1] &
+                                 !is.na(PtVect)]
+          ToRenorm <- ToRenorm - RenormPoints[j]
+          ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
+          
+          if(j == (length(RenormPoints)-1) ){
+            ToRenorm <- ToRenorm*(1-NormStep*(j-1)) + NormStep*(j-1)
+          } else {
+            ToRenorm <- ToRenorm*NormStep + NormStep*(j-1)
+          }
+          
+          RenormPt[PtVect>=RenormPoints[j] &
+                     PtVect<RenormPoints[j+1] &
+                     !is.na(PtVect)] <- ToRenorm
         }
+      } else {
         
-        RenormPt[PtVect>=RenormPoints[j] &
-                   PtVect<RenormPoints[j+1] &
-                   !is.na(PtVect)] <- ToRenorm
+        ToRenorm <- RenormPt[!is.na(PtVect)]
+        ToRenorm <- ToRenorm/RenormPoints
+        
+        RenormPt[!is.na(PtVect)] <- ToRenorm
       }
       
       if(!is.null(BootPG)){
@@ -488,7 +514,7 @@ CompareOnBranches <- function(X,
                            gene = MetlExp$X2,
                            exp = MetlExp$value,
                            traj = TrjName,
-                           pop = GroupsLab)
+                           pop = GroupsLab[MetlExp$X1])
       )
       
     } else {
@@ -497,7 +523,7 @@ CompareOnBranches <- function(X,
                            gene = MetlExp$X2,
                            exp = MetlExp$value,
                            traj = TrjName,
-                           pop = GroupsLab)
+                           pop = GroupsLab[MetlExp$X1])
       )
       
       if(!is.null(BootPG)){
