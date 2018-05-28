@@ -148,6 +148,10 @@ accuracyComplexityPlot <- function(ReportTable, AdjFactor=1, Main = '', Mode = '
 #' @param distMeth the matric used to compute the distance if LayOut = 'mds'
 #' @param Arrow.size numeric, the size of the arrow
 #' @param LabSize numeric, the size of the node labels
+#' @param LayoutIter numeric, the number of interation of the layout algorithm
+#' @param Leg.pos character, the position of the legend (see the help of the legend function)
+#' @param Leg.horiz boolean, should the legend be plotted in horizontal
+#' @param NodeLabels character vector, the names of the nodes
 #'
 #' @return NULL
 #' @export
@@ -169,6 +173,8 @@ plotPieNet <- function(X,
                        NodeSizeMult = 1,
                        ColCat = NULL,
                        Leg.cex = 1,
+                       Leg.pos = "bottom",
+                       Leg.horiz = TRUE,
                        Arrow.size = 1,
                        NodeLabels = NULL,
                        LabSize = 1) {
@@ -183,10 +189,10 @@ plotPieNet <- function(X,
   } else {
     if(sum(names(ColCat) %in% levels(GroupsLab)) < length(unique(GroupsLab))){
       print("Reassigning colors to categories")
-      names(ColCat) <- c(levels(GroupsLab), NA)
+      names(ColCat) <- c(levels(GroupsLab))
     }
-    ColCat <- ColCat[levels(GroupsLab)]
-    ColCat <- c(ColCat, NA)
+    ColCat <- c(ColCat[levels(GroupsLab)], NA)
+    # ColCat <- c(ColCat, NA)
   }
 
   if(is.null(Partition)){
@@ -411,8 +417,12 @@ plotPieNet <- function(X,
                       edge.color = "black", vertex.label.dist = 0.7,
                       vertex.label.color = "black", vertex.label.cex = LabSize)  
   
-  legend(x = "bottom", legend = names(ColCat)[!is.na(names(ColCat))],
-         fill = ColCat[!is.na(names(ColCat))], horiz = TRUE, cex = Leg.cex)
+  if(Leg.cex>0){
+    
+    legend(x = Leg.pos, legend = names(ColCat)[names(ColCat) != ""],
+           fill = ColCat[names(ColCat) != ""], horiz = Leg.horiz, cex = Leg.cex)
+  }
+  
 
 }
 
