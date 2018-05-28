@@ -133,7 +133,9 @@ CompareOnBranches <- function(X,
                               Mode = "Var",
                               ModePar = NULL,
                               Log = FALSE,
-                              Span = .1) {
+                              Span = .1,
+                              n.cores = 1,
+                              ClusType = "SOCK") {
   
   if(is.null(GroupsLab)){
     GroupsLab = factor(rep("N/A", nrow(X)))
@@ -148,12 +150,24 @@ CompareOnBranches <- function(X,
   
   if(is.numeric(Features) & Mode == "Var"){
     
-    print("Feature selection by feature variance")
+    print("Feature selection by variance")
     
     SharedPath <- unique(unlist(Paths, use.names = FALSE))
     tX <- X[Partition %in% as.integer(SharedPath), ]
     
-    GenesByVar <- apply(tX, 2, var)
+    if(n.cores == 1){
+      GenesByVar <- apply(tX, 2, var)
+    } else {
+      if(ClusType == "FORK"){
+        cl <- parallel::makeForkCluster(n.cores)
+        GenesByVar <- parallel::parApply(cl, tX, 2, var)
+      } else {
+        cl <- parallel::makePSOCKcluster(n.cores)
+        parallel::clusterExport(cl, "tX")
+        GenesByVar <- parallel::parApply(cl, tX, 2, var)
+      }
+      parallel::stopCluster(cl)
+    }
     
     if(length(GenesByVar) <= Features){
       Features = length(GenesByVar)
@@ -175,9 +189,28 @@ CompareOnBranches <- function(X,
       
       FactoredPT <- factor(PtVect[Seleced])
       
-      sapply(1:ncol(X), function(j) {
-        infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
-      })
+      if(n.cores == 1){
+        AllMI <- sapply(1:ncol(X), function(j) {
+          infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+        })
+      } else {
+        if(ClusType == "FORK"){
+          cl <- parallel::makeForkCluster(n.cores)
+          AllMI <- parallel::parSapply(cl, 1:ncol(X), function(j) {
+            infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+          })
+        } else {
+          cl <- parallel::makePSOCKcluster(n.cores)
+          parallel::clusterExport(cl, c("X", "Selected", "FactoredPT"))
+          AllMI <- parallel::parSapply(cl, 1:ncol(X), function(j) {
+            infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+          })
+        }
+        parallel::stopCluster(cl)
+      }
+      
+      return(AllMI)
+      
     })
     
     if(is.null(ModePar)){
@@ -221,9 +254,29 @@ CompareOnBranches <- function(X,
       
       FactoredPT <- factor(PtVect[Seleced])
       
-      sapply(1:ncol(X), function(j) {
-        infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
-      })
+      
+      if(n.cores == 1){
+        AllMI <- sapply(1:ncol(X), function(j) {
+          infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+        })
+      } else {
+        if(ClusType == "FORK"){
+          cl <- parallel::makeForkCluster(n.cores)
+          AllMI <- parallel::parSapply(cl, 1:ncol(X), function(j) {
+            infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+          })
+        } else {
+          cl <- parallel::makePSOCKcluster(n.cores)
+          parallel::clusterExport(cl, c("X", "Selected", "FactoredPT"))
+          AllMI <- parallel::parSapply(cl, 1:ncol(X), function(j) {
+            infotheo::mutinformation(X = factor(X[Seleced,j]), FactoredPT)
+          })
+        }
+        parallel::stopCluster(cl)
+      }
+      
+      return(AllMI)
+      
     })
     
     if(is.null(ModePar)){
@@ -277,9 +330,25 @@ CompareOnBranches <- function(X,
     tX <- X[FilPart != 0, ]
     FilPart <- FilPart[FilPart != 0]
     
-    PVVect <- apply(tX, 2, function(x){
-      kruskal.test(x, FilPart)$p.val
-    })
+    if(n.cores == 1){
+      PVVect <- apply(tX, 2, function(x){
+        kruskal.test(x, FilPart)$p.val
+      })
+    } else {
+      if(ClusType == "FORK"){
+        cl <- parallel::makeForkCluster(n.cores)
+        PVVect <- parallel::parApply(cl, tX, 2, function(x){
+          kruskal.test(x, FilPart)$p.val
+        })
+      } else {
+        cl <- parallel::makePSOCKcluster(n.cores)
+        parallel::clusterExport(cl, c("tX", "FilPart"))
+        PVVect <- parallel::parApply(cl, tX, 2, function(x){
+          kruskal.test(x, FilPart)$p.val
+        })
+      }
+      parallel::stopCluster(cl)
+    }
     
     Features <- colnames(X)[order(PVVect, decreasing = FALSE)[1:Features]]
     
@@ -457,8 +526,10 @@ CompareOnBranches <- function(X,
       
       RenormPoints <- PtOnPath$NodePos[which(Paths[[i]] %in% BP)]
       
-      if(RenormPoints[1] == 0){
+      if(RenormPoints[1] == 0 & length(RenormPoints) == 2){
         RenormPoints <- RenormPoints[-1]
+      } else {
+        RenormPoints[1] <- -1
       }
       
       if(!is.null(BootPG)){
@@ -470,8 +541,8 @@ CompareOnBranches <- function(X,
       if(length(RenormPoints) > 1){
         for(j in 1:(length(RenormPoints)-1)){
           
-          ToRenorm <- RenormPt[PtVect>=RenormPoints[j] &
-                                 PtVect<RenormPoints[j+1] &
+          ToRenorm <- RenormPt[PtVect>RenormPoints[j] &
+                                 PtVect<=RenormPoints[j+1] &
                                  !is.na(PtVect)]
           ToRenorm <- ToRenorm - RenormPoints[j]
           ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
@@ -482,8 +553,8 @@ CompareOnBranches <- function(X,
             ToRenorm <- ToRenorm*NormStep + NormStep*(j-1)
           }
           
-          RenormPt[PtVect>=RenormPoints[j] &
-                     PtVect<RenormPoints[j+1] &
+          RenormPt[PtVect>RenormPoints[j] &
+                     PtVect<=RenormPoints[j+1] &
                      !is.na(PtVect)] <- ToRenorm
         }
       } else {
@@ -493,6 +564,8 @@ CompareOnBranches <- function(X,
         
         RenormPt[!is.na(PtVect)] <- ToRenorm
       }
+      
+      names(RenormPt) <- names(PtVect)
       
       if(!is.null(BootPG)){
         CIRenorm <- RenormPt[
