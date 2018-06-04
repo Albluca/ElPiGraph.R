@@ -124,6 +124,7 @@ CompareOnBranches <- function(X,
                               TrajCol = FALSE,
                               Conf = .95,
                               AllBP = FALSE,
+                              TrimmingRadius = TrimmingRadius,
                               Partition,
                               PrjStr,
                               Main = "",
@@ -149,10 +150,9 @@ CompareOnBranches <- function(X,
     names(GroupsLab) = rownames(X)
   }
   
-  
   CombDF <- NULL
   
-  if(is.numeric(Features) & Mode == "Var"){
+  if(is.numeric(Features) & (Mode == "Var" | Mode == "Fano")){
     
     print("Feature selection by variance")
     
@@ -177,11 +177,18 @@ CompareOnBranches <- function(X,
       Features = length(GenesByVar)
     }
     
-    if(ReturnGenes){
-      return(GenesByVar)
+    if(Mode == "Fano"){
+      GenesByVar <- GenesByVar/colMeans(tX)
+      if(any(!is.finite(GenesByVar))){
+        GenesByVar[!is.finite(GenesByVar)] <- 0
+      }
     }
     
-    Features <- names(GenesByVar[order(GenesByVar, decreasing = TRUE)])[1:min(Features,length(GenesByVar))]
+    if(ReturnGenes){
+      return(sort(GenesByVar, decreasing = TRUE))
+    }
+    
+    Features <- names(sort(GenesByVar, decreasing = TRUE))[1:Features]
     
   }
   
@@ -465,16 +472,15 @@ CompareOnBranches <- function(X,
     BrPos.Ass <- NodeIdx[sapply(NodeIdx, function(x){all(!is.na(x))})]
     BrPos.Ass <- unlist(BrPos.Ass)
     
-    # OrgBR <- 
-    
     BrPos.Mat <- do.call(rbind, BrPos)
     
-    tPart <- PartitionData(X = BrPos.Mat, NodePositions = TargetPG$NodePositions)
+    tPart <- PartitionData(X = BrPos.Mat, NodePositions = TargetPG$NodePositions, TrimmingRadius = TrimmingRadius)
     
     tProj <- project_point_onto_graph(X = BrPos.Mat,
                                            NodePositions = TargetPG$NodePositions,
                                            Edges = TargetPG$Edges$Edges,
                                            Partition = tPart$Partition)
+    
   }
   
   
@@ -529,6 +535,7 @@ CompareOnBranches <- function(X,
     
     if(!is.null(BootPG)){
       PtOnPath.Boot <- getPseudotime(ProjStruct = tProj, NodeSeq = Paths[[i]])
+      
       # PtVect.Boot <- PtOnPath.Boot$Pt
       
       # OrgBR <- names(which(table(TargetPG$Edges$Edges)>2))
