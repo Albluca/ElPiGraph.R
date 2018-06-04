@@ -419,8 +419,8 @@ plotPieNet <- function(X,
   
   if(Leg.cex>0){
     
-    legend(x = Leg.pos, legend = names(ColCat)[names(ColCat) != ""],
-           fill = ColCat[names(ColCat) != ""], horiz = Leg.horiz, cex = Leg.cex)
+    legend(x = Leg.pos, legend = names(ColCat)[names(ColCat) != "" & !is.na(ColCat)],
+           fill = ColCat[names(ColCat) != "" & !is.na(ColCat)], horiz = Leg.horiz, cex = Leg.cex)
   }
   
 
