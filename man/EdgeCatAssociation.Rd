@@ -4,7 +4,7 @@
 \alias{EdgeCatAssociation}
 \title{Title}
 \usage{
-EdgeCatAssociation(X, TargetPG, GroupsLab = NULL)
+EdgeCatAssociation(X, TargetPG, GroupsLab = NULL, TrimmingRadius = Inf)
 }
 \arguments{
 \item{X}{a data matrix}

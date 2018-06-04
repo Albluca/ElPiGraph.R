@@ -4,10 +4,12 @@
 \alias{CompareOnBranches}
 \title{Compare feature values over different branches}
 \usage{
-CompareOnBranches(X, Paths, TargetPG, BootPG = NULL, Conf = 0.95,
-  AllBP = FALSE, Partition, PrjStr, Main = "", ylab = "Feature value",
-  alpha = 0.3, ScalePT = FALSE, Features = 4, Mode = "Var",
-  Log = FALSE, Span = 0.1)
+CompareOnBranches(X, Paths, TargetPG, BootPG = NULL, GroupsLab = NULL,
+  PlotOrg = TRUE, TrajCol = FALSE, Conf = 0.95, AllBP = FALSE,
+  Partition, PrjStr, Main = "", ylab = "Feature value", alpha = 0.3,
+  ScalePT = FALSE, Features = 4, facet_rows = 3, facet_cols = 3,
+  Mode = "Var", ModePar = NULL, Log = FALSE, Span = 0.1, n.cores = 1,
+  ClusType = "SOCK", ReturnGenes = FALSE)
 }
 \arguments{
 \item{X}{the data matrix, note that features must be names, i.e. column names must be non-empty}
@@ -17,6 +19,18 @@ will be placed in correspondence of the fisrst node for each path. Hence the com
 only if all the path begin from the same node (Although, this will not be enforced by the function)}
 
 \item{TargetPG}{the ElPiGraph structure to be used}
+
+\item{BootPG}{}
+
+\item{GroupsLab}{character of factor, category information for the cells present in the matrix.}
+
+\item{PlotOrg}{boolean, should the original gene expression be reported. If false oly the smooth will be plotted.}
+
+\item{TrajCol}{boolean, should the points be colored by trajectory? If FALSE GroupsLab will be used.}
+
+\item{Conf}{}
+
+\item{AllBP}{}
 
 \item{Partition}{A partition vactor attributing each point to at most one node}
 
@@ -34,15 +48,30 @@ only if all the path begin from the same node (Although, this will not be enforc
 the name of the features to plot (matched to the colnames of X). If positive integer, it will be interpreted
 as the number of the topmost interesting features according to the metric specified by Mode}
 
+\item{facet_rows}{integer, the number of rows per panel}
+
+\item{facet_cols}{integer, the number of cols per panel}
+
 \item{Mode}{string, the feature seletion mode used to determine the most interesting genes. It can be
  \itemize{
  \item{'Var'}{ The genes with the largest variance across the points nodes on the path}
  \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
  \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
  \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
+ \item{'Cor.DB'}{ The genes whose product of Spearman correlation (w.r.t. the pseudotime ordering) is the largest}
 }}
 
+\item{ModePar}{additional parameters for the feature selection mode used}
+
 \item{Log}{boolean, should a log scale be used on the y axis}
+
+\item{Span}{the span parameter of the loess fitter}
+
+\item{n.cores}{integer, the number of parallel processes to use.}
+
+\item{ClusType}{string, the type of cluster to use if n.cores is larger than 1}
+
+\item{ReturnGenes}{boolean, should the list of genes be returned instead of the plots?}
 }
 \description{
 Compare feature values over different branches

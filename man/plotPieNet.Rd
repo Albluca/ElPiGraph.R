@@ -6,9 +6,10 @@
 \usage{
 plotPieNet(X, TargetPG, GroupsLab = NULL, Nodes = NULL, Partition = NULL,
   TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
-  TreeRoot = numeric(), distMeth = "manhattan", Main = "",
-  ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1,
-  Arrow.size = 1, LabSize = 1)
+  LayoutIter = 500, TreeRoot = numeric(), distMeth = "manhattan",
+  Main = "", ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL,
+  Leg.cex = 1, Leg.pos = "bottom", Leg.horiz = TRUE, Arrow.size = 1,
+  NodeLabels = NULL, LabSize = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -36,6 +37,8 @@ plotPieNet(X, TargetPG, GroupsLab = NULL, Nodes = NULL, Partition = NULL,
  \item 'nicely', the topology will be inferred by igraph
 }}
 
+\item{LayoutIter}{numeric, the number of interation of the layout algorithm}
+
 \item{TreeRoot}{the id of the node to use as the root of the tree when LayOut = 'tree'}
 
 \item{distMeth}{the matric used to compute the distance if LayOut = 'mds'}
@@ -50,7 +53,13 @@ plotPieNet(X, TargetPG, GroupsLab = NULL, Nodes = NULL, Partition = NULL,
 
 \item{Leg.cex}{numeric, a value to adjust the size of the legend}
 
+\item{Leg.pos}{character, the position of the legend (see the help of the legend function)}
+
+\item{Leg.horiz}{boolean, should the legend be plotted in horizontal}
+
 \item{Arrow.size}{numeric, the size of the arrow}
+
+\item{NodeLabels}{character vector, the names of the nodes}
 
 \item{LabSize}{numeric, the size of the node labels}
 }
