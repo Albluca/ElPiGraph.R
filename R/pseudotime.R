@@ -107,6 +107,9 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #' @param Span the span parameter of the loess fitter
 #' @param PlotOrg boolean, should the original gene expression be reported. If false oly the smooth will be plotted.
 #' @param ModePar additional parameters for the feature selection mode used
+#' @param n.cores integer, the number of parallel processes to use.
+#' @param ClusType string, the type of cluster to use if n.cores is larger than 1
+#' @param ReturnGenes boolean, should the list of genes be returned instead of the plots?
 #'
 #' @return
 #' @export
@@ -135,7 +138,8 @@ CompareOnBranches <- function(X,
                               Log = FALSE,
                               Span = .1,
                               n.cores = 1,
-                              ClusType = "SOCK") {
+                              ClusType = "SOCK",
+                              ReturnGenes = FALSE) {
   
   if(is.null(GroupsLab)){
     GroupsLab = factor(rep("N/A", nrow(X)))
@@ -171,6 +175,10 @@ CompareOnBranches <- function(X,
     
     if(length(GenesByVar) <= Features){
       Features = length(GenesByVar)
+    }
+    
+    if(ReturnGenes){
+      return(GenesByVar)
     }
     
     Features <- names(GenesByVar[order(GenesByVar, decreasing = TRUE)])[1:min(Features,length(GenesByVar))]
@@ -217,15 +225,23 @@ CompareOnBranches <- function(X,
       ModePar = "max"
     }
     
-    if(all(ModePar != c("min", "max"))){
+    if(!any(ModePar %in% c("min", "max"))){
       ModePar = "max"
     }
     
     if(ModePar == "max"){
-      OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+      MiVect <- apply(Path_MI, 1, max)
     }
     if(ModePar == "min"){
-      OrdMI <- order(apply(Path_MI, 1, min), decreasing = TRUE)
+      MiVect <- apply(Path_MI, 1, min)
+    }
+    
+    names(MiVect) <- colnames(X)
+    OrdMI <- order(MiVect, decreasing = TRUE)
+    
+    if(ReturnGenes){
+      RetVect <- MiVect[OrdMI]
+      return(RetVect)
     }
     
     Features <- colnames(X)[OrdMI[1:Features]]
@@ -283,15 +299,23 @@ CompareOnBranches <- function(X,
       ModePar = "max"
     }
     
-    if(all(ModePar != c("min", "max"))){
+    if(!any(ModePar %in% c("min", "max"))){
       ModePar = "max"
     }
     
     if(ModePar == "max"){
-      OrdMI <- order(apply(Path_MI, 1, max), decreasing = TRUE)
+      MiVect <- apply(Path_MI, 1, max)
     }
     if(ModePar == "min"){
-      OrdMI <- order(apply(Path_MI, 1, min), decreasing = TRUE)
+      MiVect <- apply(Path_MI, 1, min)
+    }
+    
+    names(MiVect) <- colnames(X)
+    OrdMI <- order(MiVect, decreasing = TRUE)
+    
+    if(ReturnGenes){
+      RetVect <- MiVect[OrdMI]
+      return(RetVect)
     }
     
     Features <- colnames(X)[OrdMI[1:Features]]
@@ -350,6 +374,11 @@ CompareOnBranches <- function(X,
       parallel::stopCluster(cl)
     }
     
+    if(ReturnGenes){
+      RetVect <- sort(PVVect)
+      return(RetVect)
+    }
+    
     Features <- colnames(X)[order(PVVect, decreasing = FALSE)[1:Features]]
     
   }
@@ -382,7 +411,15 @@ CompareOnBranches <- function(X,
       
     })
     
-    OrdMI <- order(apply(Path_MI, 1, function(x){sign(prod(x, na.rm = TRUE))*mean(abs(x), na.rm = TRUE)}), decreasing = FALSE, na.last = TRUE)
+    MiVect <- apply(Path_MI, 1, function(x){sign(prod(x, na.rm = TRUE))*max(abs(x), na.rm = TRUE)})
+    
+    OrdMI <- order(MiVect, decreasing = FALSE, na.last = TRUE)
+    
+    if(ReturnGenes){
+      names(MiVect) <- colnames(X)
+      RetVect <- sort(PVVect)
+      return(RetVect)
+    }
     
     Features <- colnames(X)[OrdMI[1:Features]]
     
