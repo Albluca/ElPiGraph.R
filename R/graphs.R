@@ -148,14 +148,32 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
       
       StillToCapture <- setdiff(1:igraph::vcount(Net), CapturedNodes)
       
+      # plot(induced_subgraph(Net, neighborhood(Net, paste(StillToCapture), 1)[[1]]))
+      # plot(induced_subgraph(Net, paste(StillToCapture)))
+      
       if(length(StillToCapture)>0){
         print("Unassigned nodes detected. This is due to the presence of loops. Additional branching assignement will be performed.")
         
-        # computing all the distances between tye unassigned points and the interesting points
-        AllDists <- igraph::distances(graph = Net, v = StillToCapture, to = SelEp)
+        # computing all the distances between the unassigned points and the interesting points
+        AllDists <- igraph::distances(graph = Net, v = paste(StillToCapture), to = paste(SelEp))
         
-        # get the closest pair of interesting points
-        EndPoints <- apply(AllDists, 1, order)[1:2,]
+        # get the closest interesting point
+        EndPoint_1 <- colnames(AllDists)[apply(AllDists, 1, which.min)]
+        
+        EndPoint_2 <- EndPoint_1
+        EndPoint_2[] <- NA
+        
+        # to get the second we have to avoid passing trough the first one
+        for(i in 1:length(StillToCapture)){
+          tNet <- igraph::delete_vertices(graph = Net, EndPoint_1[i])
+          PointDists <- igraph::distances(graph = tNet, v = paste(StillToCapture[i]),
+                                          to = intersect(paste(SelEp), igraph::V(graph = tNet)$name))
+          EndPoint_2[i] <- colnames(PointDists)[which.min(PointDists)]
+        }
+        
+        
+        EndPoints <- rbind(as.integer(EndPoint_1), as.integer(EndPoint_2))
+        EndPoints <- apply(EndPoints, 2, sort)
         
         NewBrEP <- EndPoints[,!duplicated(data.frame(t(EndPoints)))]
         
@@ -164,21 +182,24 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
           
           # print(i)
           
+          # Create a temporary network by merginig the path with the end points
           tNet <- igraph::induced.subgraph(graph = Net,
-                                           vids = union(StillToCapture[
+                                           vids = union(
+                                             StillToCapture[
                                              apply(EndPoints, 2, function(x) {
                                                all(x %in% NewBrEP[,i])
-                                             })], SelEp[NewBrEP[,i]]))
+                                             })], NewBrEP[,i]))
           
-          if(igraph::are.connected(Net, SelEp[NewBrEP[1,i]], SelEp[NewBrEP[2,i]])){
-            tNet <- igraph::delete.edges(graph = tNet, edges = igraph::get.edge.ids(graph = tNet, as.character(SelEp[NewBrEP[,i]])))
+          if(igraph::are.connected(Net, paste(NewBrEP[1,i]), paste(NewBrEP[2,i]))){
+            tNet <- igraph::delete.edges(graph = tNet,
+                                         edges = igraph::get.edge.ids(graph = tNet, paste(NewBrEP[,i])))
           }
           
           tNet <- igraph::induced.subgraph(graph = tNet, igraph::degree(tNet)>0)
           
           # plot(tNet)
           
-          PotentialEnds <- intersect(SelEp[NewBrEP[,i]], as.integer(igraph::V(tNet)$name))
+          PotentialEnds <- intersect(NewBrEP[,i], as.integer(igraph::V(tNet)$name))
           
           if(length(PotentialEnds)==1){
             # it's a simple loop
