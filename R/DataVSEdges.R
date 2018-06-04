@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-EdgeCatAssociation <- function(X, TargetPG, GroupsLab = NULL) {
+EdgeCatAssociation <- function(X, TargetPG, GroupsLab = NULL, TrimmingRadius = Inf) {
   
-  PartData <- PartitionData(X = X, NodePositions = TargetPG$NodePositions, SquaredX = rowSums(X^2))
+  PartData <- PartitionData(X = X, NodePositions = TargetPG$NodePositions, SquaredX = rowSums(X^2), TrimmingRadius = TrimmingRadius)
   
   Prj <- project_point_onto_graph(X = X, NodePositions = TargetPG$NodePositions,
                            Edges = TargetPG$Edges$Edges, Partition = PartData$Patition)
