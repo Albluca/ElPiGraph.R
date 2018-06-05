@@ -6,10 +6,11 @@
 \usage{
 CompareOnBranches(X, Paths, TargetPG, BootPG = NULL, GroupsLab = NULL,
   PlotOrg = TRUE, TrajCol = FALSE, Conf = 0.95, AllBP = FALSE,
-  Partition, PrjStr, Main = "", ylab = "Feature value", alpha = 0.3,
-  ScalePT = FALSE, Features = 4, facet_rows = 3, facet_cols = 3,
-  Mode = "Var", ModePar = NULL, Log = FALSE, Span = 0.1, n.cores = 1,
-  ClusType = "SOCK", ReturnGenes = FALSE)
+  TrimmingRadius = TrimmingRadius, Partition, PrjStr, Main = "",
+  ylab = "Feature value", alpha = 0.3, ScalePT = FALSE, Features = 4,
+  facet_rows = 3, facet_cols = 3, Mode = "Var", ModePar = NULL,
+  Log = FALSE, Span = 0.1, n.cores = 1, ClusType = "SOCK",
+  ReturnGenes = FALSE)
 }
 \arguments{
 \item{X}{the data matrix, note that features must be names, i.e. column names must be non-empty}
@@ -54,8 +55,11 @@ as the number of the topmost interesting features according to the metric specif
 
 \item{Mode}{string, the feature seletion mode used to determine the most interesting genes. It can be
  \itemize{
- \item{'Var'}{ The genes with the largest variance across the points nodes on the path}
- \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
+ \item{'Var'}{ The genes with the largest variance across the points associated to the paths}
+ \item{'Fano'}{ The genes with the largest Fano factor (variance over mean) across the points associated to the paths}
+ \item{'Mad'}{ The genes with the largest median absolute deviation across the points associated to the paths}
+ \item{'Mad/Median'}{ The genes with the largest ratio of median absolute deviation to median across the points associated to the paths}
+ \item{'MI'}{ The genes with the largest mutual information (across all the paths)}
  \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
  \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
  \item{'Cor.DB'}{ The genes whose product of Spearman correlation (w.r.t. the pseudotime ordering) is the largest}
