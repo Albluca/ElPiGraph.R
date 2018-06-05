@@ -6,10 +6,10 @@
 \usage{
 plotPieNet(X, TargetPG, GroupsLab = NULL, Nodes = NULL, Partition = NULL,
   TrimmingRadius = Inf, Graph = NULL, LayOut = "nicely",
-  LayoutIter = 500, TreeRoot = numeric(), distMeth = "manhattan",
-  Main = "", ScaleFunction = sqrt, NodeSizeMult = 1, ColCat = NULL,
-  Leg.cex = 1, Leg.pos = "bottom", Leg.horiz = TRUE, Arrow.size = 1,
-  NodeLabels = NULL, LabSize = 1)
+  LayoutIter = 500, TreeRoot = numeric(), RootLevel = numeric(),
+  distMeth = "manhattan", Main = "", ScaleFunction = sqrt,
+  NodeSizeMult = 1, ColCat = NULL, Leg.cex = 1, Leg.pos = "bottom",
+  Leg.horiz = TRUE, Arrow.size = 1, NodeLabels = NULL, LabSize = 1)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -39,7 +39,9 @@ plotPieNet(X, TargetPG, GroupsLab = NULL, Nodes = NULL, Partition = NULL,
 
 \item{LayoutIter}{numeric, the number of interation of the layout algorithm}
 
-\item{TreeRoot}{the id of the node to use as the root of the tree when LayOut = 'tree'}
+\item{TreeRoot}{the id of the node to use as the root of the tree when LayOut = 'tree', multiple nodes are allowed.}
+
+\item{RootLevel}{numeric, the level of the root(s)}
 
 \item{distMeth}{the matric used to compute the distance if LayOut = 'mds'}
 
