@@ -90,8 +90,11 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #' @param ScalePT boolean, should the pseudotime be normalized across the branches?
 #' @param Mode string, the feature seletion mode used to determine the most interesting genes. It can be
 #'  \itemize{
-#'  \item{'Var'}{ The genes with the largest variance across the points nodes on the path}
-#'  \item{'MI'}{ The genes with the largest mutual inforlation (across paths)}
+#'  \item{'Var'}{ The genes with the largest variance across the points associated to the paths}
+#'  \item{'Fano'}{ The genes with the largest Fano factor (variance over mean) across the points associated to the paths}
+#'  \item{'Mad'}{ The genes with the largest median absolute deviation across the points associated to the paths}
+#'  \item{'Mad/Median'}{ The genes with the largest ratio of median absolute deviation to median across the points associated to the paths}
+#'  \item{'MI'}{ The genes with the largest mutual information (across all the paths)}
 #'  \item{'MI.DB'}{ The genes with the largest mutual inforlation (across differential paths)}
 #'  \item{'KW'}{ The genes with the largest difference, as computed by the Kruskal-Wallis test (across differential paths)}
 #'  \item{'Cor.DB'}{ The genes whose product of Spearman correlation (w.r.t. the pseudotime ordering) is the largest}
@@ -154,8 +157,6 @@ CompareOnBranches <- function(X,
   
   if(is.numeric(Features) & (Mode == "Var" | Mode == "Fano")){
     
-    print("Feature selection by variance")
-    
     SharedPath <- unique(unlist(Paths, use.names = FALSE))
     tX <- X[Partition %in% as.integer(SharedPath), ]
     
@@ -178,10 +179,57 @@ CompareOnBranches <- function(X,
     }
     
     if(Mode == "Fano"){
+      print("Feature selection by Fano factor")
       GenesByVar <- GenesByVar/colMeans(tX)
       if(any(!is.finite(GenesByVar))){
         GenesByVar[!is.finite(GenesByVar)] <- 0
       }
+    } else {
+      print("Feature selection by variance")
+    }
+    
+    if(ReturnGenes){
+      return(sort(GenesByVar, decreasing = TRUE))
+    }
+    
+    Features <- names(sort(GenesByVar, decreasing = TRUE))[1:Features]
+    
+  }
+  
+  if(is.numeric(Features) & (Mode == "Mad" | Mode == "Mad/Median")){
+    
+    SharedPath <- unique(unlist(Paths, use.names = FALSE))
+    tX <- X[Partition %in% as.integer(SharedPath), ]
+    
+    if(n.cores == 1){
+      GenesByVar <- apply(tX, 2, mad)
+    } else {
+      if(ClusType == "FORK"){
+        cl <- parallel::makeForkCluster(n.cores)
+        GenesByVar <- parallel::parApply(cl, tX, 2, mad)
+      } else {
+        cl <- parallel::makePSOCKcluster(n.cores)
+        parallel::clusterExport(cl, "tX")
+        GenesByVar <- parallel::parApply(cl, tX, 2, mad)
+      }
+      parallel::stopCluster(cl)
+    }
+    
+    if(length(GenesByVar) <= Features){
+      Features = length(GenesByVar)
+    }
+    
+    if(Mode == "Mad/Median"){
+      
+      print("Feature selection by Mad / Median")
+      
+      GenesByVar <- GenesByVar/apply(tX, 2, median)
+      if(any(!is.finite(GenesByVar))){
+        GenesByVar[!is.finite(GenesByVar)] <- 0
+      }
+      
+    } else {
+      print("Feature selection by Mad")
     }
     
     if(ReturnGenes){
