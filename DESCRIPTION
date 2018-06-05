@@ -14,9 +14,13 @@ Imports:
     parallel,
     irlba,
     ggplot2,
+    ggforce,
     segmented,
     ggpubr,
+    infotheo,
     GenSA
+Remotes:
+    Albluca/distutils
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

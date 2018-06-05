@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-EdgeCatAssociation <- function(X, TargetPG, GroupsLab = NULL) {
+EdgeCatAssociation <- function(X, TargetPG, GroupsLab = NULL, TrimmingRadius = Inf) {
   
-  PartData <- PartitionData(X = X, NodePositions = TargetPG$NodePositions, SquaredX = rowSums(X^2))
+  PartData <- PartitionData(X = X, NodePositions = TargetPG$NodePositions, SquaredX = rowSums(X^2), TrimmingRadius = TrimmingRadius)
   
   Prj <- project_point_onto_graph(X = X, NodePositions = TargetPG$NodePositions,
                            Edges = TargetPG$Edges$Edges, Partition = PartData$Patition)
@@ -179,3 +179,60 @@ DistanceOnGraph <- function(X, TargetPG){
   ))
   
 }
+
+
+
+
+
+
+#' Cross embedd the elastic graph
+#'
+#' @param X_Source 
+#' @param X_Target 
+#' @param TargetPG 
+#' @param TrimmingRadius 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+CrossEmbedment <- function(X_Source, X_Target, TargetPG, TrimmingRadius = Inf) {
+  
+  if(nrow(X_Source) != nrow(X_Target)){
+    stop("Incompatible datasets")
+  }
+  
+  if(ncol(X_Source) != ncol(TargetPG$NodePositions)){
+    stop("Incompatible ElPiGraph")
+  }
+  
+  PD <- ElPiGraph.R::PartitionData(X = X_Source,
+                                   NodePositions = TargetPG$NodePositions,
+                                   TrimmingRadius = TrimmingRadius)
+  
+  NodeEmbd <- sapply(as.list(sort(unique(PD$Partition))), function(i){
+    
+    if(sum(PD$Partition == 0)){
+      return(rep(NA, ncol(X_Target)))
+    }
+    
+    if(sum(PD$Partition == i)>1){
+      return(colMeans(X_Target[PD$Partition == i,]))
+    } else {
+      return(X_Target[PD$Partition == i,])
+    }
+    
+  })
+  
+  if(any(PD$Partition == 0)){
+    TargetPG$NodePositions <- t(NodeEmbd[,-1])
+  } else {
+    TargetPG$NodePositions <- t(NodeEmbd)
+  }
+  
+  return(TargetPG)
+  
+}
+
+
+

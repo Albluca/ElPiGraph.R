@@ -28,6 +28,7 @@
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal circle will be computed for each of the subsets specified.
@@ -104,6 +105,7 @@ computeElasticPrincipalCircle <- function(X,
                                           drawPCAView = TRUE,
                                           drawEnergy = TRUE,
                                           n.cores = 1,
+                                          MinParOP = 20,
                                           ClusType = "Sock",
                                           nReps = 1,
                                           Subsets = list(),
@@ -165,6 +167,7 @@ computeElasticPrincipalCircle <- function(X,
                                              drawPCAView = drawPCAView,
                                              drawEnergy = drawEnergy,
                                              n.cores = n.cores,
+                                             MinParOP = MinParOP,
                                              ClusType = ClusType,
                                              nReps = nReps,
                                              Subsets = list(),
@@ -242,6 +245,7 @@ computeElasticPrincipalCircle <- function(X,
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
@@ -319,6 +323,7 @@ computeElasticPrincipalTree <- function(X,
                                         drawPCAView = TRUE,
                                         drawEnergy = TRUE,
                                         n.cores = 1,
+                                        MinParOP = 20,
                                         ClusType = "Sock",
                                         nReps = 1,
                                         Subsets = list(),
@@ -375,6 +380,7 @@ computeElasticPrincipalTree <- function(X,
                                              drawPCAView = drawPCAView,
                                              drawEnergy = drawEnergy,
                                              n.cores = n.cores,
+                                             MinParOP = MinParOP,
                                              ClusType = ClusType,
                                              nReps = nReps,
                                              Subsets = list(),
@@ -454,6 +460,7 @@ computeElasticPrincipalTree <- function(X,
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
@@ -533,6 +540,7 @@ computeElasticPrincipalCurve <- function(X,
                                         drawPCAView = TRUE,
                                         drawEnergy = TRUE,
                                         n.cores = 1,
+                                        MinParOP = 20,
                                         ClusType = "Sock",
                                         nReps = 1,
                                         Subsets = list(),
@@ -589,6 +597,7 @@ computeElasticPrincipalCurve <- function(X,
                                              drawPCAView = drawPCAView,
                                              drawEnergy = drawEnergy,
                                              n.cores = n.cores,
+                                             MinParOP = MinParOP,
                                              ClusType = ClusType,
                                              nReps = nReps,
                                              Subsets = list(),
@@ -680,6 +689,7 @@ computeElasticPrincipalCurve <- function(X,
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
@@ -758,6 +768,7 @@ fineTuneBR <- function(X,
                        drawPCAView = TRUE,
                        drawEnergy = TRUE,
                        n.cores = 1,
+                       MinParOP = 20,
                        ClusType = "Sock",
                        nReps = 1,
                        Subsets = list(),
@@ -829,6 +840,7 @@ fineTuneBR <- function(X,
                                              drawEnergy = drawEnergy,
                                              n.cores = n.cores,
                                              ClusType = ClusType,
+                                             MinParOP = MinParOP,
                                              nReps = nReps,
                                              Subsets = list(),
                                              ProbPoint = ProbPoint,
@@ -904,7 +916,8 @@ fineTuneBR <- function(X,
 #' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)
+#' (this is done using clusterExport)`
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
@@ -983,6 +996,7 @@ GrowLeaves <- function(X,
                        drawPCAView = TRUE,
                        drawEnergy = TRUE,
                        n.cores = 1,
+                       MinParOP = 20,
                        ClusType = "Sock",
                        nReps = 1,
                        Subsets = list(),
@@ -1042,6 +1056,7 @@ GrowLeaves <- function(X,
                                              drawEnergy = drawEnergy,
                                              n.cores = n.cores,
                                              ClusType = ClusType,
+                                             MinParOP = MinParOP,
                                              nReps = nReps,
                                              Subsets = list(),
                                              ProbPoint = ProbPoint,

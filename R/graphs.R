@@ -89,7 +89,9 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
 
     SubIsoProjList <- igraph::graph.get.subisomorphisms.vf2(Net, RefNet)
     
-    SubIsoProjList <- SubIsoProjList[!duplicated(sapply(SubIsoProjList, function(x){x[1]}))]
+    SubIsoProjList <- SubIsoProjList[!duplicated(
+      data.frame(t(sapply(SubIsoProjList, function(x){sort(x)})))
+      )]
 
     names(SubIsoProjList) <- paste("Circle", 1:length(SubIsoProjList), sep = "_")
     
@@ -102,42 +104,165 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
   }
   
   
-  
   if(Structure == 'branches'){
     
     if(any(igraph::degree(Net)>2) & any(igraph::degree(Net)==1)){
       
+      # Obtain the branching/end point
       BrPoints <- which(igraph::degree(Net)>2)
       EndPoints <- which(igraph::degree(Net)==1)
       
-      Allbr <- list()
+      AllPaths <- list()
+      
+      # Keep track of the interesting nodes
       SelEp <- union(BrPoints, EndPoints)
       
-      for(i in BrPoints){
-        
-        SelEp <- setdiff(SelEp, i)
-        
-        DistVect <- igraph::distances(graph = Net, v = i)
-        
-        for(j in SelEp){
-          if(is.finite(DistVect[j])){
-            Path <- igraph::get.shortest.paths(graph = Net, from = i, to = j)$vpath[[1]]
-            if(!any(Path %in% setdiff(BrPoints, c(i,j)))){
-              Allbr[[length(Allbr)+1]] <- Path
-            }
-          }
+      suppressWarnings(
+        for(i in 1:(length(SelEp)-1)){
+          AllPaths <- append(
+            AllPaths,
+            igraph::get.shortest.paths(graph = Net,
+                                       from = SelEp[i],
+                                       to = SelEp[(i+1):length(SelEp)])$vpath
+            )
         }
-      }
+      )
+      
+      Valid <- sapply(AllPaths, function(x){
+        sum(igraph::degree(graph = Net, v = x) != 2)
+      }) == 2
+      
+      AllPaths <- lapply(AllPaths[Valid], function(x){
+        as.integer(x)
+      })
       
       if(!KeepEnds){
-        Allbr <- lapply(Allbr, function(x){
+        AllPaths <- lapply(AllPaths, function(x){
           setdiff(x, BrPoints)
         })
       }
       
-      names(Allbr) <- paste("Branch", 1:length(Allbr), sep = "_")
+      names(AllPaths) <- paste("Branch", 1:length(AllPaths), sep = "_")
       
-      return(Allbr)
+      CapturedNodes <- unlist(AllPaths, use.names = FALSE)
+      
+      StillToCapture <- setdiff(1:igraph::vcount(Net), CapturedNodes)
+      
+      # plot(induced_subgraph(Net, neighborhood(Net, paste(StillToCapture), 1)[[1]]))
+      # plot(induced_subgraph(Net, paste(StillToCapture)))
+      
+      if(length(StillToCapture)>0){
+        print("Unassigned nodes detected. This is due to the presence of loops. Additional branching assignement will be performed.")
+        
+        # computing all the distances between the unassigned points and the interesting points
+        AllDists <- igraph::distances(graph = Net, v = paste(StillToCapture), to = paste(SelEp))
+        
+        # get the closest interesting point
+        EndPoint_1 <- colnames(AllDists)[apply(AllDists, 1, which.min)]
+        
+        EndPoint_2 <- EndPoint_1
+        EndPoint_2[] <- NA
+        
+        # to get the second we have to avoid passing trough the first one
+        for(i in 1:length(StillToCapture)){
+          tNet <- igraph::delete_vertices(graph = Net, EndPoint_1[i])
+          PointDists <- igraph::distances(graph = tNet, v = paste(StillToCapture[i]),
+                                          to = intersect(paste(SelEp), igraph::V(graph = tNet)$name))
+          EndPoint_2[i] <- colnames(PointDists)[which.min(PointDists)]
+        }
+        
+        
+        EndPoints <- rbind(as.integer(EndPoint_1), as.integer(EndPoint_2))
+        EndPoints <- apply(EndPoints, 2, sort)
+        
+        NewBrEP <- EndPoints[,!duplicated(data.frame(t(EndPoints)))]
+        
+        for(i in 1:ncol(NewBrEP)){
+          # for each pair of interesting points
+          
+          # print(i)
+          
+          # Create a temporary network by merginig the path with the end points
+          tNet <- igraph::induced.subgraph(graph = Net,
+                                           vids = union(
+                                             StillToCapture[
+                                             apply(EndPoints, 2, function(x) {
+                                               all(x %in% NewBrEP[,i])
+                                             })], NewBrEP[,i]))
+          
+          if(igraph::are.connected(Net, paste(NewBrEP[1,i]), paste(NewBrEP[2,i]))){
+            tNet <- igraph::delete.edges(graph = tNet,
+                                         edges = igraph::get.edge.ids(graph = tNet, paste(NewBrEP[,i])))
+          }
+          
+          tNet <- igraph::induced.subgraph(graph = tNet, igraph::degree(tNet)>0)
+          
+          # plot(tNet)
+          
+          PotentialEnds <- intersect(NewBrEP[,i], as.integer(igraph::V(tNet)$name))
+          
+          if(length(PotentialEnds)==1){
+            # it's a simple loop
+            
+            # get all loops
+            AllLoops <- igraph::graph.get.isomorphisms.vf2(igraph::make_ring(igraph::vcount(tNet), directed = FALSE, circular = TRUE), tNet)
+            
+            # select one with the branching point at the beginning
+            Sel <- which(sapply(AllLoops, function(x){as.integer(names(x)[1])}) == PotentialEnds)[1]
+            
+            # Add a new branch
+            AllPaths[[length(AllPaths)+1]] <- as.integer(names(AllLoops[[Sel]]))
+            names(AllPaths)[length(AllPaths)] <- paste0("Branch_", length(AllPaths))
+            
+          }
+          
+          if(length(PotentialEnds) == 2){
+            # it's either a line or a line and a loop
+            
+            LinePath <- igraph::get.shortest.paths(tNet, as.character(PotentialEnds[1]), as.character(PotentialEnds[2]))$vpath[[1]]
+            
+            # Add a new branch
+            AllPaths[[length(AllPaths)+1]] <- as.integer(names(LinePath))
+            names(AllPaths)[length(AllPaths)] <- paste0("Branch_", length(AllPaths))
+            
+            # tNet
+            
+            if(length(LinePath) < igraph::vcount(tNet)){
+              
+              
+              
+              # assuming that the remaining part is a loop do as above
+              AllLoops <- igraph::graph.get.subisomorphisms.vf2(tNet, igraph::make_ring(igraph::vcount(tNet)-length(LinePath)+1, directed = FALSE, circular = TRUE))
+              
+              if(length(AllLoops) == 0){
+                stop("Unsupported structure. Contact the package manintainer")
+              }
+              
+              # select one with the branching point at the beginning
+              Sel <- which(sapply(AllLoops, function(x){as.integer(names(x)[1])}) %in% PotentialEnds)[1]
+              
+              if(is.na(Sel)){
+                stop("Unsupported structure. Contact the package manintainer")
+              }
+              
+              # Add a new branch
+              AllPaths[[length(AllPaths)+1]] <- as.integer(names(AllLoops[[Sel]]))
+              names(AllPaths)[length(AllPaths)] <- paste0("Branch_", length(AllPaths))
+              
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+      AllPaths <- lapply(AllPaths[sapply(AllPaths, length)>0], function(x){
+        names(x) <- x
+        return(x)
+      })
+      
+      return(AllPaths)
       
     } else {
       
@@ -250,8 +375,12 @@ GetSubGraph <- function(Net, Structure, Nodes = NULL, Circular = TRUE, KeepEnds 
     
     for(i in 1:(length(EndPoints)-1)){
       for(j in (i+1):length(EndPoints)){
-        Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
-        Allbr[[length(Allbr)+1]] <- Path
+        suppressWarnings(
+          Path <- igraph::get.shortest.paths(graph = Net, from = EndPoints[i], to = EndPoints[j])$vpath[[1]]
+        )
+        if(length(Path) > 0){
+          Allbr[[length(Allbr)+1]] <- Path
+        }
       }
     }
     

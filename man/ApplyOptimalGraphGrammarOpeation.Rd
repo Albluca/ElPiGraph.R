@@ -6,9 +6,9 @@
 \usage{
 ApplyOptimalGraphGrammarOpeation(X, NodePositions, ElasticMatrix,
   AdjustVect = NULL, operationtypes, SquaredX = NULL, verbose = FALSE,
-  n.cores = 1, EnvCl = NULL, MaxNumberOfIterations = 100, eps = 0.01,
-  TrimmingRadius = Inf, Mode = 1, FinalEnergy = "Base", alpha = 1,
-  beta = 1, gamma = 1, FastSolve = FALSE, EmbPointProb = 1,
+  n.cores = 1, EnvCl = NULL, MinParOP = 20, MaxNumberOfIterations = 100,
+  eps = 0.01, TrimmingRadius = Inf, Mode = 1, FinalEnergy = "Base",
+  alpha = 1, beta = 1, gamma = 1, FastSolve = FALSE, EmbPointProb = 1,
   AvoidSolitary = FALSE, AdjustElasticMatrix = NULL, ...)
 }
 \arguments{
@@ -31,6 +31,8 @@ otherwise a SOCK cluster willbe used}
 
 \item{EnvCl}{a cluster structure returned, e.g., by makeCluster.
 If a cluster structure is used, all the nodes must be able to access all the variable needed by PrimitiveElasticGraphEmbedment}
+
+\item{MinParOP}{integer, the minimum number of operations to use parallel computation}
 
 \item{MaxNumberOfIterations}{is an integer number indicating the maximum number of iterations for the EM algorithm}
 

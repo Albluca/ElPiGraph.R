@@ -28,6 +28,7 @@
 #' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or 
 #' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 #' (this is done using clusterExport)
+#' @param MinParOP integer, the minimum number of operations to use parallel computation
 #' @param nReps integer, number of replica of the construction 
 #' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
 #' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
@@ -105,6 +106,7 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                                                      drawEnergy = TRUE,
                                                      n.cores = 1,
                                                      ClusType = "Sock",
+                                                     MinParOP = MinParOP,
                                                      nReps = 1,
                                                      ParallelRep = FALSE,
                                                      Subsets = list(),
@@ -220,8 +222,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                 error = function(e){
                   print(e)
                   print("Resetting Initial point set")
-                  Used <- rep(FALSE, nrow(X))
-                  InitialConf.List[[i]] <-
+                  Used <<- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <<-
                     ElPiGraph.R:::generateInitialConfiguration(X[SelPoints[[i]] & !Used, ],
                                                                Nodes = InitNodes,
                                                                Configuration = Configuration,
@@ -275,8 +277,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                 error = function(e){
                   print(e)
                   print("Resetting Initial point set")
-                  Used <- rep(FALSE, nrow(X))
-                  InitialConf.List[[i]] <-
+                  Used <<- rep(FALSE, nrow(X))
+                  InitialConf.List[[i]] <<-
                     ElPiGraph.R:::generateInitialConfiguration(X[!Used, ],
                                                                Nodes = InitNodes,
                                                                Configuration = Configuration,
@@ -565,7 +567,7 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                                                                                          drawAccuracyComplexity = Intermediate.drawAccuracyComplexity,
                                                                                          drawPCAView = Intermediate.drawPCAView,
                                                                                          drawEnergy = Intermediate.drawEnergy,
-                                                                                         n.cores = cl, ClusType = ClusType,
+                                                                                         n.cores = cl, ClusType = ClusType, MinParOP = MinParOP,
                                                                                          FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
                                                                                          EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
                                                                                          AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
@@ -631,7 +633,8 @@ computeElasticPrincipalGraphWithGrammars <- function(X,
                                                                          FinalEnergy = FinalEnergy, alpha = alpha, beta = beta, gamma = gamma,
                                                                          drawAccuracyComplexity = drawAccuracyComplexity,
                                                                          drawPCAView = drawPCAView, drawEnergy = drawEnergy,
-                                                                         n.cores = cl, FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
+                                                                         n.cores = cl, ClusType = ClusType, MinParOP = MinParOP,
+                                                                         FastSolve = FastSolve, AvoidSolitary = AvoidSolitary,
                                                                          EmbPointProb = EmbPointProb, AdjustElasticMatrix = AdjustElasticMatrix,
                                                                          AdjustElasticMatrix.Initial = AdjustElasticMatrix.Initial,
                                                                          Lambda.Initial = Lambda.Initial, Mu.Initial = Lambda.Initial,

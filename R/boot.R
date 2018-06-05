@@ -113,13 +113,17 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
 #'
 #' @param BootPG list of ElPiGraph structures containing the bootstrapped data
 #' @param Mode string, the mode to use 
-#' @param MinTol numeric, the smallest distance for two edges to be collapsed
 #' @param MinEdgMult integer, minimal multiplicity of the edges of the consensus graph
 #' @param MinNodeMult integer, minimal multiplicity of the nodes of the consensus graph
-#' @param NodesInflation integer, the 
-#' @param RemoveIsolatedNodes 
-#' @param OnlyLCC 
-#' @param PlotResult 
+#' @param Clusters integer, the number of clusters inferred by the kmeans step
+#' @param RemoveIsolatedNodes boolean, should the procedure remove graph nodes that are not connected to any other node?
+#' @param OnlyLCC boolean, should the procedure return only the largest connected component of the graph?
+#' @param PlotResult boolean, should debugging information be plotted?
+#' @param CollapseRadius numeric, the distance to use in order to compute the multiplicity of the nodes. If NULL, it will be inferred from the data
+#' @param FilterEdges.Min numeric, the minimal length of edges in the final graph. Shorter edges will be removed, unless the removal results in an
+#' increase of the components of the graph
+#' @param FilterEdges.Max numeric, the maximum length of edges in the final graph. Longer edges will be removed, unless the removal results in an
+#' increase of the components of the graph
 #'
 #' @return
 #' @export
@@ -128,6 +132,9 @@ GetProjectionUncertainty <- function(X, BootPG, Mode = "MedianDistPW", TargetPG 
 GenertateConsensusGraph <- function(BootPG,
                                     Mode = "NodeDist",
                                     CollapseRadius = NULL,
+                                    FilterEdges.Min = NULL,
+                                    FilterEdges.Max = NULL,
+                                    # RestrictCR = 5,
                                     # MinNodes = 25,
                                     # MaxNodes = 200,
                                     Clusters = 100,
@@ -137,7 +144,6 @@ GenertateConsensusGraph <- function(BootPG,
                                     RemoveIsolatedNodes = TRUE,
                                     OnlyLCC = FALSE,
                                     PlotResult = TRUE) {
-  
   
   
   
@@ -174,7 +180,7 @@ GenertateConsensusGraph <- function(BootPG,
     
     if(PlotResult){
       EffDists <- as.vector(AllNodeDist[upper.tri(AllNodeDist)])
-      hist(EffDists, main = "Intranode distance", xlab = "Distance")
+      plot(density(EffDists, from = 0), main = "Intranode distance", xlab = "Distance")
       # abline(v = MinTol, lwd = 3)
     }
     
@@ -192,19 +198,28 @@ GenertateConsensusGraph <- function(BootPG,
       
       MeanDistByNet <- sqrt(MeanDistByNet)
       CollapseRadius <- mean(MeanDistByNet)
+      
     }
     
-   
+    if(PlotResult){
+      abline(v = CollapseRadius, col = 'red', lty = 2)
+    }
+    
+    cat(paste("CollapseRadius = ", CollapseRadius, "\n"))
     
     # Remove nodes with limited representability
-    Selected <- rowSums(AllNodeDist < CollapseRadius) > MinNodeMult
+    Selected <- rowSums(AllNodeDist < CollapseRadius) >= MinNodeMult
+    
+    cat(paste(sum(Selected), "Nodes will be used to construct the initial network\n"))
     
     cat("Constructing Network\n")
     tictoc::tic()
-    BigNet <- igraph::graph_from_adjacency_matrix(1*(AllNodeDist[Selected,Selected] < CollapseRadius))
+    BigNet <- igraph::graph_from_adjacency_matrix(1*(AllNodeDist[Selected,Selected] < CollapseRadius), mode = "undirected", diag = FALSE)
     tictoc::toc()
     
-    KM <- kmeans(AllNodePos_Mat[Selected,], centers = Clusters, iter.max = 1000, nstart = 100)
+    cat("Performing kmeans\n")
+    
+    KM <- kmeans(AllNodePos_Mat[Selected,], centers = Clusters, iter.max = 1000, nstart = 1000)
     
     # library(ggplot2)
     # 
@@ -212,34 +227,43 @@ GenertateConsensusGraph <- function(BootPG,
     
     # AllEdges
     
-    ClusPos <- lapply(1:max(KM$cluster), function(i){
-      if(sum(KM$cluster == i)>2){
-        colMeans((AllNodePos_Mat[Selected,])[KM$cluster == i,])
-      } else {
-        (AllNodePos_Mat[Selected,])[KM$cluster == i,]
-      }
-    })
+    # ClusPos <- lapply(1:nrow(KM$centers), function(i){
+    #   if(sum(KM$cluster == i)>2){
+    #     colMeans((AllNodePos_Mat[Selected,])[KM$cluster == i,])
+    #   } else {
+    #     (AllNodePos_Mat[Selected,])[KM$cluster == i,]
+    #   }
+    # })
     
-    ConMat <- matrix(0, max(KM$cluster), max(KM$cluster))
+    ClusPos <- KM$centers
+    
+    ConMat <- matrix(0, nrow(KM$centers), nrow(KM$centers))
     
     tictoc::tic()
     cat("Working on nodes ")
-    for(i in 2:max(KM$cluster)){
-      cat(i)
-      cat(" ")
+    for(i in 2:nrow(KM$centers)){
+      cat(i, " ")
       for(j in 1:(i-1)){
         Nei1 <- igraph::neighborhood(graph = BigNet, order = 1, nodes = names(which(KM$cluster == i)))
         ConMat[i, j] <- sum(names(which(KM$cluster == j)) %in% unique(names(unlist(Nei1))))
       }
     }
     ConMat <- ConMat + t(ConMat)
+    cat("\n")
     tictoc::toc()
     
-    NewNet <- igraph::graph_from_adjacency_matrix(ConMat > MinEdgMult)
+    ConMat[ConMat < MinEdgMult] <- 0
+    # ConMat[ConMat > 0] <- 1
+    
+    NewNet <- igraph::graph_from_adjacency_matrix(ConMat, mode = "undirected", weighted = "mult", diag = FALSE)
+    igraph::V(NewNet)$Pos <- 1:nrow(ClusPos)
+    
+    # plot(NewNet, vertex.label = NA, vertex.size = 1)
     
     CombNet <- list(
-      Nodes = do.call(rbind, ClusPos),
-      Edges = igraph::get.edgelist(NewNet)
+      Nodes = ClusPos[igraph::V(NewNet)$Pos,],
+      Edges = igraph::get.edgelist(NewNet),
+      Graph = NewNet
     )
     
     # 
@@ -463,25 +487,23 @@ GenertateConsensusGraph <- function(BootPG,
 
       AllClus <- igraph::clusters(NewNet)
       
-      igraph::V(NewNet)$oldID <- 1:igraph::vcount(NewNet)
       GR1 <- igraph::delete.vertices(NewNet, which(AllClus$membership != which.max(AllClus$csize)))
-      ToKeep <- as.integer(igraph::V(GR1)$oldID)
 
-      CombNet$Nodes <- CombNet$Nodes[ToKeep, ]
+      CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos), ]
       CombNet$Edges <- igraph::get.edgelist(GR1)
+      CombNet$Graph <- GR1
 
       NewNet <- GR1
     }
 
     if(RemoveIsolatedNodes & !OnlyLCC){
 
-      igraph::V(NewNet)$oldID <- 1:igraph::vcount(NewNet)
       if(any(igraph::degree(NewNet) == 0)){
         GR1 <- igraph::delete.vertices(NewNet, which(igraph::degree(NewNet) == 0))
-        ToKeep <- as.integer(igraph::V(GR1)$oldID)
         
-        CombNet$Nodes <- CombNet$Nodes[ToKeep, ]
+        CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos),]
         CombNet$Edges <- igraph::get.edgelist(GR1)
+        CombNet$Graph <- GR1
         
         NewNet <- GR1
       }
@@ -494,26 +516,94 @@ GenertateConsensusGraph <- function(BootPG,
     }
     
     
+    
+    if(!is.null(FilterEdges.Min) | !is.null(FilterEdges.Max)){
+      
+      cat("Using length-dependent edge filtering of the final graph\n")
+      
+      NodeDist <- distutils::PartialDistance(Ar = CombNet$Nodes, Br = CombNet$Nodes)
+      EdgDist <- apply(CombNet$Edges, 1, function(x) {
+        NodeDist[x[1], x[2]]
+      })
+      
+      igraph::E(NewNet)$len <- EdgDist
+      igraph::E(NewNet)$id <- 1:igraph::ecount(NewNet)
+      
+      plot(density(EdgDist, from=0))
+      
+      GR1 <- NewNet
+      GraphComp <- igraph::count_components(NewNet)
+      
+      cat(paste(igraph::ecount(GR1), "edges present before length filtering\n"))
+      
+      if(!is.null(FilterEdges.Max)){
+        abline(v=FilterEdges.Max, col="red", lty = 2)
+        
+        ToFilter <- igraph::E(GR1)$id[igraph::E(GR1)$len > FilterEdges.Max]
+        OrderedID <- order(E(GR1)$len[match(ToFilter, igraph::E(GR1)$id)], decreasing = TRUE)
+        
+        cat(paste(length(ToFilter), "potential edges to be filtered due to being longer then threshold\n"))
+        
+        for(edg in ToFilter[OrderedID]){
+          GR1.temp <- igraph::delete.edges(GR1, which(igraph::E(GR1)$id == edg))
+          # print(paste(edg, igraph::count_components(GR1.temp)))
+          if(igraph::count_components(GR1.temp) == GraphComp){
+            GR1 <- GR1.temp
+          }
+        }
+      }
+      
+      if(!is.null(FilterEdges.Min)){
+        abline(v=FilterEdges.Min, col="red", lty = 2)
+        
+        ToFilter <- igraph::E(GR1)$id[igraph::E(GR1)$len < FilterEdges.Min]
+        OrderedID <- order(E(GR1)$len[match(ToFilter, igraph::E(GR1)$id)], decreasing = FALSE)
+        
+        for(edg in ToFilter[OrderedID]){
+          GR1.temp <- igraph::delete.edges(GR1, which(igraph::E(GR1)$id == edg))
+          if(igraph::count_components(GR1.temp) == GraphComp){
+            GR1 <- GR1.temp
+          }
+        }
+      }
+      
+      cat(paste(igraph::ecount(GR1), "edges present after length filtering\n"))
+      
+      # print(ecount(NewNet))
+      
+      # GR1 <- igraph::delete.edges(NewNet, which(ToFilter))
+      
+      CombNet$Nodes <- ClusPos[as.integer(igraph::V(GR1)$Pos),]
+      CombNet$Edges <- igraph::get.edgelist(GR1)
+      CombNet$Graph <- GR1
+      
+      NewNet <- GR1
+      
+      # print(ecount(NewNet))
+      
+    }
+    
+    
     if(PlotResult){
       
-      if(ncol(CombNet$Nodes)>2){
+      if(ncol(CombNet$Nodes)>5){
         RotPoints <- irlba::prcomp_irlba(CombNet$Nodes, 2, retx = TRUE)
       } else {
         RotPoints <- prcomp(CombNet$Nodes, retx = TRUE)
       }
       
-      plot(RotPoints$x, col = "red")
+      plot(RotPoints$x[,1:2], col = "red")
       for(i in 1:nrow(CombNet$Edges)){
-        arrows(x0 = RotPoints$x[unlist(CombNet$Edges[i, 1]), 1],
-               y0 = RotPoints$x[unlist(CombNet$Edges[i, 1]), 2],
-               x1 = RotPoints$x[unlist(CombNet$Edges[i, 2]), 1],
-               y1 = RotPoints$x[unlist(CombNet$Edges[i, 2]), 2],
+        arrows(x0 = RotPoints$x[CombNet$Edges[i, 1], 1],
+               y0 = RotPoints$x[CombNet$Edges[i, 1], 2],
+               x1 = RotPoints$x[CombNet$Edges[i, 2], 1],
+               y1 = RotPoints$x[CombNet$Edges[i, 2], 2],
                length = 0)
       }
     }
     
     # Return nodes and edges
-    return(list(NodePos = CombNet$Nodes, EdgeMat = CombNet$Edges))
+    return(list(NodePos = CombNet$Nodes, EdgeMat = CombNet$Edges, Graph = CombNet$Graph, EdgMult = igraph::E(CombNet$Graph)$mult))
     
   }
   
