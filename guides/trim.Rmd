@@ -27,6 +27,8 @@ To show the effect of these features, we will start by generating noisy datasets
 library(ElPiGraph.R)
 library(igraph)
 
+set.seed(101)
+
 nPoints <- round(nrow(tree_data)*.5)
 
 NewPoints <- apply(apply(tree_data, 2, range), 2, function(x){
@@ -127,14 +129,14 @@ PlotPG(X = TD_MedNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_MedNoise_Cat,
 
 
 ```{r}
-TrimGuess <- InferTrimRadius(X = TD_HighNoise, nPoints = round(nrow(TD_HighNoise)/2))
+TrimGuess <- InferTrimRadius(X = TD_HighNoise, nPoints = round(nrow(TD_HighNoise)/2), n.cores = 4, ClusType = "FORK")
 
 TreeEPG <- computeElasticPrincipalTree(X = TD_HighNoise, NumNodes = 50,
                                        drawAccuracyComplexity = FALSE, drawEnergy = FALSE, drawPCAView = FALSE,
                                        n.cores = 1,
-                                       TrimmingRadius = quantile(TrimGuess, .9),
+                                       TrimmingRadius = quantile(TrimGuess, .94),
                                        ICOver = "Density",
-                                       DensityRadius = quantile(TrimGuess, .9))
+                                       DensityRadius = quantile(TrimGuess, .94))
 
 PlotPG(X = TD_HighNoise, TargetPG = TreeEPG[[1]], GroupsLab = TD_HighNoise_Cat,
        Do_PCA = FALSE, DimToPlot = 1:2)

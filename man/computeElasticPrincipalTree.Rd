@@ -7,13 +7,17 @@
 computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   Lambda = 0.01, Mu = 0.1, MaxNumberOfIterations = 10,
   TrimmingRadius = Inf, eps = 0.01, Do_PCA = TRUE,
-  InitNodePositions = NULL, InitEdges = NULL, CenterData = TRUE,
-  ComputeMSEP = TRUE, verbose = FALSE, ShowTimer = FALSE,
-  ReduceDimension = NULL, drawAccuracyComplexity = TRUE,
-  drawPCAView = TRUE, drawEnergy = TRUE, n.cores = 1, ClusType = "Sock",
-  nReps = 1, Subsets = list(), ProbPoint = 1, Mode = 1,
-  FastSolve = FALSE, ICOver = NULL, DensityRadius = NULL,
-  AvoidSolitary = FALSE)
+  InitNodePositions = NULL, InitEdges = NULL, ElasticMatrix = NULL,
+  AdjustVect = NULL, CenterData = TRUE, ComputeMSEP = TRUE,
+  verbose = FALSE, ShowTimer = FALSE, ReduceDimension = NULL,
+  drawAccuracyComplexity = TRUE, drawPCAView = TRUE, drawEnergy = TRUE,
+  n.cores = 1, MinParOP = 20, ClusType = "Sock", nReps = 1,
+  Subsets = list(), ProbPoint = 1, Mode = 1, FinalEnergy = "Base",
+  alpha = 0, beta = 0, FastSolve = FALSE, ICOver = NULL,
+  DensityRadius = NULL, AvoidSolitary = FALSE, EmbPointProb = 1,
+  ParallelRep = FALSE, AvoidResampling = FALSE, SampleIC = TRUE,
+  AdjustElasticMatrix = NULL, AdjustElasticMatrix.Initial = NULL,
+  Lambda.Initial = NULL, Mu.Initial = NULL, ...)
 }
 \arguments{
 \item{X}{numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points}
@@ -41,6 +45,11 @@ in the initial step}
 
 \item{InitEdges}{numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes}
 
+\item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
+
+\item{AdjustVect}{boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
+When true for a node its elasticity parameters will not be adjusted.}
+
 \item{CenterData}{boolean, should data and initial node positions be centered?}
 
 \item{ComputeMSEP}{boolean, should MSEP be computed when building the report?}
@@ -62,6 +71,8 @@ dimensionality reduction. If NULL all the components will be used}
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
 
+\item{MinParOP}{integer, the minimum number of operations to use parallel computation}
+
 \item{ClusType}{string, the type of cluster to use. It can gbe either "Sock" or "Fork".
 Currently fork clustering only works in Linux}
 
@@ -73,6 +84,12 @@ Currently fork clustering only works in Linux}
 
 \item{Mode}{integer, the energy computation mode}
 
+\item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
+
+\item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
+
+\item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
+
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
 \item{ICOver}{string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
@@ -80,7 +97,32 @@ principal tree.}
 
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"}
 
-\item{AvoidSolitary}{}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+
+\item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
+EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
+helps speeding up the computation if a large number of points is present.}
+
+\item{ParallelRep}{boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?}
+
+\item{AvoidResampling}{booleand, should the sampling of initial conditions avoid reselecting the same points
+(or points neighbors if DensityRadius is specified)?}
+
+\item{SampleIC}{boolean, should the initial configuration be considered on the sampled points when applicable?}
+
+\item{AdjustElasticMatrix}{a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
+If NULL (the default), no penalization will be used.}
+
+\item{AdjustElasticMatrix.Initial}{a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
+If NULL (the default), no penalization will be used.}
+
+\item{Lambda.Initial}{real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
+If NULL, the value of Lambda will be used.}
+
+\item{Mu.Initial}{real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
+If NULL, the value of Mu will be used.}
+
+\item{...}{optional parameter that will be passed to the AdjustElasticMatrix function}
 }
 \value{
 A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.

@@ -5,8 +5,10 @@
 \title{Function fitting a primitive elastic graph to the data}
 \usage{
 PrimitiveElasticGraphEmbedment(X, NodePositions, ElasticMatrix,
-  MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1, SquaredX = NULL,
-  verbose = FALSE, FastSolve = FALSE, DisplayWarnings = FALSE, prob = 1)
+  MaxNumberOfIterations, TrimmingRadius, eps, Mode = 1,
+  FinalEnergy = "Base", SquaredX = NULL, verbose = FALSE,
+  FastSolve = FALSE, DisplayWarnings = FALSE, alpha = 0, beta = 0,
+  gamma = 0, prob = 1)
 }
 \arguments{
 \item{X}{is n-by-m matrix containing the positions of the n points in the m-dimensional space}
@@ -28,6 +30,8 @@ to be considered the graph embedded (convergence criteria)}
 \item{Mode}{integer, the energy mode. It can be 1 (difference is computed using the position of the nodes) and
 2 (difference is computed using the changes in elestic energy of the configuraztions)}
 
+\item{FinalEnergy}{string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
+
 \item{SquaredX}{the sum (by node) of X squared. It not specified, it will be calculated by the fucntion}
 
 \item{verbose}{is a boolean indicating whether diagnostig informations should be plotted}
@@ -35,6 +39,13 @@ to be considered the graph embedded (convergence criteria)}
 \item{FastSolve}{boolean, shuold the Fastsolve of Armadillo by enabled?}
 
 \item{DisplayWarnings}{boolean, should warning about convergence be displayed?}
+
+\item{alpha}{positive numeric, the value of the alpha parameter of the penalized elastic energy}
+
+\item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
+
+\item{prob}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration. Prob indicate the probability of
+using each points. This is an *experimental* feature, which may helps speeding up the computation if a large number of points is present.}
 }
 \description{
 Function fitting a primitive elastic graph to the data

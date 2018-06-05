@@ -4,28 +4,35 @@
 \alias{GenertateConsensusGraph}
 \title{Obtain a consens tree from bootstrapped data}
 \usage{
-GenertateConsensusGraph(BootPG, Mode = "NodeDist", MinTol = 0.3,
-  MinEdgMult = 2, MinNodeMult = 2, NodesInflation = 1,
-  RemoveIsolatedNodes = TRUE, OnlyLCC = FALSE, PlotResult = TRUE)
+GenertateConsensusGraph(BootPG, Mode = "NodeDist", CollapseRadius = NULL,
+  FilterEdges.Min = NULL, FilterEdges.Max = NULL, Clusters = 100,
+  MinEdgMult = 2, MinNodeMult = 2, RemoveIsolatedNodes = TRUE,
+  OnlyLCC = FALSE, PlotResult = TRUE)
 }
 \arguments{
 \item{BootPG}{list of ElPiGraph structures containing the bootstrapped data}
 
 \item{Mode}{string, the mode to use}
 
-\item{MinTol}{numeric, the smallest distance for two edges to be collapsed}
+\item{CollapseRadius}{numeric, the distance to use in order to compute the multiplicity of the nodes. If NULL, it will be inferred from the data}
+
+\item{FilterEdges.Min}{numeric, the minimal length of edges in the final graph. Shorter edges will be removed, unless the removal results in an
+increase of the components of the graph}
+
+\item{FilterEdges.Max}{numeric, the maximum length of edges in the final graph. Longer edges will be removed, unless the removal results in an
+increase of the components of the graph}
+
+\item{Clusters}{integer, the number of clusters inferred by the kmeans step}
 
 \item{MinEdgMult}{integer, minimal multiplicity of the edges of the consensus graph}
 
 \item{MinNodeMult}{integer, minimal multiplicity of the nodes of the consensus graph}
 
-\item{NodesInflation}{integer, the}
+\item{RemoveIsolatedNodes}{boolean, should the procedure remove graph nodes that are not connected to any other node?}
 
-\item{RemoveIsolatedNodes}{}
+\item{OnlyLCC}{boolean, should the procedure return only the largest connected component of the graph?}
 
-\item{OnlyLCC}{}
-
-\item{PlotResult}{}
+\item{PlotResult}{boolean, should debugging information be plotted?}
 }
 \description{
 Obtain a consens tree from bootstrapped data
