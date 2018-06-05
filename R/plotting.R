@@ -167,6 +167,7 @@ plotPieNet <- function(X,
                        LayOut = 'nicely',
                        LayoutIter = 500,
                        TreeRoot = numeric(),
+                       RootLevel = numeric(),
                        distMeth = "manhattan",
                        Main="",
                        ScaleFunction = sqrt,
@@ -261,7 +262,8 @@ plotPieNet <- function(X,
   LayOutDONE <- FALSE
   
   if(LayOut == 'tree'){
-    RestrNodes <- igraph::layout_as_tree(graph = igraph::as.undirected(Net, mode = 'collapse'), root = TreeRoot)
+    RestrNodes <- igraph::layout_as_tree(graph = igraph::as.undirected(Net, mode = 'collapse'), root = TreeRoot,
+                                         rootlevel = RootLevel);
     LayOutDONE <- TRUE
   }
   
