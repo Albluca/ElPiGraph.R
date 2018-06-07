@@ -4,13 +4,13 @@
 \alias{CompareOnBranches}
 \title{Compare feature values over different branches}
 \usage{
-CompareOnBranches(X, Paths, TargetPG, BootPG = NULL, GroupsLab = NULL,
-  PlotOrg = TRUE, TrajCol = FALSE, Conf = 0.95, AllBP = FALSE,
-  TrimmingRadius = TrimmingRadius, Partition, PrjStr, Main = "",
-  ylab = "Feature value", alpha = 0.3, ScalePT = FALSE, Features = 4,
-  facet_rows = 3, facet_cols = 3, Mode = "Var", ModePar = NULL,
-  Log = FALSE, Span = 0.1, n.cores = 1, ClusType = "SOCK",
-  ReturnGenes = FALSE)
+CompareOnBranches(X, Paths, TargetPG, BootPG = NULL,
+  OnlyIsomorphicBoot = TRUE, GroupsLab = NULL, PlotOrg = TRUE,
+  TrajCol = FALSE, Conf = 0.95, AllBP = FALSE, TrimmingRadius = Inf,
+  Partition, PrjStr, Main = "", ylab = "Feature value", alpha = 0.3,
+  ScalePT = FALSE, Features = 4, facet_rows = 3, facet_cols = 3,
+  Mode = "Var", ModePar = NULL, Log = FALSE, Span = 0.1, n.cores = 1,
+  ClusType = "SOCK", ReturnGenes = FALSE)
 }
 \arguments{
 \item{X}{the data matrix, note that features must be names, i.e. column names must be non-empty}
@@ -21,7 +21,10 @@ only if all the path begin from the same node (Although, this will not be enforc
 
 \item{TargetPG}{the ElPiGraph structure to be used}
 
-\item{BootPG}{}
+\item{BootPG}{if not NULL, a list of resampled ElPiGraph structures that will be used to compute confidence intervals}
+
+\item{OnlyIsomorphicBoot}{boolean. If TRUE only reampled ElPiGraph structures with the same number of branching points of the target
+structure will be used to compute confidence intervals. If FALSE, all of the structures will be used.}
 
 \item{GroupsLab}{character of factor, category information for the cells present in the matrix.}
 
@@ -29,9 +32,13 @@ only if all the path begin from the same node (Although, this will not be enforc
 
 \item{TrajCol}{boolean, should the points be colored by trajectory? If FALSE GroupsLab will be used.}
 
-\item{Conf}{}
+\item{Conf}{the confidence level.}
 
-\item{AllBP}{}
+\item{AllBP}{boolean. If TRUE, the confidence level be displayed for all the branching points present on the selected branches.
+If FALSE, the confidence level will be displayed only for the branching points}
+
+\item{TrimmingRadius}{numeric, the trimming radius used to project the position of the branching points of the resampled trees on the
+pseudotime}
 
 \item{Partition}{A partition vactor attributing each point to at most one node}
 
