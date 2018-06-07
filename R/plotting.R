@@ -637,7 +637,7 @@ PlotPG <- function(X,
       df3 <- data.frame(x = AllEdg[,1], y = AllEdg[,2], xend = AllEdg[,3], yend = AllEdg[,4], Rep = AllEdg[,5])
       
       p <- p + ggplot2::geom_segment(data = df3, mapping = ggplot2::aes(x=x, y=y, xend=xend, yend=yend),
-                                     inherit.aes = FALSE, alpha = .3, color = "black")
+                                     inherit.aes = FALSE, alpha = .2, color = "black")
       
     }
     
