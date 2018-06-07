@@ -100,11 +100,12 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #'  \item{'Cor.DB'}{ The genes whose product of Spearman correlation (w.r.t. the pseudotime ordering) is the largest}
 #' }
 #' @param Log boolean, should a log scale be used on the y axis
-#' @param BootPG 
+#' @param BootPG if not NULL, a list of resampled ElPiGraph structures that will be used to compute confidence intervals
 #' @param GroupsLab character of factor, category information for the cells present in the matrix.
 #' @param TrajCol boolean, should the points be colored by trajectory? If FALSE GroupsLab will be used.
-#' @param Conf 
-#' @param AllBP 
+#' @param Conf the confidence level.
+#' @param AllBP boolean. If TRUE, the confidence level be displayed for all the branching points present on the selected branches.
+#' If FALSE, the confidence level will be displayed only for the branching points 
 #' @param facet_rows integer, the number of rows per panel
 #' @param facet_cols integer, the number of cols per panel
 #' @param Span the span parameter of the loess fitter
@@ -113,6 +114,10 @@ getPseudotime <- function(ProjStruct, NodeSeq){
 #' @param n.cores integer, the number of parallel processes to use.
 #' @param ClusType string, the type of cluster to use if n.cores is larger than 1
 #' @param ReturnGenes boolean, should the list of genes be returned instead of the plots?
+#' @param OnlyIsomorphicBoot boolean. If TRUE only reampled ElPiGraph structures with the same number of branching points of the target
+#' structure will be used to compute confidence intervals. If FALSE, all of the structures will be used.
+#' @param TrimmingRadius numeric, the trimming radius used to project the position of the branching points of the resampled trees on the
+#' pseudotime
 #'
 #' @return
 #' @export
@@ -122,12 +127,13 @@ CompareOnBranches <- function(X,
                               Paths,
                               TargetPG,
                               BootPG = NULL,
+                              OnlyIsomorphicBoot = TRUE,
                               GroupsLab = NULL,
                               PlotOrg = TRUE,
                               TrajCol = FALSE,
                               Conf = .95,
                               AllBP = FALSE,
-                              TrimmingRadius = TrimmingRadius,
+                              TrimmingRadius = Inf,
                               Partition,
                               PrjStr,
                               Main = "",
@@ -508,10 +514,14 @@ CompareOnBranches <- function(X,
       }
       DMat <- distutils::PartialDistance(x, BPMat)
       
-      if(ncol(DMat) != nrow(DMat)){
-        return(NA)
+      if(OnlyIsomorphicBoot){
+        if(ncol(DMat) != nrow(DMat)){
+          return(NA)
+        } else {
+          apply(DMat, 1, which.min)
+        }
       } else {
-        apply(DMat, 2, which.min)
+        apply(DMat, 1, which.min)
       }
       
     })
@@ -606,7 +616,7 @@ CompareOnBranches <- function(X,
       
       PtCI <- do.call(rbind,
               lapply(Split.Pt, function(x){
-                quantile(x, c(1-Conf, Conf), na.rm = TRUE)
+                quantile(x, c(1-Conf/2, Conf/2), na.rm = TRUE)
               })
       )
       
@@ -636,8 +646,13 @@ CompareOnBranches <- function(X,
           ToRenorm <- RenormPt[PtVect>RenormPoints[j] &
                                  PtVect<=RenormPoints[j+1] &
                                  !is.na(PtVect)]
-          ToRenorm <- ToRenorm - RenormPoints[j]
-          ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
+          
+          if(RenormPoints[j] != -1){
+            ToRenorm <- ToRenorm - RenormPoints[j]
+            ToRenorm <- ToRenorm/(RenormPoints[j+1]  - RenormPoints[j])
+          } else {
+            ToRenorm <- ToRenorm/(RenormPoints[j+1])
+          }
           
           if(j == (length(RenormPoints)-1) ){
             ToRenorm <- ToRenorm*(1-NormStep*(j-1)) + NormStep*(j-1)
@@ -693,8 +708,8 @@ CompareOnBranches <- function(X,
       
       if(!is.null(BootPG)){
         CIDf <- rbind(
-          CIDf, data.frame(Pt.low = PtCI[1:(length(CIRenorm)/2)],
-                           Pt.high = PtCI[(length(CIRenorm)/2+1):length(CIRenorm)],
+          CIDf, data.frame(Pt.low = PtCI[,1],
+                           Pt.high = PtCI[,2],
                            Bp = TargetBP
           )
         )
@@ -785,7 +800,7 @@ CompareOnBranches <- function(X,
       if(nrow(CIDf)>0){
         p <- p + ggplot2::geom_rect(data = CIDf,
                                     mapping = ggplot2::aes(xmin = Pt.low, xmax = Pt.high, ymin=-Inf, ymax=Inf), fill = "black",
-                                    inherit.aes = FALSE, alpha = .5) + ggplot2::guides(fill = "none")
+                                    inherit.aes = FALSE, alpha = .25) + ggplot2::guides(fill = "none")
       }
       
     }
@@ -800,7 +815,7 @@ CompareOnBranches <- function(X,
         p + ggforce::facet_wrap_paginate(~gene, nrow = facet_rows, ncol = facet_cols, scales = "free_y", page = i)
       })
     } else {
-      p <- p + ggplot2::facet_wrap(~gene, scales = "free_y")
+      p <- p + ggplot2::facet_wrap(~gene, scales = "free_y", nrow = facet_rows, ncol = facet_cols)
     }
     
     return(p)
