@@ -519,8 +519,8 @@ ElPrincGraph <- function(X,
 #' helps speeding up the computation if a large number of points is present.
 #' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
 #' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy 
-#' @param ... optional parameter that will be passed to the AdjustHOS function
+#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
+#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
 #' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
 #' When true for a node its elasticity parameters will not be adjusted.
 #' @param gamma 

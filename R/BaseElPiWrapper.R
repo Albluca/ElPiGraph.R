@@ -60,7 +60,7 @@
 #' If NULL, the value of Lambda will be used.
 #' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
 #' If NULL, the value of Mu will be used.
-#' @param ... optional parameter that will be passed to the AdjustHOS function
+#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
 #' @param GrammarOptimization boolean, should grammar optimization be perfomred? If true grammar operations that do not increase the number of
 #' nodes will be allowed
 #' @param MaxSteps integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true

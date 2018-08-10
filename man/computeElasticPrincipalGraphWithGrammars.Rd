@@ -136,7 +136,7 @@ If NULL, the value of Lambda will be used.}
 \item{Mu.Initial}{real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
 If NULL, the value of Mu will be used.}
 
-\item{...}{optional parameter that will be passed to the AdjustHOS function}
+\item{...}{optional parameter that will be passed to the AdjustElasticMatrix function}
 }
 \value{
 A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
