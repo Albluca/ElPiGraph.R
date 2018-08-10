@@ -134,13 +134,13 @@ This function is a wrapper to the computeElasticPrincipalGraph function that con
 when constructing a tree
 }
 \examples{
-Elastic trees with different parameters
+# Elastic trees with different parameters
 PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE)
 
 PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
 
 
-Bootstrapping the construction of the tree
+# Bootstrapping the construction of the tree
 PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 40, InitNodes = 2,
 drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 verbose = FALSE, nReps = 25, ProbPoint = .9)

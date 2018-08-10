@@ -15,11 +15,11 @@
 #'
 #' @examples
 #'
-#' Elastic circle with different parameters
+#' # Elastic circle with different parameters
 #' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE)
 #' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE, Mu = 1, Lambda = .001)
 #'
-#' Bootstrapping the construction of the circle
+#' # Bootstrapping the construction of the circle
 #' PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40, InitNodes = 3,
 #' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 #' verbose = FALSE, nReps = 50, ProbPoint = .8)
@@ -161,13 +161,13 @@ computeElasticPrincipalCircle <- function(X,
 #' @export
 #'
 #' @examples
-#' Elastic trees with different parameters
+#' # Elastic trees with different parameters
 #' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE)
 #'
 #' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
 #'
 #'
-#' Bootstrapping the construction of the tree
+#' # Bootstrapping the construction of the tree
 #' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 40, InitNodes = 2,
 #' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 #' verbose = FALSE, nReps = 25, ProbPoint = .9)
@@ -220,7 +220,7 @@ computeElasticPrincipalTree <- function(X,
                                         ...) {
 
 
-  # Difine the initial configuration
+  # Define the initial configuration
 
   if(is.null(ICOver)){
     Configuration <- "Line"
@@ -321,7 +321,7 @@ computeElasticPrincipalTree <- function(X,
 #'
 #' @examples
 #'
-#' Elastic curve with different parameters
+#' # Elastic curve with different parameters
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #'
@@ -329,7 +329,7 @@ computeElasticPrincipalTree <- function(X,
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
 #'
 #'
-#' Bootstrapping the construction of the curve
+#' # Bootstrapping the construction of the curve
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 40, InitNodes = 2,
 #' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 #' verbose = FALSE, nReps = 50, ProbPoint = .8)
@@ -477,7 +477,7 @@ computeElasticPrincipalCurve <- function(X,
 #'
 #' @examples
 #'
-#' Elastic curve with different parameters
+#' # Elastic curve with different parameters
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #'
@@ -485,7 +485,7 @@ computeElasticPrincipalCurve <- function(X,
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
 #'
 #'
-#' Bootstrapping the construction of the curve
+#' # Bootstrapping the construction of the curve
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 40, InitNodes = 2,
 #' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 #' verbose = FALSE, nReps = 50, ProbPoint = .8)
@@ -640,7 +640,7 @@ fineTuneBR <- function(X,
 #'
 #' @examples
 #'
-#' Elastic curve with different parameters
+#' # Elastic curve with different parameters
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE)
 #'
@@ -648,7 +648,7 @@ fineTuneBR <- function(X,
 #' PG <- computeElasticPrincipalCurve(X = circle_data, NumNodes = 30, InitNodes = 2, verbose = TRUE, Mu = 1, Lambda = .001)
 #'
 #'
-#' Bootstrapping the construction of the curve
+#' # Bootstrapping the construction of the curve
 #' PG <- computeElasticPrincipalCurve(X = tree_data, NumNodes = 40, InitNodes = 2,
 #' drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 #' verbose = FALSE, nReps = 50, ProbPoint = .8)

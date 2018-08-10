@@ -133,11 +133,11 @@ when constructing a circle
 }
 \examples{
 
-Elastic circle with different parameters
+# Elastic circle with different parameters
 PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE)
 PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 30, InitNodes = 3, verbose = TRUE, Mu = 1, Lambda = .001)
 
-Bootstrapping the construction of the circle
+# Bootstrapping the construction of the circle
 PG <- computeElasticPrincipalCircle(X = circle_data, NumNodes = 40, InitNodes = 3,
 drawAccuracyComplexity = FALSE, drawPCAView = FALSE, drawEnergy = FALSE,
 verbose = FALSE, nReps = 50, ProbPoint = .8)
