@@ -63,15 +63,15 @@
 #'   \item{Mu}{The mu parameter used during the graph construction}
 #'   \item{FastSolve}{was FastSolve being used?}
 #' }
-#' 
+#'
 #' @export
 #'
 #' @examples
-#' 
-#' This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
+#'
+#' @seealso This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
 #' \code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
 #' for examples
-#' 
+#'
 ElPrincGraph <- function(X,
                          NumNodes = 100,
                          NumEdges = Inf,
@@ -519,16 +519,16 @@ ElPrincGraph <- function(X,
 #'   \item{Mu}{The mu parameter used during the graph construction}
 #'   \item{FastSolve}{was FastSolve being used?}
 #' }
-#' 
+#'
 #' @export
 #'
 #' @examples
-#' 
-#' This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
+#'
+#' @seealso This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
 #' \code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
 #' for examples
-#' 
-#' 
+#'
+#'
 computeElasticPrincipalGraph <- function(Data,
                                          NumNodes,
                                          NumEdges = Inf,

@@ -112,8 +112,9 @@ grammars provided.
 }
 \examples{
 
-This is a low level function. See  \\code{\\link{computeElasticPrincipalCircle}},
-\\code{\\link{computeElasticPrincipalCurve}}, or \\code{\\link{computeElasticPrincipalTree}}
+}
+\seealso{
+This is a low level function. See  \code{\link{computeElasticPrincipalCircle}},
+\code{\link{computeElasticPrincipalCurve}}, or \code{\link{computeElasticPrincipalTree}}
 for examples
-
 }
