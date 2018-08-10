@@ -18,7 +18,10 @@ Imports:
     segmented,
     ggpubr,
     infotheo,
-    GenSA
+    GenSA,
+    akima,
+    igraph,
+    reshape
 Remotes:
     Albluca/distutils
 RoxygenNote: 6.0.1
