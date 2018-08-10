@@ -34,9 +34,7 @@ in the initial step}
 \item{AdjustVect}{boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
 When true for a node its elasticity parameters will not be adjusted.}
 
-\item{verbose}{}
-
-\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
+\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
 
@@ -58,8 +56,6 @@ contruction of the principal graph be compiled?}
 
 \item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
 
-\item{gamma}{}
-
 \item{Mode}{integer, the energy computation mode}
 
 \item{MaxNumberOfIterations}{integer, maximum number of steps to embed the nodes in the data}
@@ -67,10 +63,10 @@ contruction of the principal graph be compiled?}
 \item{MaxFailedOperations}{integer, the maximum allowed number of consecutive failed grammar operations,
 i.e. appplication of the single grammar operations, that did not produce any valid configuration}
 
-\item{MaxSteps}{integer, the maximum allowed number of steps of the algorithm. Each step is composed by the application of
-all the specified grammar operations}
+\item{MaxSteps}{integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true}
 
-\item{GrammarOptimization}{boolean, should the grammar be used to optimize the graph? If true a number MaxSteps of operations will be applied.}
+\item{GrammarOptimization}{boolean, should grammar optimization be perfomred? If true grammar operations that do not increase the number of
+nodes will be allowed}
 
 \item{eps}{real, minimal relative change in the position of the nodes to stop embedment}
 
@@ -84,7 +80,7 @@ all the specified grammar operations}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
-\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associated points be discarded?}
 
 \item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
@@ -95,6 +91,8 @@ If NULL (the default), no penalization will be used.}
 
 \item{AdjustElasticMatrix.Initial}{a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
 If NULL (the default), no penalization will be used.}
+
+\item{...}{optional parameter that will be passed to the AdjustElasticMatrix function}
 }
 \value{
 a named list with a number of elements:

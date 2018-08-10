@@ -37,7 +37,7 @@ in the initial step}
 
 \item{InitEdges}{numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes}
 
-\item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
+\item{ElasticMatrix}{numerical 2D matrix, the e-by-e matrix containing the elasticity parameters of the edges}
 
 \item{MaxSteps}{integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true}
 
@@ -69,7 +69,7 @@ dimensionality reduction. If NULL all the components will be used}
 
 \item{drawEnergy}{boolean, should changes of evergy VS the number of nodes be reported?}
 
-\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
+\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
 
@@ -99,7 +99,7 @@ principal curve.}
 
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"}
 
-\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
+\item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associated points be discarded?}
 
 \item{EmbPointProb}{numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
@@ -115,10 +115,10 @@ If NULL (the default), no penalization will be used.}
 \item{AdjustElasticMatrix.Initial}{a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
 If NULL (the default), no penalization will be used.}
 
-\item{Lambda.Initial}{real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
+\item{Lambda.Initial}{real, the lambda parameter used the construct the elastic matrix associated with ther initial configuration if needed.
 If NULL, the value of Lambda will be used.}
 
-\item{Mu.Initial}{real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
+\item{Mu.Initial}{real, the mu parameter used the construct the elastic matrix associated with ther initial configuration if needed.
 If NULL, the value of Mu will be used.}
 
 \item{...}{optional parameter that will be passed to the AdjustElasticMatrix function}
