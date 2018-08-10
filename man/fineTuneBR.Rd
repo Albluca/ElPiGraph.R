@@ -39,6 +39,8 @@ in the initial step}
 
 \item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
 
+\item{MaxSteps}{integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true}
+
 \item{MaxNumberOfIterations}{integer, maximum number of steps to embed the nodes in the data}
 
 \item{TrimmingRadius}{real, maximal distance of point from a node to affect its embedment}
@@ -103,7 +105,7 @@ principal curve.}
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 helps speeding up the computation if a large number of points is present.}
 
-\item{ParallelRep}{}
+\item{ParallelRep}{boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?}
 
 \item{SampleIC}{boolean, should the initial configuration be considered on the sampled points when applicable?}
 
@@ -124,7 +126,7 @@ If NULL, the value of Mu will be used.}
 \value{
 A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-fitting the coordinates of the nodes of the reconstructed curves
+fitting the coordinates of the nodes of the reconstructed curves.
 }
 \description{
 This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars

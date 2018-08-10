@@ -127,7 +127,7 @@ If NULL, the value of Mu will be used.}
 \value{
 A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-fitting the coordinates of the nodes of the reconstructed curves
+fitting the coordinates of the nodes of the reconstructed curves.
 }
 \description{
 This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars

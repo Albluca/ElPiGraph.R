@@ -39,6 +39,8 @@ in the initial step}
 
 \item{ElasticMatrix}{numerical 2D matrix, the k-by-k elastic matrix}
 
+\item{MaxSteps}{integer, max number of applications of the grammar. This value need to be less than infinity if GrammarOptimization is set to true}
+
 \item{MaxNumberOfIterations}{integer, maximum number of steps to embed the nodes in the data}
 
 \item{TrimmingRadius}{real, maximal distance of point from a node to affect its embedment}
@@ -67,9 +69,9 @@ dimensionality reduction. If NULL all the components will be used}
 
 \item{drawEnergy}{boolean, should changes of evergy VS the number of nodes be reported?}
 
-\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
+\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-(this is done using clusterExport)`}
+(this is done using clusterExport)}
 
 \item{MinParOP}{integer, the minimum number of operations to use parallel computation}
 
@@ -78,7 +80,7 @@ Currently fork clustering only works in Linux}
 
 \item{nReps}{integer, number of replica of the construction}
 
-\item{Subsets}{list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.}
+\item{Subsets}{list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.}
 
 \item{ProbPoint}{real between 0 and 1, probability of inclusing of a single point for each computation}
 
@@ -92,9 +94,6 @@ Currently fork clustering only works in Linux}
 
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
-\item{ICOver}{string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
-principal curve.}
-
 \item{DensityRadius}{numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"}
 
 \item{AvoidSolitary}{boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?}
@@ -103,7 +102,7 @@ principal curve.}
 EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
 helps speeding up the computation if a large number of points is present.}
 
-\item{ParallelRep}{}
+\item{ParallelRep}{boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?}
 
 \item{SampleIC}{boolean, should the initial configuration be considered on the sampled points when applicable?}
 
@@ -124,7 +123,7 @@ If NULL, the value of Mu will be used.}
 \value{
 A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-fitting the coordinates of the nodes of the reconstructed curves
+fitting the coordinates of the nodes of the reconstructed curves.
 }
 \description{
 This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars

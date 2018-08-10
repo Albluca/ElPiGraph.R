@@ -127,14 +127,13 @@ If NULL, the value of Mu will be used.}
 \value{
 A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
-fitting the coordinates of the nodes of the reconstructed trees
+fitting the coordinates of the nodes of the reconstructed trees.
 }
 \description{
 This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 when constructing a tree
 }
 \examples{
-
 Elastic trees with different parameters
 PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE)
 

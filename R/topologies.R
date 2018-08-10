@@ -3,68 +3,12 @@
 #' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 #' when constructing a circle
 #'
-#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param NumNodes integer, the number of nodes of the principal graph
-#' @param Lambda real, the lambda parameter used the compute the elastic energy
-#' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param InitNodes integer, number of points to include in the initial graph
-#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
-#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
-#' @param eps real, minimal relative change in the position of the nodes to stop embedment
-#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
-#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-#' in the initial step
-#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
-#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
-#' @param CenterData boolean, should data and initial node positions be centered?
-#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
-#' @param verbose boolean, should debugging information be reported?
-#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
-#' @param ReduceDimension integer vector, vector of principal components to retain when performing
-#' dimensionality reduction. If NULL all the components will be used
-#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
-#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
-#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
-#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or
-#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)
-#' @param MinParOP integer, the minimum number of operations to use parallel computation
-#' @param nReps integer, number of replica of the construction
-#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @inheritParams computeElasticPrincipalGraphWithGrammars
 #' @param Subsets list of column names (or column number). When specified a principal circle will be computed for each of the subsets specified.
-#' @param NumEdges integer, the maximum nulber of edges
-#' @param Mode integer, the energy computation mode
-#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
-#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
-#' Currently fork clustering only works in Linux
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal circle
-#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
-#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
-#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
-#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
-#' helps speeding up the computation if a large number of points is present.
-#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
-#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
-#' When true for a node its elasticity parameters will not be adjusted.
-#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
-#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
-#' (or points neighbors if DensityRadius is specified)?
-#' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable?
-#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param Lambda.Initial real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Lambda will be used.
-#' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Mu will be used.
 #'
 #' @return
-#'
 #' A named list
 #'
 #' @export
@@ -200,93 +144,23 @@ computeElasticPrincipalCircle <- function(X,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #' Conscruct a principal elastic tree
 #'
 #' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 #' when constructing a tree
 #'
-#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param NumNodes integer, the number of nodes of the principal graph
-#' @param Lambda real, the lambda parameter used the compute the elastic energy
-#' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param InitNodes integer, number of points to include in the initial graph
-#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
-#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
-#' @param eps real, minimal relative change in the position of the nodes to stop embedment
-#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
-#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-#' in the initial step
-#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
-#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
-#' @param CenterData boolean, should data and initial node positions be centered?
-#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
-#' @param verbose boolean, should debugging information be reported?
-#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
-#' @param ReduceDimension integer vector, vector of principal components to retain when performing
-#' dimensionality reduction. If NULL all the components will be used
-#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
-#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
-#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
-#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or
-#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)
-#' @param MinParOP integer, the minimum number of operations to use parallel computation
-#' @param nReps integer, number of replica of the construction
-#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @inheritParams computeElasticPrincipalGraphWithGrammars
 #' @param Subsets list of column names (or column number). When specified a principal tree will be computed for each of the subsets specified.
-#' @param NumEdges integer, the maximum nulber of edges
-#' @param Mode integer, the energy computation mode
-#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
-#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
-#' Currently fork clustering only works in Linux
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal tree.
-#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
-#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
-#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
-#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
-#' helps speeding up the computation if a large number of points is present.
-#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
-#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
-#' When true for a node its elasticity parameters will not be adjusted.
-#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
-#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
-#' (or points neighbors if DensityRadius is specified)?
-#' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable?
-#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param Lambda.Initial real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Lambda will be used.
-#' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Mu will be used.
 #'
 #' @return A list of principal graph strucutures containing the trees constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average tree", which is constructed by
-#' fitting the coordinates of the nodes of the reconstructed trees
+#' fitting the coordinates of the nodes of the reconstructed trees.
+#'
 #' @export
 #'
 #' @examples
-#'
 #' Elastic trees with different parameters
 #' PG <- computeElasticPrincipalTree(X = tree_data, NumNodes = 50, InitNodes = 2, verbose = TRUE)
 #'
@@ -435,69 +309,14 @@ computeElasticPrincipalTree <- function(X,
 #' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 #' when constructing a curve
 #'
-#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param NumNodes integer, the number of nodes of the principal graph
-#' @param Lambda real, the lambda parameter used the compute the elastic energy
-#' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param InitNodes integer, number of points to include in the initial graph
-#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
-#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
-#' @param eps real, minimal relative change in the position of the nodes to stop embedment
-#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
-#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-#' in the initial step
-#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
-#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
-#' @param CenterData boolean, should data and initial node positions be centered?
-#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
-#' @param verbose boolean, should debugging information be reported?
-#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
-#' @param ReduceDimension integer vector, vector of principal components to retain when performing
-#' dimensionality reduction. If NULL all the components will be used
-#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
-#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
-#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
-#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or
-#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)
-#' @param MinParOP integer, the minimum number of operations to use parallel computation
-#' @param nReps integer, number of replica of the construction
-#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @inheritParams computeElasticPrincipalGraphWithGrammars
 #' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
-#' @param NumEdges integer, the maximum nulber of edges
-#' @param Mode integer, the energy computation mode
-#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
-#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
-#' Currently fork clustering only works in Linux
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal curve.
-#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
-#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
-#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
-#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
-#' helps speeding up the computation if a large number of points is present.
-#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
-#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
-#' When true for a node its elasticity parameters will not be adjusted.
-#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param Lambda.Initial real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Lambda will be used.
-#' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Mu will be used.
-#' @param ParallelRep boolean, should parallel execution be performed on the sampling instead of the the grammar evaluations?
-#' @param AvoidResampling booleand, should the sampling of initial conditions avoid reselecting the same points
-#' (or points neighbors if DensityRadius is specified)?
-#' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable?
 #'
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-#' fitting the coordinates of the nodes of the reconstructed curves
+#' fitting the coordinates of the nodes of the reconstructed curves.
 #' @export
 #'
 #' @examples
@@ -640,91 +459,20 @@ computeElasticPrincipalCurve <- function(X,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #' Expand the nodes around a branching point
 #'
 #' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 #' when increasing the nume number around the branching point
 #'
-#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param NumNodes integer, the number of nodes of the principal graph
-#' @param Lambda real, the lambda parameter used the compute the elastic energy
-#' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param InitNodes integer, number of points to include in the initial graph
-#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
-#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
-#' @param eps real, minimal relative change in the position of the nodes to stop embedment
-#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
-#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-#' in the initial step
-#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
-#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
-#' @param CenterData boolean, should data and initial node positions be centered?
-#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
-#' @param verbose boolean, should debugging information be reported?
-#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
-#' @param ReduceDimension integer vector, vector of principal components to retain when performing
-#' dimensionality reduction. If NULL all the components will be used
-#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
-#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
-#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
-#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or
-#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)
-#' @param MinParOP integer, the minimum number of operations to use parallel computation
-#' @param nReps integer, number of replica of the construction
-#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
+#' @inheritParams computeElasticPrincipalGraphWithGrammars
 #' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
-#' @param NumEdges integer, the maximum nulber of edges
-#' @param Mode integer, the energy computation mode
-#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
-#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
-#' Currently fork clustering only works in Linux
 #' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
 #' principal curve.
-#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
-#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
-#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
-#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
-#' helps speeding up the computation if a large number of points is present.
-#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
-#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
-#' When true for a node its elasticity parameters will not be adjusted.
-#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param Lambda.Initial real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Lambda will be used.
-#' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Mu will be used.
-#' @param ParallelRep
-#' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable?
 #'
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-#' fitting the coordinates of the nodes of the reconstructed curves
+#' fitting the coordinates of the nodes of the reconstructed curves.
+#'
 #' @export
 #'
 #' @examples
@@ -877,82 +625,17 @@ fineTuneBR <- function(X,
 
 
 
-
-
-
-
-
-
-
-
-
-
 #' Extend the leaves of a graph
 #'
 #' This function is a wrapper to the computeElasticPrincipalGraph function that construct the appropriate initial graph and grammars
 #' when increasing the nume number around the branching point
 #'
-#' @param X numerical 2D matrix, the n-by-m matrix with the position of n m-dimensional points
-#' @param NumNodes integer, the number of nodes of the principal graph
-#' @param Lambda real, the lambda parameter used the compute the elastic energy
-#' @param Mu real, the lambda parameter used the compute the elastic energy
-#' @param InitNodes integer, number of points to include in the initial graph
-#' @param MaxNumberOfIterations integer, maximum number of steps to embed the nodes in the data
-#' @param TrimmingRadius real, maximal distance of point from a node to affect its embedment
-#' @param eps real, minimal relative change in the position of the nodes to stop embedment
-#' @param Do_PCA boolean, should data and initial node positions be PCA trnasformed?
-#' @param InitNodePositions numerical 2D matrix, the k-by-m matrix with k m-dimensional positions of the nodes
-#' in the initial step
-#' @param InitEdges numerical 2D matrix, the e-by-2 matrix with e end-points of the edges connecting the nodes
-#' @param ElasticMatrix numerical 2D matrix, the k-by-k elastic matrix
-#' @param CenterData boolean, should data and initial node positions be centered?
-#' @param ComputeMSEP boolean, should MSEP be computed when building the report?
-#' @param verbose boolean, should debugging information be reported?
-#' @param ShowTimer boolean, should the time to construct the graph be computed and reported for each step?
-#' @param ReduceDimension integer vector, vector of principal components to retain when performing
-#' dimensionality reduction. If NULL all the components will be used
-#' @param drawAccuracyComplexity boolean, should the accuracy VS complexity plot be reported?
-#' @param drawPCAView boolean, should a 2D plot of the points and pricipal curve be dranw for the final configuration?
-#' @param drawEnergy boolean, should changes of evergy VS the number of nodes be reported?
-#' @param n.cores either an integer (indicating the number of cores to used for the creation of a cluster) or
-#' cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
-#' (this is done using clusterExport)`
-#' @param MinParOP integer, the minimum number of operations to use parallel computation
-#' @param nReps integer, number of replica of the construction
-#' @param ProbPoint real between 0 and 1, probability of inclusing of a single point for each computation
-#' @param Subsets list of column names (or column number). When specified a principal curve will be computed for each of the subsets specified.
-#' @param NumEdges integer, the maximum nulber of edges
-#' @param Mode integer, the energy computation mode
-#' @param FastSolve boolean, should FastSolve be used when fitting the points to the data?
-#' @param ClusType string, the type of cluster to use. It can gbe either "Sock" or "Fork".
-#' Currently fork clustering only works in Linux
-#' @param ICOver string, initial condition overlap mode. This can be used to alter the default behaviour for the initial configuration of the
-#' principal curve.
-#' @param DensityRadius numeric, the radius used to estimate local density. This need to be set when ICOver is equal to "Density"
-#' @param AvoidSolitary boolean, should configurations with "solitary nodes", i.e., nodes without associted points be discarded?
-#' @param FinalEnergy string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"
-#' @param alpha positive numeric, the value of the alpha parameter of the penalized elastic energy
-#' @param beta positive numeric, the value of the beta parameter of the penalized elastic energy
-#' @param EmbPointProb numeric between 0 and 1. If less than 1 point will be sampled at each iteration.
-#' EmbPointProb indicates the probability of using each points. This is an *experimental* feature, which may
-#' helps speeding up the computation if a large number of points is present.
-#' @param AdjustElasticMatrix a penalization function to adjust the elastic matrices after a configuration has been chosen (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param ... optional parameter that will be passed to the AdjustElasticMatrix function
-#' @param AdjustVect boolean vector keeping track of the nodes for which the elasticity parameters have been adjusted.
-#' When true for a node its elasticity parameters will not be adjusted.
-#' @param AdjustElasticMatrix.Initial a penalization function to adjust the elastic matrices of the initial configuration (e.g., AdjustByConstant).
-#' If NULL (the default), no penalization will be used.
-#' @param Lambda.Initial real, the lambda parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Lambda will be used.
-#' @param Mu.Initial real, the mu parameter used the construct the elastic matrix associted with ther initial configuration if needed.
-#' If NULL, the value of Mu will be used.
-#' @param ParallelRep
-#' @param SampleIC boolean, should the initial configuration be considered on the sampled points when applicable?
+#' @inheritParams computeElasticPrincipalGraphWithGrammars
 #'
 #' @return A list of principal graph strucutures containing the curves constructed during the different replica of the algorithm.
 #' If the number of replicas is larger than 1. The the final element of the list is the "average curve", which is constructed by
-#' fitting the coordinates of the nodes of the reconstructed curves
+#' fitting the coordinates of the nodes of the reconstructed curves.
+#'
 #' @export
 #'
 #' @examples
@@ -1077,16 +760,6 @@ GrowLeaves <- function(X,
   )
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

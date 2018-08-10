@@ -64,7 +64,7 @@ dimensionality reduction. If NULL all the components will be used}
 
 \item{drawEnergy}{boolean, should changes of evergy VS the number of nodes be reported?}
 
-\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or
+\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
 

@@ -105,8 +105,6 @@ Currently fork clustering only works in Linux}
 
 \item{beta}{positive numeric, the value of the beta parameter of the penalized elastic energy}
 
-\item{gamma}{}
-
 \item{FastSolve}{boolean, should FastSolve be used when fitting the points to the data?}
 
 \item{Configuration}{string, initial configuration type.}
