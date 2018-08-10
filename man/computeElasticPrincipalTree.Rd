@@ -2,7 +2,7 @@
 % Please edit documentation in R/topologies.R
 \name{computeElasticPrincipalTree}
 \alias{computeElasticPrincipalTree}
-\title{Conscruct a princial elastic tree}
+\title{Conscruct a principal elastic tree}
 \usage{
 computeElasticPrincipalTree(X, NumNodes, NumEdges = Inf, InitNodes = 2,
   Lambda = 0.01, Mu = 0.1, MaxNumberOfIterations = 10,
@@ -67,7 +67,7 @@ dimensionality reduction. If NULL all the components will be used}
 
 \item{drawEnergy}{boolean, should changes of evergy VS the number of nodes be reported?}
 
-\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or 
+\item{n.cores}{either an integer (indicating the number of cores to used for the creation of a cluster) or
 cluster structure returned, e.g., by makeCluster. If a cluster structure is used, all the nodes must contains X
 (this is done using clusterExport)}
 
