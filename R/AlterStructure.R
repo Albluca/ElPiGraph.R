@@ -215,7 +215,7 @@ ExtendLeaves <- function(X,
   TargetPG$NodePositions <- rbind(TargetPG$NodePositions, NNPos)
   TargetPG$Edges$Edges <- rbind(TargetPG$Edges$Edges, NEdgs)
   TargetPG$Edges$Lambdas <- c(TargetPG$Edges$Lambdas, rep(NA, nrow(NEdgs)))
-  TargetPG$Edges$Mus <- c(TargetPG$Edges$Lambdas, rep(NA, nrow(NEdgs)))
+  TargetPG$Edges$Mus <- c(TargetPG$Edges$Mus, rep(NA, nrow(NEdgs)))
   
   
   if(PlotSelected){
@@ -360,7 +360,7 @@ CollapseBrances <- function(X,
       if(all(ProjStruct$Edges[WorkingEdg, ] == NodeNames[(i-1):i])){
         Reverse <- FALSE
       } else {
-        Reverse <- FALSE
+        Reverse <- TRUE
       }
       
       # Counting points at the begining
@@ -711,7 +711,7 @@ ShiftBranching <- function(X,
   if(is.null(BrIds)){
     BrIds <- BrPoints
   } else {
-    BrIds <- intersect(BrIds, BrIds)
+    BrIds <- intersect(BrIds, BrPoints)
   }
   
   PD <- ElPiGraph.R::PartitionData(X = X, NodePositions = TargetPG$NodePositions,
