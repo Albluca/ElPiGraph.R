@@ -25,8 +25,8 @@ f_reattach_edges <- function(ElasticMatrix, NodeNumber1, NodeNumber2) {
   ElasticMatrix2[NodeNumber1,] <- apply(rbind(lm[NodeNumber1,],lm[NodeNumber2,]), 2, max)
   ElasticMatrix2[,NodeNumber1] <- apply(rbind(lm[,NodeNumber1],lm[,NodeNumber2]), 2, max)
 
-  ElasticMatrix2[NodeNumber1,NodeNumber1] <-
-    ElasticMatrix[NodeNumber1,NodeNumber1]+ElasticMatrix[NodeNumber2,NodeNumber2]/2
+  ElasticMatrix2[NodeNumber1,NodeNumber1] <-(
+    ElasticMatrix[NodeNumber1,NodeNumber1]+ElasticMatrix[NodeNumber2,NodeNumber2])/2
 
   return(list(ElasticMatrix = ElasticMatrix2))
 
@@ -348,7 +348,7 @@ BisectEdge <- function(NodePositions,
     mu2 = ElasticMatrix[Edges[i,2],Edges[i,2]]
     
     if (mu1 > 0 & mu2 > 0){
-      em[nn,nn] <- mean(mu1,mu2)
+      em[nn,nn] <- mean(c(mu1,mu2))
     } else{
       em[nn,nn] <- max(mu1,mu2)
     }
