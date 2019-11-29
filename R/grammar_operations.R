@@ -475,7 +475,7 @@ ShrinkEdge <- function(NodePositions,
   k=1
   for(i in 1:nrow(Edges)){
     if((Connectivities[Edges[i,1]]>1 & Connectivities[Edges[i,2]]>1)
-       & (Connectivities[Edges[i,1]]>=Min_K | Connectivities[Edges[i,1]]>=Min_K)){
+       & (Connectivities[Edges[i,1]]>=Min_K | Connectivities[Edges[i,2]]>=Min_K)){
       
       tAdjustVect <- AdjustVect
       em <- f_reattach_edges(ElasticMatrix,Edges[i,1],Edges[i,2])
