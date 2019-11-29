@@ -19,7 +19,7 @@ getPrimitiveGraphStructureBarCode <- function(ElasticMatrix) {
   if(Mcon <= 2){
     barcode <- paste0('0',barcode)
   } else {
-    code <- paste0(paste(rev(N[as.integer(names(N))>=3]), collapse = '|'), code)
+    barcode <- paste0(paste(rev(N[as.integer(names(N))>=3]), collapse = '|'), barcode)
   }
 
   return(barcode)
